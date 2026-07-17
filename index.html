@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gary Hall</title>
+<meta name="description" content="Gary Hall: an observatory, greenhouse, and workshop for a multidisciplinary systems thinker.">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="cursor-dot" id="cursorDot" aria-hidden="true"></div>
+
+<div class="grain" aria-hidden="true"></div>
+
+<div class="orbit-field" aria-hidden="true">
+  <span class="orbit-arc orbit-arc-1"></span>
+  <span class="orbit-arc orbit-arc-2"></span>
+</div>
+
+<div class="glow-field" aria-hidden="true" id="glowField">
+  <span class="glow glow-1"></span>
+  <span class="glow glow-2"></span>
+  <span class="glow glow-3"></span>
+</div>
+
+<div class="vignette" aria-hidden="true"></div>
+
+<noscript>
+  <style>#stage { display: none; }</style>
+  <div class="noscript-fallback">
+    <h1>Gary Hall</h1>
+    <p>This site is an interactive experience that needs JavaScript to run. Here's a quick summary of what's here:</p>
+    <ul>
+      <li><strong>Origins</strong>: Why I build. I learn how things work, then I build things.</li>
+      <li><strong>How I Think</strong>: A few working principles, from "understand before you trust" to "build the smallest true version first."</li>
+      <li><strong>Workshop</strong>: What I'm actively building right now, including this site.</li>
+      <li><strong>Exploration</strong>: The disciplines I follow and how they connect, including Linux, AI, botany, business, and design.</li>
+      <li><strong>Collaboration</strong>: How to reach me.</li>
+    </ul>
+    <p>Get in touch: <a href="mailto:gary@ghallonline.com">gary@ghallonline.com</a></p>
+  </div>
+</noscript>
+
+<div class="stage" id="stage">
+
+  <section class="scene opening is-active" id="opening">
+    <div class="opening-inner">
+      <p class="console-line"><span class="prompt">&gt;</span> <span class="console-text" id="consoleText1"></span></p>
+      <button class="enter-button" id="enterButton" type="button" aria-label="Press enter to continue">
+        <span class="prompt">&gt;</span> <span class="console-text" id="consoleText2"></span>
+      </button>
+      <p class="console-line console-cursor-line" id="consoleCursorLine" aria-hidden="true">
+        <span class="prompt">&gt;</span> <span class="blink-cursor">|</span>
+      </p>
+    </div>
+  </section>
+
+  <section class="scene constellation" id="constellation">
+    <div class="identity">
+      <p class="identity-name-label">Gary Hall</p>
+      <h1 class="identity-tagline" id="identityTagline" data-scramble="I learn how things work. Then I build things." tabindex="-1">I learn how things work. Then I build things.</h1>
+      <p class="identity-line">A living collection of systems, stories, experiments, and useful things.</p>
+    </div>
+
+    <nav class="nodes" aria-label="Sections">
+      <svg class="constellation-lines" id="constellationLines" aria-hidden="true"></svg>
+      <button class="node node-origins" data-chapter="origins" data-name="Origins" type="button" aria-label="Unknown signal. Select to discover this section">
+        <span class="node-orb" aria-hidden="true"></span>
+        <span class="node-label" aria-hidden="true">unknown signal</span>
+      </button>
+      <button class="node node-how-i-think" data-chapter="how-i-think" data-name="How I Think" type="button" aria-label="Unknown signal. Select to discover this section">
+        <span class="node-orb" aria-hidden="true"></span>
+        <span class="node-label" aria-hidden="true">unknown signal</span>
+      </button>
+      <button class="node node-workshop" data-chapter="workshop" data-name="Workshop" type="button" aria-label="Unknown signal. Select to discover this section">
+        <span class="node-orb" aria-hidden="true"></span>
+        <span class="node-label" aria-hidden="true">unknown signal</span>
+      </button>
+      <button class="node node-exploration" data-chapter="exploration" data-name="Exploration" type="button" aria-label="Unknown signal. Select to discover this section">
+        <span class="node-orb" aria-hidden="true"></span>
+        <span class="node-label" aria-hidden="true">unknown signal</span>
+      </button>
+      <button class="node node-collaboration" data-chapter="collaboration" data-name="Collaboration" type="button" aria-label="Unknown signal. Select to discover this section">
+        <span class="node-orb" aria-hidden="true"></span>
+        <span class="node-label" aria-hidden="true">unknown signal</span>
+      </button>
+    </nav>
+
+    <p class="hint">click a light to enter</p>
+    <div class="sr-announcer" id="srAnnouncer" role="status" aria-live="polite" aria-atomic="true"></div>
+  </section>
+
+  <section class="scene chapter" id="chapter-origins" data-chapter="origins">
+    <button class="back" data-back type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 6l-6 6 6 6"/></svg>
+      <span>back</span>
+    </button>
+
+    <div class="chapter-inner">
+      <p class="chapter-label" data-scramble="Origins">Origins</p>
+
+      <p class="prose">I learn how things work. Then I build things. That's been true since long before it was a career, taking apart what's in front of me, whether it's a Linux box, a fungal network, or a spreadsheet, until I understand the system underneath it.</p>
+      <p class="prose">I work across technology, infrastructure, automation, and design, and just as seriously across botany, mycology, and business systems, not as separate hobbies, but as the same instinct pointed in different directions.</p>
+      <p class="prose">This site is part of that practice too. It's not finished, and it's not meant to be. I'd rather keep shaping something alive than finish something static.</p>
+    </div>
+  </section>
+
+  <section class="scene chapter" id="chapter-how-i-think" data-chapter="how-i-think">
+    <button class="back" data-back type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 6l-6 6 6 6"/></svg>
+      <span>back</span>
+    </button>
+
+    <div class="chapter-inner">
+      <p class="chapter-label" data-scramble="How I Think">How I Think</p>
+
+      <div class="thread-list">
+        <article class="thread-entry">
+          <h3>Understand before you trust</h3>
+          <p>I don't take a system's word for how it works. I open it up first.</p>
+        </article>
+        <article class="thread-entry">
+          <h3>Systems, not silos</h3>
+          <p>A server, a garden bed, and a P&amp;L are all systems under pressure. The same questions apply to all three.</p>
+        </article>
+        <article class="thread-entry">
+          <h3>Build the smallest true version first</h3>
+          <p>A rough thing that actually works teaches you more than a polished plan that doesn't exist yet.</p>
+        </article>
+        <article class="thread-entry">
+          <h3>Automate the boring, not the important</h3>
+          <p>Automation should remove friction, not judgment.</p>
+        </article>
+        <article class="thread-entry">
+          <h3>Stay a beginner somewhere</h3>
+          <p>I keep at least one discipline where I'm still clearly learning. It keeps the rest honest.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="scene chapter" id="chapter-workshop" data-chapter="workshop">
+    <button class="back" data-back type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 6l-6 6 6 6"/></svg>
+      <span>back</span>
+    </button>
+
+    <div class="chapter-inner workshop-inner">
+      <p class="chapter-label" data-scramble="Workshop">Workshop</p>
+      <p class="workshop-intro">Every project here is a snapshot of who I was at that moment, not a highlight reel.</p>
+
+      <div class="project-log">
+
+        <article class="project project-featured">
+          <p class="project-eyebrow">Flagship · [Add exact year range]</p>
+          <h3>UCTools</h3>
+          <p class="project-descriptor">Tools built from doing the same Cisco UCS work too many times.</p>
+
+          <div class="project-section">
+            <h4>The friction</h4>
+            <p>Cisco UCS environments have a way of making you repeat yourself: the same profile checks, the same firmware verifications, the same manual steps that every engineer on the team eventually just knows, but nobody's written down. I kept hitting the same friction on the same kinds of tasks, and kept watching other engineers hit it too.</p>
+          </div>
+
+          <div class="project-section">
+            <h4>What I noticed</h4>
+            <p>Most of what made the work slow wasn't the actual complexity of UCS. It was how much of the process lived in people's heads instead of in a tool. Tribal knowledge is fine until you need it fast, or until the person who has it is out.</p>
+          </div>
+
+          <div class="project-section">
+            <h4>What I built</h4>
+            <p>UCTools started as a way to turn that tribal knowledge into something reusable: small, focused utilities that handle the repetitive parts of UCS work so the people using them can spend their attention on the part that actually needs judgment.</p>
+          </div>
+
+          <div class="project-section">
+            <h4>Why it mattered</h4>
+            <p>[Add measurable impact if available: time saved, adoption within the team, specific workflows improved]. At minimum, it meant the same problem didn't have to get solved from scratch by whoever ran into it next.</p>
+          </div>
+
+          <div class="project-section">
+            <h4>What it reveals</h4>
+            <p>This is probably the clearest example of how I default to working: notice the friction, understand why it's actually happening, then build something that removes it for more than just me. It's the same instinct that shows up everywhere else on this site. I just recognize it most clearly here.</p>
+          </div>
+
+          <p class="project-status">Status: [Add current status]</p>
+          <p class="project-links">[Add repository or live link] · [Add screenshot]</p>
+        </article>
+
+        <article class="project project-entry">
+          <p class="project-eyebrow">[Add year range] · ongoing</p>
+          <h3>Sweet Beans Systems</h3>
+          <p class="project-descriptor">Designing the systems behind a real service business, not just running one.</p>
+          <p>Sweet Beans is a grooming business, but treating it as just "a grooming business" misses the actual work. Underneath it is the same kind of systems problem I find everywhere else: scheduling that has to hold up against real constraints, customer communication that has to be clear and consistent, documentation that has to survive someone else needing to run things without me in the room.</p>
+          <p>I've been building the operational layer around it: workflow design, booking and scheduling, customer experience, branding, day-to-day documentation, and automation where it actually removes friction instead of adding a new thing to maintain. None of it is theoretical; it has to work on a Tuesday afternoon with a real client and a real dog in the room.</p>
+          <p>This is where the software side of what I do meets the physical, service-work side. A system that only works on a whiteboard isn't a system yet. Sweet Beans is where I find out whether mine actually survive contact with real customers and real constraints.</p>
+          <p class="project-status">Status: live and evolving</p>
+          <p class="project-links">[Add link if public]</p>
+        </article>
+
+        <article class="project project-entry">
+          <p class="project-eyebrow">Early 2020</p>
+          <h3>Coronavirus Diary</h3>
+          <p class="project-descriptor">A small tool for tracking an uncertain moment.</p>
+          <p>In early 2020, information about COVID-19 was changing constantly, and it was hard to keep a clear picture of what was actually happening versus what was rumor or noise. I built Coronavirus Diary as a way to track and organize that information for myself: a small structure laid over a genuinely chaotic period.</p>
+          <p>It wasn't a medical tool and didn't try to be one: no diagnoses, no health guidance, no claims about outcomes. It was closer to a personal instinct: when the world gets hard to read, build something that makes it a little more legible, even in a small way.</p>
+          <p>Looking back, it's less about the tool itself and more about what it shows: that instinct to create structure under uncertainty shows up early, and it shows up often.</p>
+          <p class="project-status">Status: [Add current status]</p>
+        </article>
+
+        <article class="project project-entry">
+          <p class="project-eyebrow">2018–2019</p>
+          <h3>Bit Gamer</h3>
+          <p class="project-descriptor">An early publishing and product experiment in gaming and digital identity.</p>
+          <p>Bit Gamer was a product and publishing experiment I ran in 2018–2019, exploring gaming, digital identity, and community from the content and product side rather than the engineering side.</p>
+          <p>It stayed a smaller project. I'm not going to dress it up as something it wasn't. It's included here because it's an honest snapshot of an earlier stage of how I think about design and product, before a lot of the systems-thinking habits I lean on now had fully formed.</p>
+          <p class="project-status">Status: [Add current status]</p>
+          <p class="project-links">[Add link if available]</p>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="scene chapter" id="chapter-exploration" data-chapter="exploration">
+    <button class="back" data-back type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 6l-6 6 6 6"/></svg>
+      <span>back</span>
+    </button>
+
+    <div class="chapter-inner">
+      <p class="chapter-label" data-scramble="Exploration">Exploration</p>
+
+      <div class="thread-list">
+        <article class="thread-entry">
+          <h3>Linux &amp; systems</h3>
+          <p>Most of what I know about software I learned by taking systems apart to see how they actually work, not by reading the spec first.</p>
+          <p class="thread-links">connects to <span>AI &amp; Automation</span>, <span>Design &amp; UX</span></p>
+        </article>
+        <article class="thread-entry">
+          <h3>AI &amp; automation</h3>
+          <p>Less interested in the hype, more interested in what happens when you let a system make decisions inside guardrails you designed.</p>
+          <p class="thread-links">connects to <span>Linux &amp; Systems</span>, <span>Business Intelligence</span></p>
+        </article>
+        <article class="thread-entry">
+          <h3>Botany &amp; mycology</h3>
+          <p>The same instinct that debugs a system shows up when I'm reading why a plant is stressed, or realizing a fungal network is really just a distributed system with no center.</p>
+          <p class="thread-links">connects to <span>Linux &amp; Systems</span></p>
+        </article>
+        <article class="thread-entry">
+          <h3>Business intelligence &amp; analytics</h3>
+          <p>Numbers are just another system to read: the same pattern-finding, with spreadsheets instead of stack traces.</p>
+          <p class="thread-links">connects to <span>AI &amp; Automation</span></p>
+        </article>
+        <article class="thread-entry">
+          <h3>Design &amp; UX</h3>
+          <p>How something behaves matters as much as whether it works. This site is the current experiment.</p>
+          <p class="thread-links">connects to <span>Linux &amp; Systems</span>, <span>Entrepreneurship</span></p>
+        </article>
+        <article class="thread-entry">
+          <h3>Entrepreneurship</h3>
+          <p>Building things that have to survive contact with actual people, not just pass a code review.</p>
+          <p class="thread-links">connects to <span>Design &amp; UX</span></p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="scene chapter" id="chapter-collaboration" data-chapter="collaboration">
+    <button class="back" data-back type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 6l-6 6 6 6"/></svg>
+      <span>back</span>
+    </button>
+
+    <div class="chapter-inner">
+      <p class="chapter-label" data-scramble="Collaboration">Collaboration</p>
+      <p class="prose">Have a project, a problem, or an idea worth building together? Say hello.</p>
+      <a href="mailto:gary@ghallonline.com" class="contact-email">gary@ghallonline.com</a>
+    </div>
+  </section>
+
+</div>
+
+<footer class="site-footer">
+  <p>&copy; <span id="year"></span> Gary Hall.</p>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>
