@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gary Hall — concept direction</title>
+<style>
+  :root {
+    --void: #07090f;
+    --void-2: #0b0f1a;
+    --glass: rgba(13, 18, 32, 0.58);
+    --glass-edge: rgba(233, 237, 246, 0.09);
+    --ink: #e9edf6;
+    --ink-dim: #8b96ac;
+    --ink-faint: #5c6680;
+    --signal: #34e0c9;
+    --signal-dim: rgba(52, 224, 201, 0.16);
+    --current: #9b8cf2;
+    --amber: #dba86a;
+    --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --font-mono: ui-monospace, "SF Mono", "Cascadia Code", Consolas, "Liberation Mono", Menlo, monospace;
+  }
+
+  /* This concept is a deliberate single-theme commitment: the whole pitch is
+     frosted glass floating over a dark, glowing void. That relationship
+     doesn't survive an inversion to a light ground, so this stays dark-only
+     rather than half-supporting a mode that would undercut the idea itself. */
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--void);
+    color: var(--ink);
+    font-family: var(--font-ui);
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* ---------- ambient field ---------- */
+  .field {
+    position: fixed;
+    inset: -10vh -10vw;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .glow {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.32;
+    mix-blend-mode: screen;
+  }
+
+  .glow-a { width: 620px; height: 620px; top: -180px; left: -140px; background: var(--signal); animation: drift-a 42s ease-in-out infinite alternate; }
+  .glow-b { width: 560px; height: 560px; bottom: -220px; right: -120px; background: var(--current); animation: drift-b 50s ease-in-out infinite alternate; }
+
+  @keyframes drift-a { from { transform: translate(0,0) scale(1); } to { transform: translate(70px, 50px) scale(1.12); } }
+  @keyframes drift-b { from { transform: translate(0,0) scale(1); } to { transform: translate(-60px, -40px) scale(0.92); } }
+
+  .grain {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    opacity: 0.03;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .glow { animation: none; }
+  }
+
+  /* ---------- shell ---------- */
+  .page {
+    position: relative;
+    z-index: 1;
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 9vh 24px 10vh;
+  }
+
+  .masthead {
+    margin-bottom: 6vh;
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--signal);
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 18px;
+  }
+
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--signal);
+    box-shadow: 0 0 0 3px var(--signal-dim);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.45; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .status-dot { animation: none; }
+  }
+
+  h1 {
+    font-size: clamp(2rem, 4.6vw, 3rem);
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    line-height: 1.18;
+    margin: 0 0 14px;
+    text-wrap: balance;
+  }
+
+  h1 .accent { color: var(--signal); }
+
+  .sub {
+    font-size: 1.05rem;
+    color: var(--ink-dim);
+    max-width: 56ch;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* ---------- instrument (single glass surface, titlebar + two panes) ---------- */
+  .instrument {
+    position: relative;
+    background: var(--glass);
+    backdrop-filter: blur(28px) saturate(1.15);
+    -webkit-backdrop-filter: blur(28px) saturate(1.15);
+    border: 1px solid var(--glass-edge);
+    border-radius: 14px;
+    box-shadow: 0 30px 80px -40px rgba(0, 0, 0, 0.65);
+    overflow: hidden;
+    transition: max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
+  }
+
+  /* A slow rotating aura behind the glass — the one deliberately "AI-feeling"
+     signature: a soft halo that reads as the panel being quietly active,
+     not a loop that fights for attention. Kept low-opacity and blurred. */
+  .instrument::before {
+    content: '';
+    position: absolute;
+    inset: -22%;
+    z-index: -1;
+    background: conic-gradient(from 0deg, var(--signal), var(--current) 33%, var(--amber) 66%, var(--signal) 100%);
+    filter: blur(38px);
+    opacity: 0.28;
+    animation: aura-spin 16s linear infinite;
+  }
+
+  @keyframes aura-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .instrument::before { animation: none; }
+  }
+
+  /* The concept window carries its own visual interest (the canvas graphic
+     itself) — the rotating aura behind it just muddies that, so this window
+     opts out. */
+  .instrument.no-aura::before {
+    content: none;
+  }
+
+  /* ---------- titlebar (Linux-style: label left, window controls right) ---------- */
+  .titlebar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 10px 10px 16px;
+    border-bottom: 1px solid var(--glass-edge);
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  .tb-title {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.01em;
+    user-select: none;
+  }
+
+  .tb-title .tb-icon {
+    color: var(--signal);
+    font-size: 0.85rem;
+    line-height: 1;
+  }
+
+  .tb-controls {
+    display: flex;
+    gap: 4px;
+  }
+
+  .tb-btn {
+    width: 26px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--glass-edge);
+    border-radius: 4px;
+    color: var(--ink-faint);
+    font-size: 0.7rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .tb-btn:hover { background: rgba(255, 255, 255, 0.09); color: var(--ink); }
+  .tb-btn:focus-visible { outline: 2px solid var(--signal); outline-offset: 1px; }
+  .tb-btn.tb-close:hover { background: rgba(240, 100, 90, 0.16); color: #f0645a; border-color: rgba(240, 100, 90, 0.3); }
+
+  .instrument-body {
+    display: grid;
+    grid-template-columns: 230px 1fr;
+    min-height: 460px;
+    transition: grid-template-rows 0.3s ease;
+  }
+
+  /* Minimize: collapse to just the titlebar. Maximize: grow in place.
+     Close: fade the whole instrument out and leave a small reopen chip. */
+  .instrument.is-minimized .instrument-body {
+    display: none;
+  }
+
+  .instrument.is-maximized {
+    max-width: none;
+  }
+
+  .instrument.is-maximized .instrument-body {
+    min-height: 620px;
+  }
+
+  .instrument.is-closed {
+    opacity: 0;
+    transform: scale(0.98);
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+  }
+
+  .reopen {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--ink-dim);
+    background: var(--glass);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid var(--glass-edge);
+    border-radius: 999px;
+    padding: 10px 18px;
+    cursor: pointer;
+  }
+
+  .reopen:hover { color: var(--ink); border-color: var(--signal); }
+  .reopen.is-visible { display: inline-flex; }
+
+  .directory {
+    border-right: 1px solid var(--glass-edge);
+    padding: 22px 10px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .directory-label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink-faint);
+    padding: 0 12px 14px;
+  }
+
+  .cmd {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    color: var(--ink-dim);
+    font-family: var(--font-mono);
+    font-size: 0.92rem;
+    padding: 10px 12px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .cmd .glyph { color: var(--ink-faint); transition: color 0.15s ease; }
+
+  .cmd:hover { background: rgba(255, 255, 255, 0.04); color: var(--ink); }
+
+  .cmd.is-active {
+    background: var(--signal-dim);
+    color: var(--ink);
+  }
+
+  .cmd.is-active .glyph {
+    color: var(--signal);
+    animation: glyph-pulse 2.2s ease-in-out infinite;
+  }
+
+  @keyframes glyph-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cmd.is-active .glyph { animation: none; }
+  }
+
+  .cmd:focus-visible {
+    outline: 2px solid var(--signal);
+    outline-offset: -2px;
+  }
+
+  .viewer {
+    padding: 30px 34px;
+    position: relative;
+  }
+
+  .pane {
+    display: none;
+    animation: pane-in 0.35s ease both;
+  }
+
+  .pane.is-active { display: block; }
+
+  @keyframes pane-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pane { animation: none; }
+  }
+
+  .pane-label {
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    color: var(--signal);
+    margin-bottom: 6px;
+  }
+
+  .pane h2 {
+    font-size: 1.5rem;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+    margin: 0 0 18px;
+  }
+
+  .pane p {
+    color: var(--ink-dim);
+    font-size: 0.98rem;
+    line-height: 1.68;
+    max-width: 58ch;
+    margin: 0 0 14px;
+  }
+
+  .thread {
+    border-top: 1px solid var(--glass-edge);
+    padding: 16px 0;
+  }
+
+  .thread:last-child { padding-bottom: 0; }
+
+  .thread h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 6px;
+  }
+
+  .thread p { margin: 0 0 6px; font-size: 0.93rem; }
+
+  .links {
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    color: var(--ink-faint);
+  }
+
+  .links b { color: var(--current); font-weight: 500; }
+
+  .status-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    color: var(--ink-faint);
+    margin-top: 20px;
+  }
+
+  .status-row .tag {
+    border: 1px solid var(--glass-edge);
+    border-radius: 999px;
+    padding: 3px 10px;
+    color: var(--amber);
+  }
+
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.98rem;
+    color: var(--signal);
+    border-bottom: 1px solid rgba(52, 224, 201, 0.35);
+    padding-bottom: 3px;
+    text-decoration: none;
+  }
+
+  /* ---------- concept window: living-tesseract canvas demo ---------- */
+  .instrument-body.concept-body {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+  }
+
+  .concept-canvas-wrap {
+    position: relative;
+    flex: 1 1 auto;
+  }
+
+  .concept-canvas-wrap canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .concept-hud {
+    position: absolute;
+    top: 16px;
+    left: 20px;
+    font-family: var(--font-mono);
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .concept-hud-label {
+    margin: 0 0 4px;
+    font-size: 0.76rem;
+    letter-spacing: 0.03em;
+    color: var(--signal);
+  }
+
+  .concept-hud-meta {
+    margin: 0;
+    font-size: 0.7rem;
+    color: var(--ink-faint);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .note {
+    margin-top: 5vh;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--ink-faint);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .cursor {
+    display: inline-block;
+    width: 7px;
+    height: 15px;
+    background: var(--signal);
+    animation: blink 1.05s step-end infinite;
+  }
+
+  @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cursor { animation: none; }
+  }
+
+  @media (max-width: 720px) {
+    .instrument-body { grid-template-columns: 1fr; }
+    .directory { border-right: none; border-bottom: 1px solid var(--glass-edge); flex-direction: row; flex-wrap: wrap; padding: 14px; }
+    .directory-label { display: none; }
+    .cmd { width: auto; padding: 8px 10px; font-size: 0.84rem; }
+    .viewer { padding: 24px 20px; }
+    .tb-title span:last-child { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="field" aria-hidden="true">
+  <span class="glow glow-a"></span>
+  <span class="glow glow-b"></span>
+</div>
+<div class="grain" aria-hidden="true"></div>
+
+<div class="page">
+
+  <div class="masthead">
+    <p class="eyebrow"><span class="status-dot" id="statusDot"></span>gary_hall.system — <span id="statusText">ready</span></p>
+    <h1>I learn how things work.<br>Then I <span class="accent">build</span> things.</h1>
+    <p class="sub">Gary Hall — a living collection of systems, stories, experiments, and useful things.</p>
+  </div>
+
+  <div class="instrument" id="instrument">
+    <div class="titlebar">
+      <p class="tb-title"><span class="tb-icon" aria-hidden="true">&#9635;</span><span>gary@hall: ~/systems</span></p>
+      <div class="tb-controls">
+        <button class="tb-btn tb-min" data-action="minimize" type="button" aria-label="Minimize">&#8211;</button>
+        <button class="tb-btn tb-max" data-action="maximize" type="button" aria-label="Maximize">&#9633;</button>
+        <button class="tb-btn tb-close" data-action="close" type="button" aria-label="Close">&#10005;</button>
+      </div>
+    </div>
+
+    <div class="instrument-body">
+    <nav class="directory" aria-label="Sections">
+      <p class="directory-label">Directory</p>
+      <button class="cmd is-active" data-pane="origins"><span class="glyph">&gt;</span>origins</button>
+      <button class="cmd" data-pane="how-i-think"><span class="glyph">&gt;</span>how-i-think</button>
+      <button class="cmd" data-pane="workshop"><span class="glyph">&gt;</span>workshop</button>
+      <button class="cmd" data-pane="exploration"><span class="glyph">&gt;</span>exploration</button>
+      <button class="cmd" data-pane="collaboration"><span class="glyph">&gt;</span>collaboration</button>
+    </nav>
+
+    <div class="viewer">
+
+      <section class="pane is-active" id="pane-origins">
+        <p class="pane-label">{ origins }</p>
+        <h2>Why I build</h2>
+        <p>I learn how things work. Then I build things. That's been true since long before it was a career — taking apart what's in front of me, whether it's a Linux box, a circuit, or a spreadsheet, until I understand the system underneath it.</p>
+        <p>I work across software, automation, and AI, and just as seriously across robotics, electronics, and physics — not as separate hobbies, but as the same instinct pointed in different directions.</p>
+        <p>This site is part of that practice too. It's not finished, and it's not meant to be.</p>
+      </section>
+
+      <section class="pane" id="pane-how-i-think">
+        <p class="pane-label">{ how i think }</p>
+        <h2>A few working principles</h2>
+        <div class="thread">
+          <h3>Understand before you trust</h3>
+          <p>I don't take a system's word for how it works. I open it up first.</p>
+        </div>
+        <div class="thread">
+          <h3>Build the smallest true version first</h3>
+          <p>A rough thing that actually works teaches you more than a polished plan that doesn't exist yet.</p>
+        </div>
+        <div class="thread">
+          <h3>Stay a beginner somewhere</h3>
+          <p>I keep at least one discipline where I'm still clearly learning. It keeps the rest honest.</p>
+        </div>
+      </section>
+
+      <section class="pane" id="pane-workshop">
+        <p class="pane-label">{ workshop }</p>
+        <h2>UCTools</h2>
+        <p>Tools built from doing the same Cisco UCS work too many times — turning tribal knowledge into something reusable, so the next engineer isn't solving the same problem from scratch.</p>
+        <div class="status-row">
+          <span class="tag">flagship</span>
+          <span>in progress</span>
+        </div>
+      </section>
+
+      <section class="pane" id="pane-exploration">
+        <p class="pane-label">{ exploration }</p>
+        <h2>How the interests connect</h2>
+        <div class="thread">
+          <h3>Robotics &amp; electronics</h3>
+          <p>Where software stops being abstract — the same systems thinking, but now it has to survive physics.</p>
+          <p class="links">connects to <b>AI &amp; Automation</b>, <b>Physics</b></p>
+        </div>
+        <div class="thread">
+          <h3>Physics</h3>
+          <p>The original systems course. Everything else I do is downstream of wanting to know why things behave the way they do.</p>
+          <p class="links">connects to <b>Robotics &amp; Electronics</b></p>
+        </div>
+      </section>
+
+      <section class="pane" id="pane-collaboration">
+        <p class="pane-label">{ collaboration }</p>
+        <h2>Let's talk</h2>
+        <p>Have a project, a problem, or an idea worth building together?</p>
+        <a class="cta" href="#">gary@ghallonline.com &nbsp;→</a>
+      </section>
+
+    </div>
+    </div>
+  </div>
+
+  <button class="reopen" data-reopen-target="instrument" type="button"><span aria-hidden="true">&#9635;</span> reopen gary_hall.system</button>
+
+  <div class="instrument no-aura" id="conceptInstrument">
+    <div class="titlebar">
+      <p class="tb-title"><span class="tb-icon" aria-hidden="true">&#9635;</span><span>gary@hall: ~/concept</span></p>
+      <div class="tb-controls">
+        <button class="tb-btn tb-min" data-action="minimize" type="button" aria-label="Minimize">&#8211;</button>
+        <button class="tb-btn tb-max" data-action="maximize" type="button" aria-label="Maximize">&#9633;</button>
+        <button class="tb-btn tb-close" data-action="close" type="button" aria-label="Close">&#10005;</button>
+      </div>
+    </div>
+
+    <div class="instrument-body concept-body">
+      <div class="concept-canvas-wrap">
+        <canvas id="tesseractCanvas"></canvas>
+        <div class="concept-hud" aria-hidden="true">
+          <p class="concept-hud-label">living_tesseract.proof</p>
+          <p class="concept-hud-meta" id="tesseractMeta">seed — &middot; nodes —</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="reopen" data-reopen-target="conceptInstrument" type="button"><span aria-hidden="true">&#9635;</span> reopen gary@hall: ~/concept</button>
+
+  <p class="note">also, unrepentant One Piece fan<span class="cursor" aria-hidden="true"></span></p>
+
+</div>
+
+<script>
+  const instrument = document.getElementById('instrument');
+  const statusText = document.getElementById('statusText');
+  const statusDot = document.getElementById('statusDot');
+
+  document.querySelectorAll('.cmd').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (btn.classList.contains('is-active')) return;
+      document.querySelectorAll('.cmd').forEach((b) => b.classList.remove('is-active'));
+      document.querySelectorAll('.pane').forEach((p) => p.classList.remove('is-active'));
+      btn.classList.add('is-active');
+      document.getElementById('pane-' + btn.dataset.pane).classList.add('is-active');
+
+      // A brief, honest micro-interaction — the system acknowledging the
+      // switch — not a fake delay, just a quick readable pulse.
+      statusText.textContent = 'syncing';
+      statusDot.style.animationDuration = '0.6s';
+      setTimeout(() => {
+        statusText.textContent = 'ready';
+        statusDot.style.animationDuration = '2.4s';
+      }, 420);
+    });
+  });
+
+  /* ---------- window controls (generalized: works for any .instrument) ---------- */
+  function syncConceptVisibility(inst) {
+    if (inst.id !== 'conceptInstrument' || !window.__conceptTesseract) return;
+    const hidden = inst.classList.contains('is-minimized') || inst.classList.contains('is-closed');
+    if (hidden) window.__conceptTesseract.pause();
+    else window.__conceptTesseract.resume();
+  }
+
+  document.querySelectorAll('.titlebar .tb-btn[data-action]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const inst = btn.closest('.instrument');
+      const action = btn.dataset.action;
+      if (action === 'minimize') inst.classList.toggle('is-minimized');
+      if (action === 'maximize') inst.classList.toggle('is-maximized');
+      if (action === 'close') {
+        inst.classList.add('is-closed');
+        const chip = document.querySelector('.reopen[data-reopen-target="' + inst.id + '"]');
+        if (chip) chip.classList.add('is-visible');
+      }
+      syncConceptVisibility(inst);
+    });
+  });
+
+  document.querySelectorAll('.reopen[data-reopen-target]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const inst = document.getElementById(btn.dataset.reopenTarget);
+      inst.classList.remove('is-closed');
+      btn.classList.remove('is-visible');
+      syncConceptVisibility(inst);
+    });
+  });
+
+  /* ---------- Living Tesseract — background visualization prototype ----------
+     A vanilla-canvas engine written to mirror the props a future
+     <LivingTesseract density rotationSpeed evolutionSpeed backgroundMode seed />
+     component would take, so this same logic can move into React/R3F later
+     without changing the shape of the interface. Goal here is purely "does
+     this concept look cool" — a rotating tesseract core with a small
+     mycelium-like graph of procedural nodes that grow, drift, and retract. */
+  function mulberry32(seed) {
+    return function () {
+      seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function LivingTesseract(canvas, props) {
+    const opts = Object.assign({
+      density: 1,
+      rotationSpeed: 1,
+      evolutionSpeed: 1,
+      backgroundMode: false,
+      seed: (Date.now() % 1e6) ^ Math.floor(Math.random() * 1e6),
+    }, props || {});
+
+    const ctx = canvas.getContext('2d');
+    const rand = mulberry32(opts.seed);
+    const rootStyle = getComputedStyle(document.documentElement);
+    const colors = [
+      (rootStyle.getPropertyValue('--signal') || '#34e0c9').trim(),
+      (rootStyle.getPropertyValue('--current') || '#9b8cf2').trim(),
+      (rootStyle.getPropertyValue('--amber') || '#dba86a').trim(),
+    ];
+
+    // tesseract core: 16 vertices, edges connect vertices differing in one bit (32 edges)
+    const VERTS = Array.from({ length: 16 }, (_, i) => [
+      i & 1 ? 1 : -1, i & 2 ? 1 : -1, i & 4 ? 1 : -1, i & 8 ? 1 : -1,
+    ]);
+    // Vertices are deliberately styled to blend with the procedural nodes
+    // (varied color, no special glow, similar size) — the cube should read
+    // through as an emergent density in the mesh, not as a visibly distinct
+    // "skeleton" with obvious corner markers.
+    const vertColors = VERTS.map(() => colors[Math.floor(rand() * colors.length)]);
+    const EDGES = [];
+    // extra face/space-diagonal connections — not true tesseract edges, but
+    // this is a "prioritize visual beauty over mathematical correctness"
+    // piece, and the bare 32-edge wireframe reads as too sparse to feel
+    // like an intelligent, densely-connected system.
+    const CROSS_EDGES = [];
+    for (let i = 0; i < 16; i++) {
+      for (let j = i + 1; j < 16; j++) {
+        const diff = i ^ j;
+        const bits = (diff & 1) + ((diff >> 1) & 1) + ((diff >> 2) & 1) + ((diff >> 3) & 1);
+        if (bits === 1) {
+          EDGES.push([i, j]);
+        } else if (bits === 2 && rand() < 0.4) {
+          CROSS_EDGES.push([i, j]);
+        } else if (bits === 3 && rand() < 0.18) {
+          CROSS_EDGES.push([i, j]);
+        }
+      }
+    }
+    // Drawing all 32 true edges every frame reads instantly as "two cube
+    // wireframes" — that's the giveaway. Instead, only ~half are active at
+    // once, each fading in/out (not snapping), and the active set keeps
+    // drifting over time so the core structure evolves the same way the
+    // mycelium does.
+    const edgeStates = EDGES.map(([a, b]) => ({ a, b, active: rand() < 0.5, life: rand() < 0.5 ? 1 : 0 }));
+    const edgeTarget = Math.round(edgeStates.length * 0.5);
+
+    function refreshEdges() {
+      for (let k = 0; k < 2; k++) {
+        edgeStates[Math.floor(rand() * edgeStates.length)].active ^= true;
+      }
+      const activeCount = edgeStates.filter((e) => e.active).length;
+      if (Math.abs(activeCount - edgeTarget) > 4) {
+        const wantActive = activeCount < edgeTarget;
+        const pool = edgeStates.filter((e) => e.active !== wantActive);
+        if (pool.length) pool[Math.floor(rand() * pool.length)].active = wantActive;
+      }
+    }
+
+    // procedural mycelium graph grown from the tesseract's vertices
+    const maxProcedural = Math.round(16 * opts.density);
+    const growSeconds = 2.2 / opts.evolutionSpeed;
+    let nodes = [];
+    let nextId = 0;
+
+    function makeDrift(radius) {
+      return {
+        radius,
+        fx: 0.04 + rand() * 0.07, fy: 0.04 + rand() * 0.07, fz: 0.04 + rand() * 0.07,
+        px: rand() * Math.PI * 2, py: rand() * Math.PI * 2, pz: rand() * Math.PI * 2,
+      };
+    }
+
+    function spawnNode(depth, vertexIndex, parent) {
+      const node = {
+        id: nextId++,
+        depth,
+        vertexIndex,
+        parent,
+        color: colors[Math.floor(rand() * colors.length)],
+        drift: makeDrift(depth === 1 ? 0.35 + rand() * 0.4 : 0.18 + rand() * 0.22),
+        state: 'growing',
+        life: 0,
+        pos: [0, 0, 0],
+      };
+      nodes.push(node);
+      return node;
+    }
+
+    function killNode(node) {
+      if (node.state === 'dying') return;
+      node.state = 'dying';
+      nodes.filter((n) => n.parent === node).forEach(killNode);
+    }
+
+    function countLive() {
+      return nodes.filter((n) => n.state !== 'dying').length;
+    }
+
+    for (let v = 0; v < 16; v++) {
+      if (rand() < 0.55 * opts.density) {
+        const child = spawnNode(1, v, null);
+        child.state = 'alive';
+        child.life = 1;
+        if (rand() < 0.4 * opts.density) {
+          const grand = spawnNode(2, v, child);
+          grand.state = 'alive';
+          grand.life = 1;
+        }
+      }
+    }
+
+    let nextReorg = 0;
+    // mesh links: extra edges between nearby alive nodes, not parent-child —
+    // this is what turns the procedural growth from a tidy tree into a
+    // proper web/mesh, the "neural network" look the tree alone can't give.
+    let meshLinks = [];
+    const maxMesh = Math.round(maxProcedural * 1.1);
+
+    function refreshMesh() {
+      const alive = nodes.filter((n) => n.state !== 'dying');
+      const aliveIds = new Set(alive.map((n) => n.id));
+      meshLinks = meshLinks.filter(([a, b]) => aliveIds.has(a) && aliveIds.has(b));
+      let attempts = 0;
+      while (meshLinks.length < maxMesh && alive.length > 3 && attempts < 20) {
+        attempts++;
+        const a = alive[Math.floor(rand() * alive.length)];
+        const b = alive[Math.floor(rand() * alive.length)];
+        if (a.id === b.id) continue;
+        if (a.parent === b || b.parent === a) continue;
+        if (meshLinks.some(([x, y]) => (x === a.id && y === b.id) || (x === b.id && y === a.id))) continue;
+        meshLinks.push([a.id, b.id]);
+      }
+    }
+
+    function reorganize(t) {
+      if (t < nextReorg) return;
+      nextReorg = t + (2.5 + rand() * 3) / opts.evolutionSpeed;
+
+      if (countLive() < maxProcedural && rand() < 0.8) {
+        const alive1 = nodes.filter((n) => n.depth === 1 && n.state === 'alive');
+        if (alive1.length && rand() < 0.45) {
+          const parent = alive1[Math.floor(rand() * alive1.length)];
+          spawnNode(2, parent.vertexIndex, parent);
+        } else {
+          spawnNode(1, Math.floor(rand() * 16), null);
+        }
+      }
+
+      const alive = nodes.filter((n) => n.state === 'alive');
+      if (alive.length && rand() < 0.35) {
+        killNode(alive[Math.floor(rand() * alive.length)]);
+      }
+
+      refreshMesh();
+      refreshEdges();
+    }
+
+    // rotation: two simultaneous 4D planes (tumble) plus a slow 3D spin
+    let angleXW = rand() * Math.PI * 2;
+    let angleYZ = rand() * Math.PI * 2;
+    let angleY3 = rand() * Math.PI * 2;
+
+    function rotate4(v) {
+      const [x, y, z, w] = v;
+      const ca = Math.cos(angleXW), sa = Math.sin(angleXW);
+      const x1 = x * ca - w * sa, w1 = x * sa + w * ca;
+      const cb = Math.cos(angleYZ), sb = Math.sin(angleYZ);
+      const y1 = y * cb - z * sb, z1 = y * sb + z * cb;
+      return [x1, y1, z1, w1];
+    }
+
+    function to3([x, y, z, w]) {
+      const f = 1 / (2.6 - w);
+      return [x * f, y * f, z * f];
+    }
+
+    function spinY3([x, y, z]) {
+      const ca = Math.cos(angleY3), sa = Math.sin(angleY3);
+      return [x * ca - z * sa, y, x * sa + z * ca];
+    }
+
+    function to2([x, y, z]) {
+      const scale = Math.min(w, h) * 1.05;
+      const f = scale / (3.6 - z);
+      return [w / 2 + x * f, h / 2 + y * f];
+    }
+
+    // cheap organic drift via summed sines — no noise library needed
+    function drift(seed, t) {
+      return [
+        Math.sin(t * seed.fx + seed.px) * seed.radius,
+        Math.sin(t * seed.fy + seed.py) * seed.radius,
+        Math.sin(t * seed.fz + seed.pz) * seed.radius,
+      ];
+    }
+
+    let w = 0, h = 0;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    function resize() {
+      const rect = canvas.getBoundingClientRect();
+      w = rect.width; h = rect.height;
+      canvas.width = Math.max(1, Math.round(w * dpr));
+      canvas.height = Math.max(1, Math.round(h * dpr));
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas);
+    resize();
+
+    let running = false;
+    let rafId = null;
+    let startT = null;
+    let onFrame = null;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const baseAlpha = opts.backgroundMode ? 0.35 : 1;
+
+    function draw(t) {
+      const vertPos = VERTS.map((v) => spinY3(to3(rotate4(v))));
+
+      nodes.forEach((n) => {
+        const anchor = n.parent ? n.parent.pos : vertPos[n.vertexIndex];
+        const off = drift(n.drift, t * opts.evolutionSpeed);
+        n.pos = [anchor[0] + off[0], anchor[1] + off[1], anchor[2] + off[2]];
+      });
+
+      ctx.clearRect(0, 0, w, h);
+
+      ctx.lineWidth = 0.85;
+      ctx.strokeStyle = colors[0];
+      edgeStates.forEach((e) => {
+        if (e.life <= 0.01) return;
+        const pa = to2(vertPos[e.a]), pb = to2(vertPos[e.b]);
+        ctx.globalAlpha = baseAlpha * 0.22 * e.life;
+        ctx.beginPath();
+        ctx.moveTo(pa[0], pa[1]);
+        ctx.lineTo(pb[0], pb[1]);
+        ctx.stroke();
+      });
+
+      ctx.lineWidth = 0.6;
+      ctx.strokeStyle = colors[1];
+      CROSS_EDGES.forEach(([a, b]) => {
+        const pa = to2(vertPos[a]), pb = to2(vertPos[b]);
+        ctx.globalAlpha = baseAlpha * 0.14;
+        ctx.beginPath();
+        ctx.moveTo(pa[0], pa[1]);
+        ctx.lineTo(pb[0], pb[1]);
+        ctx.stroke();
+      });
+
+      nodes.forEach((n) => {
+        const anchor = n.parent ? n.parent.pos : vertPos[n.vertexIndex];
+        const pa = to2(anchor), pb = to2(n.pos);
+        ctx.globalAlpha = baseAlpha * n.life * 0.4;
+        ctx.strokeStyle = n.color;
+        ctx.lineWidth = n.depth === 1 ? 0.9 : 0.7;
+        ctx.beginPath();
+        ctx.moveTo(pa[0], pa[1]);
+        ctx.lineTo(pb[0], pb[1]);
+        ctx.stroke();
+      });
+
+      ctx.lineWidth = 0.5;
+      meshLinks.forEach(([aId, bId]) => {
+        const na = nodes.find((n) => n.id === aId);
+        const nb = nodes.find((n) => n.id === bId);
+        if (!na || !nb) return;
+        const pa = to2(na.pos), pb = to2(nb.pos);
+        ctx.globalAlpha = baseAlpha * Math.min(na.life, nb.life) * 0.22;
+        ctx.strokeStyle = na.color;
+        ctx.beginPath();
+        ctx.moveTo(pa[0], pa[1]);
+        ctx.lineTo(pb[0], pb[1]);
+        ctx.stroke();
+      });
+
+      vertPos.forEach((p, i) => {
+        const s = to2(p);
+        ctx.globalAlpha = baseAlpha * 0.8;
+        ctx.fillStyle = vertColors[i];
+        ctx.beginPath();
+        ctx.arc(s[0], s[1], 1.7, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      nodes.forEach((n) => {
+        const s = to2(n.pos);
+        ctx.globalAlpha = baseAlpha * n.life;
+        ctx.fillStyle = n.color;
+        ctx.beginPath();
+        ctx.arc(s[0], s[1], n.depth === 1 ? 1.9 : 1.3, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      ctx.globalAlpha = 1;
+      if (onFrame) onFrame(t, nodes.length);
+    }
+
+    function frame(now) {
+      if (!running) return;
+      if (startT === null) startT = now;
+      const t = (now - startT) / 1000;
+
+      reorganize(t);
+      nodes.forEach((n) => {
+        if (n.state === 'growing') {
+          n.life = Math.min(1, n.life + (1 / 60) / growSeconds);
+          if (n.life >= 1) n.state = 'alive';
+        } else if (n.state === 'dying') {
+          n.life = Math.max(0, n.life - (1 / 60) / growSeconds);
+        }
+      });
+      nodes = nodes.filter((n) => !(n.state === 'dying' && n.life <= 0));
+
+      edgeStates.forEach((e) => {
+        const target = e.active ? 1 : 0;
+        const step = (1 / 60) / growSeconds;
+        e.life = e.life < target ? Math.min(target, e.life + step) : Math.max(target, e.life - step);
+      });
+
+      draw(t);
+
+      angleXW += 0.0006 * opts.rotationSpeed;
+      angleYZ += 0.0004 * opts.rotationSpeed;
+      angleY3 += 0.0009 * opts.rotationSpeed;
+
+      rafId = requestAnimationFrame(frame);
+    }
+
+    function start() {
+      if (reduceMotion) {
+        // Reduced motion: render exactly one frame — still unique per seed,
+        // just not animated.
+        draw(0);
+        return;
+      }
+      if (running) return;
+      running = true;
+      rafId = requestAnimationFrame(frame);
+    }
+
+    function pause() {
+      running = false;
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+
+    function resume() {
+      if (reduceMotion || running) return;
+      running = true;
+      rafId = requestAnimationFrame(frame);
+    }
+
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) resume();
+        else pause();
+      });
+    }, { threshold: 0.01 });
+    io.observe(canvas);
+
+    return {
+      seed: opts.seed,
+      start,
+      pause,
+      resume,
+      onTick(fn) { onFrame = fn; },
+    };
+  }
+
+  const tesseractCanvas = document.getElementById('tesseractCanvas');
+  const tesseractMeta = document.getElementById('tesseractMeta');
+  if (tesseractCanvas) {
+    const tesseract = LivingTesseract(tesseractCanvas, {
+      density: 1.8,
+      rotationSpeed: 1,
+      evolutionSpeed: 1,
+      backgroundMode: false,
+    });
+    window.__conceptTesseract = tesseract;
+
+    let lastMetaUpdate = -1;
+    tesseract.onTick((t, nodeCount) => {
+      if (t - lastMetaUpdate > 0.5) {
+        lastMetaUpdate = t;
+        tesseractMeta.textContent = 'seed ' + tesseract.seed + ' · nodes ' + (16 + nodeCount);
+      }
+    });
+
+    tesseract.start();
+    tesseractMeta.textContent = 'seed ' + tesseract.seed + ' · nodes 16';
+  }
+</script>
+</body>
+</html>
