@@ -539,6 +539,412 @@
 
   .links b { color: var(--current); font-weight: 500; }
 
+  .stack-list {
+    display: grid;
+    gap: 8px;
+    margin: 18px 0;
+    padding: 0;
+    list-style: none;
+    color: var(--ink-dim);
+    font-family: var(--font-mono);
+    font-size: 0.86rem;
+  }
+
+  .stack-list li {
+    display: flex;
+    gap: 9px;
+    align-items: baseline;
+  }
+
+  .stack-list li::before {
+    content: '>';
+    color: var(--signal);
+  }
+
+  .project-feature {
+    position: relative;
+    margin: 20px 0;
+    padding: 20px;
+    border: 1px solid rgba(52, 224, 201, 0.24);
+    border-radius: 8px;
+    background:
+      radial-gradient(circle at 80% 20%, rgba(52, 224, 201, 0.12), transparent 35%),
+      rgba(7, 9, 15, 0.2);
+  }
+
+  .project-feature h3 {
+    margin: 0 0 8px;
+    font-size: 1.15rem;
+  }
+
+  .signal-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 14px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--signal);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .signal-label::before {
+    content: '*';
+    color: var(--amber);
+  }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 16px;
+  }
+
+  .mini-card {
+    border-top: 1px solid var(--glass-edge);
+    padding-top: 14px;
+  }
+
+  .mini-card h3 {
+    margin: 0 0 6px;
+    font-size: 0.98rem;
+  }
+
+  .portal-box {
+    margin-top: 18px;
+    padding: 18px;
+    border: 1px dashed rgba(233, 237, 246, 0.16);
+    border-radius: 8px;
+    color: var(--ink-dim);
+    font-family: var(--font-mono);
+    background: rgba(7, 9, 15, 0.18);
+  }
+
+  .action-grid,
+  .project-grid,
+  .note-grid,
+  .connection-grid {
+    display: grid;
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .project-grid,
+  .note-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .action-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .connection-grid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+
+  .workshop-layout {
+    display: grid;
+    grid-template-columns: minmax(180px, 0.7fr) minmax(0, 1.3fr);
+    gap: 22px;
+    margin-top: 20px;
+    align-items: start;
+  }
+
+  .project-rail {
+    display: grid;
+    gap: 8px;
+    position: sticky;
+    top: 18px;
+  }
+
+  .project-kicker {
+    margin: 0 0 8px;
+    color: var(--ink-faint);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .project-card,
+  .note-card,
+  .connection-node,
+  .action-chip,
+  .back-btn {
+    border: 1px solid var(--glass-edge);
+    border-radius: 8px;
+    background: rgba(7, 9, 15, 0.22);
+    color: var(--ink-dim);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease, color 0.16s ease;
+  }
+
+  .project-card,
+  .note-card,
+  .connection-node {
+    padding: 16px;
+    min-height: 118px;
+  }
+
+  .project-rail .project-card {
+    min-height: 0;
+    padding: 11px 12px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 4px 10px;
+    align-items: center;
+  }
+
+  .project-rail .project-card h3 {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+
+  .project-rail .project-card p {
+    grid-column: 1 / -1;
+    display: none;
+  }
+
+  .project-status {
+    color: var(--ink-faint);
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    white-space: nowrap;
+  }
+
+  .project-rail .project-card.is-selected .project-status {
+    color: var(--signal);
+  }
+
+  .project-card:hover,
+  .note-card:hover,
+  .connection-node:hover,
+  .action-chip:hover,
+  .back-btn:hover,
+  .project-card.is-selected,
+  .note-card.is-selected,
+  .connection-node.is-selected {
+    transform: translateY(-1px);
+    border-color: rgba(52, 224, 201, 0.42);
+    background: rgba(52, 224, 201, 0.1);
+    color: var(--ink);
+  }
+
+  .project-card:focus-visible,
+  .note-card:focus-visible,
+  .connection-node:focus-visible,
+  .action-chip:focus-visible,
+  .back-btn:focus-visible,
+  .terminal-input:focus-visible,
+  .intake-form input:focus-visible,
+  .intake-form textarea:focus-visible,
+  .intake-form select:focus-visible {
+    outline: 2px solid var(--signal);
+    outline-offset: 2px;
+  }
+
+  .project-card h3,
+  .note-card h3,
+  .connection-node h3 {
+    margin: 0 0 8px;
+    font-size: 1rem;
+    color: var(--ink);
+  }
+
+  .project-card p,
+  .note-card p,
+  .connection-node p {
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+
+  .tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 12px;
+  }
+
+  .tag {
+    border: 1px solid rgba(233, 237, 246, 0.12);
+    border-radius: 999px;
+    padding: 3px 8px;
+    color: var(--ink-faint);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+  }
+
+  .detail-panel,
+  .connection-detail,
+  .note-detail,
+  .intake-panel {
+    margin-top: 22px;
+    padding: 22px;
+    border: 1px solid rgba(52, 224, 201, 0.2);
+    border-radius: 8px;
+    background: rgba(7, 9, 15, 0.28);
+    animation: pane-in 0.28s ease both;
+  }
+
+  .workshop-detail {
+    margin-top: 0;
+    min-height: 430px;
+  }
+
+  .detail-summary {
+    color: var(--ink);
+    font-size: 1.02rem;
+  }
+
+  .detail-section-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 18px;
+    margin-top: 14px;
+  }
+
+  .workshop-detail .back-btn {
+    display: none;
+  }
+
+  .detail-disclosure {
+    border-top: 1px solid var(--glass-edge);
+    padding: 12px 0;
+  }
+
+  .detail-disclosure summary {
+    color: var(--ink);
+    cursor: pointer;
+    font-weight: 600;
+    list-style: none;
+  }
+
+  .detail-disclosure summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .detail-disclosure summary::before {
+    content: '>';
+    color: var(--signal);
+    font-family: var(--font-mono);
+    margin-right: 8px;
+  }
+
+  .detail-disclosure[open] summary::before {
+    content: 'v';
+  }
+
+  .detail-disclosure p {
+    margin-top: 10px;
+  }
+
+  .back-btn,
+  .action-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 9px 12px;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+  }
+
+  .relation-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(240px, 0.9fr);
+    gap: 20px;
+    align-items: start;
+  }
+
+  .connection-node.is-dimmed {
+    opacity: 0.42;
+  }
+
+  .terminal-window {
+    margin-top: 18px;
+  }
+
+  .terminal-window .instrument-body {
+    display: block;
+    min-height: 0;
+    max-height: 230px;
+    overflow: hidden;
+    background: rgba(7, 9, 15, 0.28);
+  }
+
+  .terminal-window.is-maximized .instrument-body {
+    max-height: 520px;
+  }
+
+  .terminal-window.is-maximized .terminal-log {
+    height: 440px;
+  }
+
+  .terminal-log {
+    height: 160px;
+    overflow: auto;
+    padding: 16px 18px 8px;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    line-height: 1.55;
+    color: var(--ink-dim);
+    white-space: pre-wrap;
+  }
+
+  .terminal-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 18px 16px;
+    font-family: var(--font-mono);
+    color: var(--signal);
+  }
+
+  .terminal-input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    background: transparent;
+    color: var(--ink);
+    font: inherit;
+  }
+
+  .terminal-input:focus {
+    outline: none;
+  }
+
+  .intake-form {
+    display: grid;
+    gap: 12px;
+  }
+
+  .intake-form label {
+    display: grid;
+    gap: 6px;
+    color: var(--ink-dim);
+    font-size: 0.86rem;
+  }
+
+  .intake-form input,
+  .intake-form textarea,
+  .intake-form select {
+    width: 100%;
+    border: 1px solid var(--glass-edge);
+    border-radius: 6px;
+    padding: 10px 12px;
+    background: rgba(7, 9, 15, 0.34);
+    color: var(--ink);
+    font: inherit;
+  }
+
+  .intake-form textarea {
+    min-height: 82px;
+    resize: vertical;
+  }
+
   .status-row {
     display: flex;
     gap: 10px;
@@ -633,6 +1039,26 @@
     .directory-label { display: none; }
     .cmd { width: auto; padding: 8px 10px; font-size: 0.84rem; }
     .viewer { padding: 24px 20px; }
+    .two-col,
+    .workshop-layout,
+    .detail-section-grid,
+    .project-grid,
+    .note-grid,
+    .action-grid,
+    .relation-layout { grid-template-columns: 1fr; }
+    .terminal-window .instrument-body { max-height: 260px; }
+    .terminal-log { height: 190px; }
+    .terminal-window.is-maximized .terminal-log { height: 300px; }
+    .project-rail {
+      position: static;
+      grid-template-columns: 1fr;
+    }
+    .workshop-detail {
+      min-height: 0;
+    }
+    .workshop-detail .back-btn {
+      display: inline-flex;
+    }
     .titlebar { padding-left: 14px; }
     .tb-title { font-size: 0.72rem; }
   }
@@ -653,9 +1079,9 @@
 <div class="page">
 
   <div class="masthead">
-    <p class="eyebrow"><span class="status-dot" id="statusDot"></span><span class="system-line">gary_hall.systems - <span id="statusText">ready</span><span class="terminal-cursor" aria-hidden="true"></span></span></p>
-    <h1>I learn how things work.<br>Then I <span class="accent">build</span> things.</h1>
-    <p class="sub">Gary Hall - a living collection of systems, stories, experiments, and useful things.</p>
+    <p class="eyebrow"><span class="status-dot" id="statusDot"></span><span class="system-line">gary_hall.system - <span id="statusText">ready</span><span class="terminal-cursor" aria-hidden="true"></span></span></p>
+    <h1>I learn how things work.<br>Then I build <span class="accent">useful</span> things.</h1>
+    <p class="sub">Engineer, tool builder, and student of systems.</p>
   </div>
 
   <div class="instrument" id="instrument">
@@ -672,104 +1098,477 @@
     <nav class="directory" aria-label="Sections">
       <p class="directory-label">Directory</p>
       <button class="cmd is-active" data-pane="origins"><span class="glyph">&gt;</span>origins</button>
-      <button class="cmd" data-pane="how-i-think"><span class="glyph">&gt;</span>how-i-think</button>
+      <button class="cmd" data-pane="systems"><span class="glyph">&gt;</span>systems</button>
       <button class="cmd" data-pane="workshop"><span class="glyph">&gt;</span>workshop</button>
-      <button class="cmd" data-pane="exploration"><span class="glyph">&gt;</span>exploration</button>
-      <button class="cmd" data-pane="collaboration"><span class="glyph">&gt;</span>collaboration</button>
+      <button class="cmd" data-pane="connections"><span class="glyph">&gt;</span>connections</button>
+      <button class="cmd" data-pane="field-notes"><span class="glyph">&gt;</span>field-notes</button>
+      <button class="cmd" data-pane="consulting"><span class="glyph">&gt;</span>consulting</button>
+      <button class="cmd" data-pane="connect"><span class="glyph">&gt;</span>connect</button>
+      <button class="cmd" data-pane="portal"><span class="glyph">&gt;</span>portal</button>
     </nav>
 
-    <div class="viewer">
-
-      <section class="pane is-active" id="pane-origins">
-        <p class="pane-label">{ origins }</p>
-        <h2>Why I build</h2>
-        <p>I learn how things work. Then I build things. That's been true since long before it was a career - taking apart what's in front of me, whether it's a Linux box, a circuit, or a spreadsheet, until I understand the system underneath it.</p>
-        <p>I work across software, automation, and AI, and just as seriously across robotics, electronics, and physics - not as separate hobbies, but as the same instinct pointed in different directions.</p>
-        <p>This site is part of that practice too. It's not finished, and it's not meant to be.</p>
-      </section>
-
-      <section class="pane" id="pane-how-i-think">
-        <p class="pane-label">{ how i think }</p>
-        <h2>A few working principles</h2>
-        <div class="thread">
-          <h3>Understand before you trust</h3>
-          <p>I don't take a system's word for how it works. I open it up first.</p>
-        </div>
-        <div class="thread">
-          <h3>Build the smallest true version first</h3>
-          <p>A rough thing that actually works teaches you more than a polished plan that doesn't exist yet.</p>
-        </div>
-        <div class="thread">
-          <h3>Stay a beginner somewhere</h3>
-          <p>I keep at least one discipline where I'm still clearly learning. It keeps the rest honest.</p>
-        </div>
-      </section>
-
-      <section class="pane" id="pane-workshop">
-        <p class="pane-label">{ workshop }</p>
-        <h2>UCTools</h2>
-        <p>Tools built from doing the same Cisco UCS work too many times - turning tribal knowledge into something reusable, so the next engineer isn't solving the same problem from scratch.</p>
-        <div class="status-row">
-          <span class="tag">flagship</span>
-          <span>in progress</span>
-        </div>
-      </section>
-
-      <section class="pane" id="pane-exploration">
-        <p class="pane-label">{ exploration }</p>
-        <h2>How the interests connect</h2>
-        <div class="thread">
-          <h3>Robotics &amp; electronics</h3>
-          <p>Where software stops being abstract - the same systems thinking, but now it has to survive physics.</p>
-          <p class="links">connects to <b>AI &amp; Automation</b>, <b>Physics</b></p>
-        </div>
-        <div class="thread">
-          <h3>Physics</h3>
-          <p>The original systems course. Everything else I do is downstream of wanting to know why things behave the way they do.</p>
-          <p class="links">connects to <b>Robotics &amp; Electronics</b></p>
-        </div>
-      </section>
-
-      <section class="pane" id="pane-collaboration">
-        <p class="pane-label">{ collaboration }</p>
-        <h2>Let's talk</h2>
-        <p>Have a project, a problem, or an idea worth building together?</p>
-        <a class="cta" href="#">gary@ghallonline.com &nbsp;→</a>
-      </section>
-
-    </div>
+    <div class="viewer"></div>
     </div>
   </div>
 
   <button class="reopen" data-reopen-target="instrument" type="button"><span aria-hidden="true">&#9635;</span> reopen gary_hall.system</button>
 
-  <p class="note">also, unrepentant One Piece fan</p>
+  <div class="instrument terminal-window" id="terminalInstrument">
+    <div class="titlebar">
+      <p class="tb-title"><span class="tb-icon" aria-hidden="true">&#9635;</span><span class="tb-label">gary@hall: ~/terminal</span></p>
+      <div class="tb-controls">
+        <button class="tb-btn tb-min" data-action="minimize" type="button" aria-label="Minimize terminal">&#8211;</button>
+        <button class="tb-btn tb-max" data-action="maximize" type="button" aria-label="Maximize terminal">&#9633;</button>
+        <button class="tb-btn tb-close" data-action="close" type="button" aria-label="Close terminal">&#10005;</button>
+      </div>
+    </div>
+    <div class="instrument-body">
+      <div class="terminal-log" id="terminalLog" aria-live="polite"></div>
+      <label class="terminal-row">
+        <span aria-hidden="true">gary@hall:~$</span>
+        <input class="terminal-input" id="terminalInput" type="text" autocomplete="off" spellcheck="false" aria-label="Terminal command">
+      </label>
+    </div>
+  </div>
+
+  <button class="reopen" data-reopen-target="terminalInstrument" type="button"><span aria-hidden="true">&#9635;</span> reopen gary@hall: ~/terminal</button>
+
+  <p class="note">Built slowly, revised often. This system is alive. Also, an unrepentant One Piece fan.</p>
 
 </div>
 
 <script>
   const instrument = document.getElementById('instrument');
+  const viewer = document.querySelector('.viewer');
   const statusText = document.getElementById('statusText');
   const statusDot = document.getElementById('statusDot');
+  const reduceMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  const nowItems = [
+    'local AI systems',
+    'agent workflows',
+    'useful automation',
+    'small business operations',
+    'fungal networks',
+    'plant behavior',
+    'robotics',
+    'long-form storytelling',
+  ];
+
+  const sections = {
+    origins: {
+      label: 'origins',
+      title: 'Curiosity first',
+      body: [
+        "I've always been curious about how things work. Electronics, computers, websites, databases, design, business systems, infrastructure, automation, and artificial intelligence all became different rooms in the same workshop.",
+        'The technologies changed. The motivation did not.',
+        'I still enjoy understanding systems, finding patterns, and building useful tools from what I discover.',
+        "This site is part workshop, part notebook, and part personal operating system. It exists to document what I'm building, what I'm learning, and the systems that continue to capture my attention.",
+      ],
+    },
+    systems: {
+      label: 'systems',
+      title: 'I tend to see systems everywhere',
+      body: [
+        'Infrastructure. Businesses. Communities. Stories. Ecosystems.',
+        'Most problems are rarely isolated problems. They are usually the result of many small interactions that have gradually become difficult to see.',
+        'Good tools remove friction, reveal patterns, and help people focus on what actually matters.',
+      ],
+      principles: [
+        ['Understand before you trust', 'I prefer understanding how things work rather than simply accepting them as black boxes.'],
+        ['Systems over symptoms', 'Most problems are symptoms of larger systems.'],
+        ['Stay curious', 'Curiosity has consistently opened more doors than expertise alone.'],
+      ],
+    },
+    workshop: { label: 'workshop', title: 'Where ideas become real' },
+    connections: { label: 'connections', title: 'The interests look unrelated until you follow the connections' },
+    'field-notes': { label: 'field notes', title: 'Notes from an ongoing investigation' },
+    consulting: { label: 'consulting', title: 'Tell me what is tangled' },
+    connect: { label: 'connect', title: 'Interesting problems make interesting conversations' },
+    portal: { label: 'portal', title: 'Private tools eventually live here' },
+  };
+
+  const projects = [
+    {
+      id: 'sweet-beans-systems',
+      aliases: ['sweet-beans', 'sbg'],
+      title: 'Sweet Beans Systems',
+      status: 'current signal',
+      summary: 'A real small business became a laboratory for better systems.',
+      overview: 'Sweet Beans Systems is an ongoing effort to give a small dog-grooming business the kind of operational clarity, automation, and custom tooling usually associated with much larger organizations.',
+      problem: 'Small businesses often grow through memory, improvisation, text messages, notebooks, and the heroic effort of the people running them. Those systems work until they do not.',
+      built: 'Customer experience, scheduling, reminders, records, analytics, workflow design, AI-assisted development, forms, internal utilities, and a future client portal.',
+      design: 'The goal is not to bury the business under software. It is to preserve what already works while removing avoidable friction.',
+      lessons: 'AI can accelerate development and reduce repetitive work, but it does not become the source of truth. Automation has to earn trust before it gains responsibility.',
+      tags: ['small business', 'automation', 'AI', 'design', 'operations'],
+      relatedNotes: ['ai-as-assistant', 'useful-tools-real-work'],
+      relatedConnections: ['human-systems', 'design', 'tool-building', 'natural-systems'],
+      externalUrl: null,
+    },
+    {
+      id: 'uctools',
+      aliases: [],
+      title: 'UCTools',
+      status: 'archive',
+      summary: 'Built after doing the same engineering work too many times.',
+      overview: 'UCTools grew from repetitive Cisco UCS tasks, operational knowledge, and the belief that engineers should not have to keep solving the same problem from scratch.',
+      problem: 'Recurring engineering work and tribal knowledge kept asking to become reusable.',
+      built: 'Tools that simplified repeatable infrastructure tasks and preserved operational knowledge.',
+      design: 'Engineer experience mattered: the useful tool was the one that reduced friction without hiding the system.',
+      lessons: 'Expertise compounds when it becomes a tool other people can use.',
+      tags: ['infrastructure', 'automation', 'repeatability'],
+      relatedNotes: ['useful-tools-real-work'],
+      relatedConnections: ['engineering', 'tool-building'],
+      externalUrl: null,
+    },
+    {
+      id: 'coronavirus-diary',
+      aliases: ['covid-diary'],
+      title: 'Coronavirus Diary',
+      status: 'archive',
+      summary: 'A personal archive of a system-wide disruption.',
+      overview: 'Coronavirus Diary began as an effort to document an extraordinary period while it was still unfolding.',
+      problem: 'Institutions, communities, routines, and individual lives were changing faster than memory could organize.',
+      built: 'Part archive, part reflection, and part record of uncertainty while it was still present.',
+      design: 'The form needed to feel like documentation, not hindsight.',
+      lessons: 'Systems reveal themselves under pressure.',
+      tags: ['memory', 'social systems', 'documentation'],
+      relatedNotes: ['hidden-infrastructure'],
+      relatedConnections: ['human-systems'],
+      externalUrl: null,
+    },
+    {
+      id: 'bit-gamer',
+      aliases: ['bitgamer'],
+      title: 'Bit Gamer',
+      status: 'archive',
+      summary: 'Shared interests create their own infrastructure.',
+      overview: 'Bit Gamer explored content, community, identity, and the systems that form when people gather around a common interest.',
+      problem: 'Communities need more than content; they need rhythms, identity, and places to gather.',
+      built: 'A project at the intersection of technology, design, publishing, and community building.',
+      design: 'A community system has to make participation feel legible.',
+      lessons: 'Shared enthusiasm becomes infrastructure when it repeats.',
+      tags: ['community', 'publishing', 'design'],
+      relatedNotes: ['why-one-piece-works'],
+      relatedConnections: ['storytelling', 'human-systems'],
+      externalUrl: null,
+    },
+    {
+      id: 'pizza-systems',
+      aliases: ['pizza'],
+      title: 'Pizza Systems',
+      status: 'archive',
+      summary: 'The tools were simpler. The systems problem was not.',
+      overview: 'Long before software modernization became a consulting phrase, I was improving workflows inside a pizza business.',
+      problem: 'Operations, customer experience, and daily work needed tools shaped around the people actually using them.',
+      built: 'Databases, websites, practical workflows, and systems that made work easier.',
+      design: 'Understand the real work, find the friction, build the smallest useful tool, improve it through use.',
+      lessons: 'This pattern connects directly to Sweet Beans Systems.',
+      tags: ['operations', 'small business', 'tool-building'],
+      relatedNotes: ['useful-tools-real-work'],
+      relatedConnections: ['human-systems', 'small-business'],
+      externalUrl: null,
+    },
+    {
+      id: 'ai-experiments',
+      aliases: ['ai'],
+      title: 'AI Experiments',
+      status: 'active',
+      summary: 'Small experiments with agent workflows, local systems, and useful automation.',
+      overview: 'A loose set of experiments around how modern AI tools can assist development and operations without becoming magic or authority.',
+      problem: 'The useful question is not what AI can claim. It is where it can reduce friction responsibly.',
+      built: 'Local workflows, agent experiments, prototypes, and small automations.',
+      design: 'Keep human judgment close to the source of truth.',
+      lessons: 'The best AI systems are bounded, inspectable, and useful.',
+      tags: ['AI', 'agents', 'automation'],
+      relatedNotes: ['ai-as-assistant'],
+      relatedConnections: ['engineering', 'tool-building'],
+      externalUrl: null,
+    },
+  ];
+
+  const fieldNotes = [
+    { id: 'hidden-infrastructure', title: 'Hidden infrastructure', status: 'active note', tags: ['mycology', 'infrastructure', 'systems'], relatedProject: 'coronavirus-diary', relatedConnection: 'natural-systems', observation: 'The most important part of a system is often the part people stop noticing.', body: 'Mycelium, DNS, operational memory, trust, and maintenance all tend to disappear from view when they are working.' },
+    { id: 'ai-as-assistant', title: 'AI as assistant, not authority', status: 'working principle', tags: ['AI', 'Sweet Beans Systems', 'system design'], relatedProject: 'sweet-beans-systems', relatedConnection: 'tool-building', observation: 'AI becomes more useful when its role is clearly bounded.', body: 'It can accelerate exploration, reduce repetitive work, and help people see alternatives. It should not quietly become the authoritative source for records it did not create and cannot reliably verify.' },
+    { id: 'visible-mushroom', title: 'The visible mushroom', status: 'field note', tags: ['mycology', 'design', 'software'], relatedProject: 'sweet-beans-systems', relatedConnection: 'design', observation: 'A mushroom is evidence of a much larger organism.', body: 'Products can work the same way. The interface is visible, but the real system includes relationships, history, maintenance, data, decisions, and work that users may never see.' },
+    { id: 'useful-tools-real-work', title: 'Useful tools start with real work', status: 'principle', tags: ['operations', 'tool-building', 'consulting'], relatedProject: 'pizza-systems', relatedConnection: 'human-systems', observation: 'The fastest way to build the wrong tool is to begin with the software instead of the work.', body: 'Watch the process. Learn where people compensate. Notice what they have memorized. Then decide whether technology belongs there.' },
+    { id: 'why-one-piece-works', title: 'Why One Piece works', status: 'curiosity', tags: ['storytelling', 'systems', 'One Piece'], relatedProject: 'bit-gamer', relatedConnection: 'storytelling', observation: 'One Piece rewards attention because details accumulate rather than disappear.', body: 'Places have history. Institutions remember. Characters inherit unfinished struggles. The world feels large because consequences continue moving even when the story looks elsewhere.' },
+  ];
+
+  const connectionNodes = [
+    { id: 'systems', title: 'Systems', summary: 'How many parts coordinate, fail, adapt, and produce behavior.', links: ['engineering', 'tool-building', 'natural-systems', 'human-systems', 'storytelling'], projects: ['sweet-beans-systems', 'uctools'], notes: ['hidden-infrastructure'] },
+    { id: 'tool-building', title: 'Tool building', summary: 'Turning repeated work and discovered patterns into something useful.', links: ['systems', 'engineering', 'design', 'human-systems'], projects: ['sweet-beans-systems', 'uctools', 'pizza-systems'], notes: ['useful-tools-real-work', 'ai-as-assistant'] },
+    { id: 'design', title: 'Design as communication', summary: 'Design is how a system explains itself, not decoration added after engineering.', links: ['tool-building', 'human-systems', 'storytelling'], projects: ['sweet-beans-systems', 'bit-gamer'], notes: ['visible-mushroom'] },
+    { id: 'engineering', title: 'Engineering', summary: 'Infrastructure, automation, applications, architecture, and repeatable systems.', links: ['systems', 'tool-building'], projects: ['uctools', 'ai-experiments'], notes: ['ai-as-assistant'] },
+    { id: 'natural-systems', title: 'Natural systems', summary: 'Plants and fungi keep returning me to distributed intelligence, resilience, and hidden infrastructure.', links: ['systems', 'botany', 'mycology'], projects: ['sweet-beans-systems'], notes: ['hidden-infrastructure', 'visible-mushroom'] },
+    { id: 'botany', title: 'Botany', summary: 'Plants sense, allocate resources, adapt, and operate on timescales humans overlook.', links: ['natural-systems', 'systems'], projects: [], notes: ['hidden-infrastructure'] },
+    { id: 'mycology', title: 'Mycology', summary: 'Fungi reveal quiet infrastructure: networks, decomposition, renewal, and symbiosis.', links: ['natural-systems', 'systems'], projects: [], notes: ['hidden-infrastructure', 'visible-mushroom'] },
+    { id: 'human-systems', title: 'Human systems', summary: 'Businesses, communities, trust, incentives, memory, and daily work.', links: ['systems', 'design', 'tool-building', 'small-business'], projects: ['sweet-beans-systems', 'pizza-systems'], notes: ['useful-tools-real-work'] },
+    { id: 'small-business', title: 'Dog grooming as a systems story', summary: 'Appointments, animal histories, trust, communication, timing, and operations all interact.', links: ['human-systems', 'tool-building', 'design'], projects: ['sweet-beans-systems', 'pizza-systems'], notes: ['useful-tools-real-work'] },
+    { id: 'storytelling', title: 'Storytelling', summary: 'Stories preserve incentives, histories, rules, constraints, and consequences over time.', links: ['systems', 'design', 'human-systems'], projects: ['bit-gamer'], notes: ['why-one-piece-works'] },
+  ];
+
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+  }
+
+  function tagsHtml(tags) {
+    return `<div class="tag-row">${tags.map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join('')}</div>`;
+  }
+
+  function setStatus(text) {
+    statusText.textContent = text;
+    statusDot.style.animationDuration = text === 'ready' ? '2.4s' : '0.6s';
+    if (text !== 'ready') setTimeout(() => setStatus('ready'), 520);
+  }
+
+  function projectById(id) {
+    return projects.find((project) => project.id === id || project.aliases.includes(id));
+  }
+
+  function connectionById(id) {
+    return connectionNodes.find((node) => node.id === id);
+  }
+
+  function noteById(id) {
+    return fieldNotes.find((note) => note.id === id);
+  }
+
+  function renderShell(label, title, bodyHtml) {
+    viewer.innerHTML = `<section class="pane is-active"><p class="pane-label">{ ${escapeHtml(label)} }</p><h2>${escapeHtml(title)}</h2>${bodyHtml}</section>`;
+  }
+
+  function renderBasicSection(id) {
+    const section = sections[id];
+    let html = (section.body || []).map((p) => `<p>${escapeHtml(p)}</p>`).join('');
+    if (section.principles) {
+      html += section.principles.map(([title, body]) => `<div class="thread"><h3>${escapeHtml(title)}</h3><p>${escapeHtml(body)}</p></div>`).join('');
+    }
+    renderShell(section.label, section.title, html);
+  }
+
+  function renderWorkshop(selectedProjectId) {
+    const selected = selectedProjectId ? projectById(selectedProjectId) : projects[0];
+    const cards = projects.map((project) => `<button class="project-card ${selected && selected.id === project.id ? 'is-selected' : ''}" data-project="${project.id}" type="button"><h3>${escapeHtml(project.title)}</h3><span class="project-status">${escapeHtml(project.status)}</span><p>${escapeHtml(project.summary)}</p></button>`).join('');
+    const detail = selected ? renderProjectDetail(selected) : '';
+    renderShell('workshop', 'Where ideas become real', `<p>Some projects solve practical problems. Some are experiments. Some simply exist because I wanted to understand something better.</p><div class="workshop-layout"><div class="project-rail"><p class="project-kicker">project index</p>${cards}</div>${detail}</div>`);
+  }
+
+  function renderProjectDetail(project) {
+    const sectionsHtml = [
+      ['Overview', project.overview],
+      ['The problem or curiosity', project.problem],
+      ['What I built', project.built],
+      ['Design considerations', project.design],
+      ['Lessons and current questions', project.lessons],
+    ].map(([title, body]) => `<details class="detail-disclosure"><summary>${escapeHtml(title)}</summary><p>${escapeHtml(body)}</p></details>`).join('');
+    const related = [...project.relatedConnections, ...project.relatedNotes].map((id) => `<button class="action-chip" data-open-related="${id}" type="button">${escapeHtml(id)}</button>`).join('');
+    const link = project.externalUrl ? `<a class="cta" href="${escapeHtml(project.externalUrl)}">open project -&gt;</a>` : '<p class="links">external link not supplied yet</p>';
+    return `<div class="detail-panel workshop-detail" tabindex="-1"><button class="back-btn" data-open-section="workshop" type="button">&lt; back to workshop</button><p class="signal-label">${escapeHtml(project.status)}</p><h3>${escapeHtml(project.title)}</h3><p class="detail-summary">${escapeHtml(project.summary)}</p><div class="detail-section-grid">${sectionsHtml}</div>${tagsHtml(project.tags)}<div class="action-grid">${related}</div>${link}</div>`;
+  }
+
+  function renderConnections(selectedId) {
+    const selected = connectionById(selectedId) || connectionById('systems');
+    const related = new Set([selected.id, ...selected.links]);
+    const nodes = connectionNodes.map((node) => `<button class="connection-node ${node.id === selected.id ? 'is-selected' : ''} ${related.has(node.id) ? '' : 'is-dimmed'}" data-connection="${node.id}" type="button"><h3>${escapeHtml(node.title)}</h3><p>${escapeHtml(node.summary)}</p></button>`).join('');
+    const detailProjects = selected.projects.map((id) => projectById(id)).filter(Boolean).map((project) => `<button class="action-chip" data-project="${project.id}" type="button">${escapeHtml(project.title)}</button>`).join('');
+    const detailNotes = selected.notes.map((id) => noteById(id)).filter(Boolean).map((note) => `<button class="action-chip" data-note="${note.id}" type="button">${escapeHtml(note.title)}</button>`).join('');
+    const detail = `<div class="connection-detail" tabindex="-1"><h3>${escapeHtml(selected.title)}</h3><p>${escapeHtml(selected.summary)}</p><p>How does this system work? Where does information move? What makes it resilient? What emerges from the interactions?</p><div class="tag-row">${selected.links.map((id) => `<span class="tag">${escapeHtml(id)}</span>`).join('')}</div><div class="action-grid">${detailProjects}${detailNotes}</div></div>`;
+    renderShell('connections', sections.connections.title, `<p>Enterprise infrastructure, dog grooming, graphic design, plants, fungal networks, artificial intelligence, and storytelling all ask different versions of the same questions.</p><div class="relation-layout"><div class="connection-grid">${nodes}</div>${detail}</div>`);
+  }
+
+  function renderFieldNotes(selectedId) {
+    const selected = selectedId ? noteById(selectedId) : null;
+    const notes = fieldNotes.map((note) => `<button class="note-card ${selected && selected.id === note.id ? 'is-selected' : ''}" data-note="${note.id}" type="button"><h3>${escapeHtml(note.title)}</h3><p>${escapeHtml(note.observation)}</p>${tagsHtml(note.tags)}</button>`).join('');
+    const detail = selected ? `<div class="note-detail" tabindex="-1"><button class="back-btn" data-open-section="field-notes" type="button">&lt; back to notes</button><p class="signal-label">${escapeHtml(selected.status)}</p><h3>${escapeHtml(selected.title)}</h3><p>${escapeHtml(selected.body)}</p>${tagsHtml(selected.tags)}<div class="action-grid"><button class="action-chip" data-open-related="${selected.relatedConnection}" type="button">connection/${escapeHtml(selected.relatedConnection)}</button><button class="action-chip" data-project="${selected.relatedProject}" type="button">project/${escapeHtml(selected.relatedProject)}</button></div></div>` : '';
+    renderShell('field notes', sections['field-notes'].title, `<p>A collection of observations, ideas, and questions that I'm currently exploring. Not polished articles. More like notes from an ongoing investigation.</p><div class="note-grid">${notes}</div>${detail}`);
+  }
+
+  function renderConsulting(showIntake) {
+    const intake = showIntake ? `<div class="intake-panel" tabindex="-1"><h3>Tell me what is tangled.</h3><form class="intake-form" action="mailto:gary@ghallonline.com" method="post" enctype="text/plain"><label>Name<input name="name" autocomplete="name"></label><label>Email<input name="email" type="email" autocomplete="email"></label><label>Organization<input name="organization" autocomplete="organization"></label><label>What are you trying to improve?<textarea name="goal"></textarea></label><label>What is currently getting in the way?<textarea name="friction"></textarea></label><label>What would a useful outcome look like?<textarea name="outcome"></textarea></label><label>Optional budget range<select name="budget"><option value="">not sure yet</option><option>under $5k</option><option>$5k-$15k</option><option>$15k-$50k</option><option>$50k+</option></select></label><button class="action-chip" type="submit">prepare email</button><p class="links">This opens your email client. A real backend can replace this later.</p></form></div>` : '';
+    renderShell('consulting', sections.consulting.title, `<p>I enjoy helping people untangle complicated systems and build useful tools. Sometimes that means automation. Sometimes it means improving workflows. Sometimes it means simplifying technology that became more complicated than it needed to be.</p><ul class="stack-list"><li>Internal tools and utilities</li><li>Workflow automation</li><li>AI integration and experimentation</li><li>Process modernization</li><li>Technical strategy</li><li>Systems design</li><li>Small business technology solutions</li></ul><p>You probably don't need more software. You probably need better systems.</p><div class="action-grid"><button class="action-chip" data-intake type="button">open intake</button><a class="action-chip" href="mailto:gary@ghallonline.com">start a conversation</a><button class="action-chip" data-open-section="workshop" type="button">view relevant work</button><a class="action-chip" href="mailto:gary@ghallonline.com?subject=Quote%20request">request a quote</a></div>${intake}`);
+  }
+
+  function renderConnect() {
+    renderShell('connect', sections.connect.title, `<p>If you're building something unusual, trying to solve a difficult problem, or simply enjoy talking about systems and technology, I'd be happy to connect.</p><a class="cta" href="mailto:gary@ghallonline.com">gary@ghallonline.com -&gt;</a>`);
+  }
+
+  function renderPortal() {
+    renderShell('portal', sections.portal.title, '<div class="portal-box"><p>Portal currently under construction.</p><p>Future home for client dashboards, project information, private tools, forms, and experiments.</p></div>');
+  }
+
+  function updateActiveNav(section) {
+    document.querySelectorAll('.cmd').forEach((btn) => btn.classList.toggle('is-active', btn.dataset.pane === section));
+  }
+
+  function setHash(parts, replace) {
+    const hash = '#' + parts.filter(Boolean).join('/');
+    if (replace) history.replaceState(null, '', hash);
+    else if (location.hash !== hash) history.pushState(null, '', hash);
+  }
+
+  function openSection(section, detail, replaceHash) {
+    const normalized = sections[section] ? section : 'origins';
+    updateActiveNav(normalized);
+    if (normalized === 'workshop') renderWorkshop(detail);
+    else if (normalized === 'connections') renderConnections(detail);
+    else if (normalized === 'field-notes') renderFieldNotes(detail);
+    else if (normalized === 'consulting') renderConsulting(detail === 'intake');
+    else if (normalized === 'connect') renderConnect();
+    else if (normalized === 'portal') renderPortal();
+    else renderBasicSection(normalized);
+    setStatus('syncing');
+    setHash([normalized, detail], replaceHash);
+    if (detail) {
+      requestAnimationFrame(() => {
+        const focusTarget = viewer.querySelector('[tabindex="-1"]');
+        if (focusTarget) focusTarget.focus({ preventScroll: true });
+      });
+    }
+  }
+
+  function routeFromHash(replace) {
+    const [section, detail] = location.hash.replace(/^#/, '').split('/');
+    openSection(section || 'origins', detail, replace);
+  }
+
+  viewer.addEventListener('click', (event) => {
+    const target = event.target.closest('button, a');
+    if (!target) return;
+    if (target.dataset.project) openSection('workshop', target.dataset.project);
+    if (target.dataset.connection) openSection('connections', target.dataset.connection);
+    if (target.dataset.note) openSection('field-notes', target.dataset.note);
+    if (target.dataset.openSection) openSection(target.dataset.openSection);
+    if (target.dataset.intake !== undefined) openSection('consulting', 'intake');
+    if (target.dataset.openRelated) {
+      const id = target.dataset.openRelated;
+      if (connectionById(id)) openSection('connections', id);
+      else if (noteById(id)) openSection('field-notes', id);
+    }
+  });
 
   document.querySelectorAll('.cmd').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      if (btn.classList.contains('is-active')) return;
-      document.querySelectorAll('.cmd').forEach((b) => b.classList.remove('is-active'));
-      document.querySelectorAll('.pane').forEach((p) => p.classList.remove('is-active'));
-      btn.classList.add('is-active');
-      document.getElementById('pane-' + btn.dataset.pane).classList.add('is-active');
-
-      // A brief, honest micro-interaction - the system acknowledging the
-      // switch - not a fake delay, just a quick readable pulse.
-      statusText.textContent = 'syncing';
-      statusDot.style.animationDuration = '0.6s';
-      setTimeout(() => {
-        statusText.textContent = 'ready';
-        statusDot.style.animationDuration = '2.4s';
-      }, 420);
-    });
+    btn.addEventListener('click', () => openSection(btn.dataset.pane));
   });
+
+  window.addEventListener('hashchange', () => routeFromHash(true));
+  routeFromHash(true);
+
+  const terminalLog = document.getElementById('terminalLog');
+  const terminalInput = document.getElementById('terminalInput');
+  const commandHistory = [];
+  let historyIndex = 0;
+
+  function printTerminal(text) {
+    const line = document.createElement('div');
+    line.textContent = text;
+    terminalLog.appendChild(line);
+    terminalLog.scrollTop = terminalLog.scrollHeight;
+  }
+
+  function resetTerminal() {
+    terminalLog.innerHTML = '';
+    printTerminal('gary_hall.system terminal');
+    printTerminal('type "help" for available commands');
+  }
+
+  function terminalOpen(target) {
+    if (sections[target]) {
+      openSection(target);
+      return `opening ${target}...`;
+    }
+    const project = projectById(target);
+    if (project) {
+      openSection('workshop', project.id);
+      return `opening workshop/${project.id}...`;
+    }
+    return `unknown target: ${target}`;
+  }
+
+  function connectedTopic(topic) {
+    const node = connectionById(topic);
+    if (!node) return `no connection node found for ${topic}`;
+    openSection('connections', node.id);
+    return `${node.id} connects to:\n\n${node.links.join('\n')}\n\nopening connections/${node.id}...`;
+  }
+
+  function pulseMycelium() {
+    if (reduceMotionQuery.matches) return;
+    const bg = document.querySelector('.background-tesseract');
+    bg.animate([
+      { opacity: getComputedStyle(bg).opacity, filter: 'drop-shadow(0 0 18px rgba(52, 224, 201, 0.2))' },
+      { opacity: 0.95, filter: 'drop-shadow(0 0 34px rgba(52, 224, 201, 0.34))' },
+      { opacity: getComputedStyle(bg).opacity, filter: 'drop-shadow(0 0 18px rgba(52, 224, 201, 0.2))' },
+    ], { duration: 1800, easing: 'ease-out' });
+  }
+
+  const terminalCommands = {
+    help: () => 'available commands:\n\nhelp\nabout\nls\nopen <section>\nprojects\nopen <project>\ninterests\nconnect <topic>\nnow\ncontact\nclear',
+    about: () => 'Engineer. Tool builder. Designer. Student of systems.\n\nI learn how things work.\nThen I build useful things.',
+    ls: () => 'origins/\nsystems/\nworkshop/\nconnections/\nfield-notes/\nconsulting/\nconnect/\nportal/',
+    projects: () => projects.map((project) => `${project.id.padEnd(22)} ${project.status}`).join('\n'),
+    interests: () => 'automation\nartificial-intelligence\nbotany\ndesign\ninfrastructure\nmycology\nrobotics\nstorytelling\nsystems\none-piece',
+    now: () => `currently exploring:\n\n${nowItems.map((item) => '- ' + item).join('\n')}`,
+    contact: () => 'gary@ghallonline.com',
+    whoami: () => 'gary\n\nengineer\ntool builder\ndesigner\nsystems thinker\ncurious observer',
+    onepiece: () => 'Inherited will detected.\n\nThe world is still waiting for the dawn.\n\nAlso: yes, the site owner has opinions about long-form storytelling.',
+    sudo: () => 'Gary is not in the sudoers file.\n\nThis incident will be reported to Gary.',
+    'make coffee': () => 'coffee subsystem unavailable\n\nrecommended fallback:\n1. locate beans\n2. apply heat\n3. continue debugging',
+    'grow mycelium': () => {
+      pulseMycelium();
+      return 'substrate accepted\nnetwork expansion initiated';
+    },
+    'rm -rf /': () => 'operation refused\n\nthis system is alive',
+  };
+
+  function executeTerminal(rawCommand) {
+    const command = rawCommand.trim();
+    if (!command) return;
+    printTerminal(`gary@hall:~$ ${command}`);
+    commandHistory.push(command);
+    historyIndex = commandHistory.length;
+    if (command === 'clear') {
+      resetTerminal();
+      return;
+    }
+    if (command.startsWith('open ')) {
+      printTerminal(terminalOpen(command.slice(5).trim()));
+      return;
+    }
+    if (command.startsWith('connect ')) {
+      printTerminal(connectedTopic(command.slice(8).trim()));
+      return;
+    }
+    const output = terminalCommands[command] ? terminalCommands[command]() : `command not found: ${command}`;
+    printTerminal(output);
+  }
+
+  terminalInput.addEventListener('keydown', (event) => {
+    const known = ['help', 'about', 'ls', 'open workshop', 'open connections', 'projects', 'interests', 'connect mycology', 'now', 'contact', 'clear', 'onepiece', 'sudo', 'make coffee', 'grow mycelium', 'whoami'];
+    if (event.key === 'Enter') {
+      executeTerminal(terminalInput.value);
+      terminalInput.value = '';
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      historyIndex = Math.max(0, historyIndex - 1);
+      terminalInput.value = commandHistory[historyIndex] || '';
+    } else if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      historyIndex = Math.min(commandHistory.length, historyIndex + 1);
+      terminalInput.value = commandHistory[historyIndex] || '';
+    } else if (event.key === 'Tab') {
+      event.preventDefault();
+      const match = known.find((cmd) => cmd.startsWith(terminalInput.value));
+      if (match) terminalInput.value = match;
+    } else if (event.key.toLowerCase() === 'l' && event.ctrlKey) {
+      event.preventDefault();
+      resetTerminal();
+    } else if (event.key === 'Escape') {
+      terminalInput.blur();
+    }
+  });
+
+  resetTerminal();
 
   /* ---------- window controls (generalized: works for any .instrument) ---------- */
   function syncConceptVisibility(inst) {
