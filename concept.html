@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Gary Hall - concept direction</title>
+<link rel="icon" href="data:,">
 <style>
   :root {
     --void: #07090f;
@@ -636,7 +637,12 @@
   }
 
   .action-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    /* auto-fit rather than a fixed 4 columns: a rigid 4-up grid gets crushed
+       to unreadable ~40px columns whenever the workshop sidebar is present
+       and eating width (roughly 720-950px) - auto-fit drops to 3/2/1 columns
+       instead, so hyphenated labels like "useful-tools-real-work" always get
+       enough room to wrap cleanly rather than fragmenting. */
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
   }
 
   .connection-grid {
@@ -672,9 +678,9 @@
   .connection-node,
   .action-chip,
   .back-btn {
-    border: 1px solid var(--glass-edge);
+    border: 1px solid rgba(233, 237, 246, 0.16);
     border-radius: 8px;
-    background: rgba(7, 9, 15, 0.22);
+    background: rgba(255, 255, 255, 0.045);
     color: var(--ink-dim);
     font: inherit;
     text-align: left;
@@ -760,6 +766,15 @@
     margin: 0;
     font-size: 0.88rem;
     line-height: 1.5;
+    /* Clamp instead of letting height track description length - a 6-word
+       summary and a 30-word one used to produce wildly uneven card heights
+       in the same grid row (grid stretches short neighbors to match the
+       tallest card). Truncating keeps the grid even; the full text is one
+       tap away in the detail panel regardless. */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .tag-row {
@@ -795,9 +810,64 @@
     min-height: 430px;
   }
 
+  /* Below 720px, .relation-layout stacks the connection-grid above the
+     connection-detail - picking a node meant scrolling all the way down to
+     see it. Instead, on narrow widths the detail becomes a floating window
+     (matching the glass .instrument panels elsewhere on the site) with a
+     minimize control, collapsing to a small reopen pill - the same
+     minimize/reopen pattern already used for the main instrument windows,
+     just without a titlebar since this is a lighter, contextual popup. On
+     wider layouts .relation-layout already shows the grid and detail
+     side by side, so none of this applies there.
+
+     This overlay copy is rendered into #connectionOverlayPortal, a sibling
+     of .page rather than a descendant of .instrument - .instrument sets
+     backdrop-filter, which (like filter/transform) makes an element the
+     containing block for any position:fixed descendants. Nested inside it,
+     "fixed" would resolve against the instrument panel's position in the
+     document instead of the viewport, so a bottom-anchored sheet would sit
+     wherever the panel happens to be in the page rather than staying put
+     on screen while scrolling. Rendering it outside that subtree avoids the
+     issue entirely instead of fighting it with more positioning math. */
+  .connection-detail--overlay,
+  .connection-min-btn,
+  .connection-detail-backdrop {
+    display: none;
+  }
+
+  .connection-reopen {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--ink-dim);
+    background: var(--glass);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid var(--glass-edge);
+    border-radius: 999px;
+    padding: 9px 16px;
+    cursor: pointer;
+  }
+
+  .connection-reopen:hover { color: var(--ink); border-color: var(--signal); }
+
   .detail-summary {
     color: var(--ink);
     font-size: 1.02rem;
+  }
+
+  .project-mark {
+    display: block;
+    width: 88px;
+    height: 88px;
+    object-fit: contain;
+    margin: 2px 0 14px;
+    padding: 8px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-edge);
   }
 
   .detail-section-grid {
@@ -857,6 +927,10 @@
     grid-template-columns: minmax(0, 1.1fr) minmax(240px, 0.9fr);
     gap: 20px;
     align-items: start;
+  }
+
+  .relation-layout.is-list-only {
+    grid-template-columns: 1fr;
   }
 
   .connection-node.is-dimmed {
@@ -921,6 +995,126 @@
     gap: 12px;
   }
 
+  .consulting-console {
+    display: grid;
+    gap: 22px;
+  }
+
+  .consulting-lede {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(220px, 0.95fr);
+    gap: 22px;
+    align-items: start;
+  }
+
+  .consulting-kicker {
+    margin: 0 0 8px;
+    color: var(--signal);
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .consulting-statement {
+    margin: 0;
+    color: var(--ink);
+    font-size: 1.08rem;
+    line-height: 1.65;
+  }
+
+  .consulting-signal {
+    border-left: 1px solid rgba(52, 224, 201, 0.32);
+    padding-left: 16px;
+  }
+
+  .consulting-signal p {
+    margin: 0;
+    color: var(--ink-dim);
+    line-height: 1.55;
+  }
+
+  .consulting-section {
+    border-top: 1px solid var(--glass-edge);
+    padding-top: 18px;
+  }
+
+  .consulting-section h3,
+  .intake-overlay h3 {
+    margin: 0 0 12px;
+    color: var(--ink);
+    font-size: 1rem;
+  }
+
+  .consulting-lanes,
+  .consulting-process,
+  .consulting-fit {
+    display: grid;
+    gap: 0;
+    margin-top: 12px;
+    border: 1px solid var(--glass-edge);
+    border-radius: 8px;
+    overflow: hidden;
+    background: rgba(7, 9, 15, 0.18);
+  }
+
+  .consulting-lane,
+  .process-step,
+  .fit-row {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: 18px;
+    padding: 14px 16px;
+    border-top: 1px solid var(--glass-edge);
+  }
+
+  .consulting-lane:first-child,
+  .process-step:first-child,
+  .fit-row:first-child {
+    border-top: 0;
+  }
+
+  .lane-label,
+  .step-label,
+  .fit-label {
+    color: var(--signal);
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+  }
+
+  .lane-body h4,
+  .step-body h4,
+  .fit-body h4 {
+    margin: 0 0 6px;
+    color: var(--ink);
+    font-size: 0.96rem;
+  }
+
+  .lane-body p,
+  .step-body p,
+  .fit-body p {
+    margin: 0;
+    color: var(--ink-dim);
+    font-size: 0.9rem;
+    line-height: 1.55;
+  }
+
+  .consulting-proof {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .intake-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .intake-form .wide-field {
+    grid-column: 1 / -1;
+  }
+
   .intake-form label {
     display: grid;
     gap: 6px;
@@ -943,6 +1137,79 @@
   .intake-form textarea {
     min-height: 82px;
     resize: vertical;
+  }
+
+  /* Floating panel for the intake form, same rationale as the connection
+     detail overlay: rendered into #intakeOverlayPortal, a body-level
+     sibling outside .instrument, because .instrument's backdrop-filter
+     makes it a containing block for position:fixed descendants - inside
+     it, "fixed" would track the panel instead of the viewport. Unlike the
+     connection overlay this runs at every width (the scrolling problem it
+     solves isn't mobile-specific), and closes outright rather than
+     minimizing to a pill - there's no reason to want to snap back to a
+     half-filled form the way you might want to return to a connection. */
+  .intake-overlay-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(4, 6, 10, 0.55);
+    z-index: 70;
+    animation: backdrop-in 0.2s ease both;
+  }
+
+  .intake-overlay {
+    position: fixed;
+    z-index: 75;
+    left: 50%;
+    top: 50%;
+    /* Also set as a base value, not just inside the keyframe: with
+       prefers-reduced-motion the animation is disabled entirely, and
+       without this the element would fall back to no transform at all
+       and sit off-center. */
+    transform: translate(-50%, -50%);
+    width: min(600px, calc(100vw - 32px));
+    max-height: min(84vh, 760px);
+    overflow-y: auto;
+    background: var(--glass);
+    backdrop-filter: blur(30px) saturate(1.1);
+    -webkit-backdrop-filter: blur(30px) saturate(1.1);
+    border: 1px solid var(--glass-edge);
+    border-radius: 14px;
+    box-shadow: 0 30px 90px -30px rgba(0, 0, 0, 0.65);
+    padding: 28px;
+    animation: intake-in 0.2s ease both;
+  }
+
+  @keyframes intake-in {
+    from { transform: translate(-50%, -50%) scale(0.96); opacity: 0; }
+    to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  }
+
+  .intake-close-btn {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 26px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--glass-edge);
+    border-radius: 4px;
+    color: var(--ink-faint);
+    font-size: 0.7rem;
+    cursor: pointer;
+  }
+
+  .intake-close-btn:hover { background: rgba(240, 100, 90, 0.16); color: #f0645a; border-color: rgba(240, 100, 90, 0.3); }
+
+  @media (max-width: 720px) {
+    .intake-overlay { padding: 22px 18px 20px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .intake-overlay,
+    .intake-overlay-backdrop { animation: none; }
   }
 
   .status-row {
@@ -1044,8 +1311,20 @@
     .detail-section-grid,
     .project-grid,
     .note-grid,
-    .action-grid,
-    .relation-layout { grid-template-columns: 1fr; }
+    .relation-layout,
+    .consulting-lede,
+    .intake-grid { grid-template-columns: 1fr; }
+    .consulting-lane,
+    .process-step,
+    .fit-row {
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+    .consulting-signal {
+      border-left: 0;
+      border-top: 1px solid rgba(52, 224, 201, 0.32);
+      padding: 14px 0 0;
+    }
     .terminal-window .instrument-body { max-height: 260px; }
     .terminal-log { height: 190px; }
     .terminal-window.is-maximized .terminal-log { height: 300px; }
@@ -1061,6 +1340,90 @@
     }
     .titlebar { padding-left: 14px; }
     .tb-title { font-size: 0.72rem; }
+
+    .connection-detail--inline {
+      display: none;
+    }
+
+    .connection-detail--overlay {
+      display: block;
+      position: fixed;
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      top: auto;
+      margin-top: 0;
+      max-height: 72vh;
+      overflow-y: auto;
+      z-index: 60;
+      background: var(--glass);
+      backdrop-filter: blur(28px) saturate(1.1);
+      -webkit-backdrop-filter: blur(28px) saturate(1.1);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+      animation: sheet-in 0.22s ease both;
+    }
+
+    .connection-detail--overlay.is-minimized {
+      display: none;
+    }
+
+    .connection-detail-backdrop {
+      display: block;
+      position: fixed;
+      inset: 0;
+      background: rgba(4, 6, 10, 0.5);
+      z-index: 55;
+      animation: backdrop-in 0.22s ease both;
+    }
+
+    .connection-detail-backdrop.is-minimized {
+      display: none;
+    }
+
+    .connection-min-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 26px;
+      height: 22px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--glass-edge);
+      border-radius: 4px;
+      color: var(--ink-faint);
+      font-size: 0.7rem;
+      cursor: pointer;
+    }
+
+    .connection-min-btn:hover { background: rgba(255, 255, 255, 0.09); color: var(--ink); }
+
+    .connection-reopen {
+      display: none;
+      position: fixed;
+      left: 50%;
+      bottom: 16px;
+      transform: translateX(-50%);
+      z-index: 65;
+    }
+
+    .connection-reopen.is-visible { display: inline-flex; }
+  }
+
+  @keyframes sheet-in {
+    from { transform: translateY(18px); opacity: 0; }
+    to { transform: none; opacity: 1; }
+  }
+
+  @keyframes backdrop-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .connection-detail--overlay,
+    .connection-detail-backdrop { animation: none; }
   }
 </style>
 </head>
@@ -1137,6 +1500,9 @@
 
 </div>
 
+<div id="connectionOverlayPortal"></div>
+<div id="intakeOverlayPortal"></div>
+
 <script>
   const instrument = document.getElementById('instrument');
   const viewer = document.querySelector('.viewer');
@@ -1204,70 +1570,26 @@
       relatedNotes: ['ai-as-assistant', 'useful-tools-real-work'],
       relatedConnections: ['human-systems', 'design', 'tool-building', 'natural-systems'],
       externalUrl: null,
+      image: 'assets/sweet-beans-logo.png',
+      imageAlt: 'Sweet Beans Grooming logo: gold serif wordmark with a comb icon and paw prints',
     },
     {
-      id: 'uctools',
-      aliases: [],
-      title: 'UCTools',
-      status: 'archive',
-      summary: 'Built after doing the same engineering work too many times.',
-      overview: 'UCTools grew from repetitive Cisco UCS tasks, operational knowledge, and the belief that engineers should not have to keep solving the same problem from scratch.',
-      problem: 'Recurring engineering work and tribal knowledge kept asking to become reusable.',
-      built: 'Tools that simplified repeatable infrastructure tasks and preserved operational knowledge.',
-      design: 'Engineer experience mattered: the useful tool was the one that reduced friction without hiding the system.',
-      lessons: 'Expertise compounds when it becomes a tool other people can use.',
-      tags: ['infrastructure', 'automation', 'repeatability'],
-      relatedNotes: ['useful-tools-real-work'],
-      relatedConnections: ['engineering', 'tool-building'],
+      id: 'alki-beach-pride',
+      aliases: ['alki-pride', 'beach-pride'],
+      title: 'Alki Beach Pride',
+      status: 'community work',
+      summary: 'Volunteer event coordination for a public community gathering on Alki Beach.',
+      overview: 'I serve as a volunteer event coordinator for Alki Beach Pride, helping turn a community intention into a real-world gathering with timing, people, logistics, communication, and care.',
+      problem: 'Community events look simple from the outside, but they depend on coordination: volunteers, vendors, schedules, access, setup, safety, communication, and the small decisions that help people feel welcome.',
+      built: 'Event coordination work, operational planning, volunteer support, communication loops, and the practical glue that helps a public event hold together.',
+      design: 'A good community event is not overdesigned. It gives people enough structure to feel safe and enough openness to feel like the space belongs to them.',
+      lessons: 'Human systems are still systems. Trust, timing, roles, and visible care are infrastructure too.',
+      tags: ['community', 'events', 'volunteer', 'operations', 'pride'],
+      relatedNotes: ['community-events-are-systems'],
+      relatedConnections: ['human-systems', 'design'],
       externalUrl: null,
-    },
-    {
-      id: 'coronavirus-diary',
-      aliases: ['covid-diary'],
-      title: 'Coronavirus Diary',
-      status: 'archive',
-      summary: 'A personal archive of a system-wide disruption.',
-      overview: 'Coronavirus Diary began as an effort to document an extraordinary period while it was still unfolding.',
-      problem: 'Institutions, communities, routines, and individual lives were changing faster than memory could organize.',
-      built: 'Part archive, part reflection, and part record of uncertainty while it was still present.',
-      design: 'The form needed to feel like documentation, not hindsight.',
-      lessons: 'Systems reveal themselves under pressure.',
-      tags: ['memory', 'social systems', 'documentation'],
-      relatedNotes: ['hidden-infrastructure'],
-      relatedConnections: ['human-systems'],
-      externalUrl: null,
-    },
-    {
-      id: 'bit-gamer',
-      aliases: ['bitgamer'],
-      title: 'Bit Gamer',
-      status: 'archive',
-      summary: 'Shared interests create their own infrastructure.',
-      overview: 'Bit Gamer explored content, community, identity, and the systems that form when people gather around a common interest.',
-      problem: 'Communities need more than content; they need rhythms, identity, and places to gather.',
-      built: 'A project at the intersection of technology, design, publishing, and community building.',
-      design: 'A community system has to make participation feel legible.',
-      lessons: 'Shared enthusiasm becomes infrastructure when it repeats.',
-      tags: ['community', 'publishing', 'design'],
-      relatedNotes: ['why-one-piece-works'],
-      relatedConnections: ['storytelling', 'human-systems'],
-      externalUrl: null,
-    },
-    {
-      id: 'pizza-systems',
-      aliases: ['pizza'],
-      title: 'Pizza Systems',
-      status: 'archive',
-      summary: 'The tools were simpler. The systems problem was not.',
-      overview: 'Long before software modernization became a consulting phrase, I was improving workflows inside a pizza business.',
-      problem: 'Operations, customer experience, and daily work needed tools shaped around the people actually using them.',
-      built: 'Databases, websites, practical workflows, and systems that made work easier.',
-      design: 'Understand the real work, find the friction, build the smallest useful tool, improve it through use.',
-      lessons: 'This pattern connects directly to Sweet Beans Systems.',
-      tags: ['operations', 'small business', 'tool-building'],
-      relatedNotes: ['useful-tools-real-work'],
-      relatedConnections: ['human-systems', 'small-business'],
-      externalUrl: null,
+      image: 'assets/alki-beach-pride-logo.png',
+      imageAlt: 'Alki Beach Pride West Seattle logo: outlined wordmark over a wavy sunset gradient with palm trees',
     },
     {
       id: 'ai-experiments',
@@ -1285,6 +1607,130 @@
       relatedConnections: ['engineering', 'tool-building'],
       externalUrl: null,
     },
+    {
+      id: 'dukes-eod-assistant',
+      aliases: ['dukes', 'dukes-seafood'],
+      title: 'Dukes Seafood EOD Assistant',
+      status: 'archive',
+      summary: 'A phone app that turned a slow end-of-day paperwork ritual into a photo and a few numbers.',
+      overview: "I built a small mobile app for Dukes Seafood that reads an end-of-day printout, runs the calculations, and tells the closer exactly what they need to complete the form  -  including splitting tips  -  instead of doing the math by hand.",
+      problem: 'End-of-day paperwork was slow and repetitive: the same calculations, run by hand, every closing shift, tip splits included.',
+      built: "A mobile app that takes a picture of the EOD printout, calculates the totals, and surfaces exactly what's needed to fill out the form  -  cutting the time to complete it roughly in half.",
+      design: "The target wasn't a general accounting tool. It was one specific, recurring piece of friction, solved narrowly enough that closing staff could point a phone at a printout and get an answer.",
+      lessons: "The smallest tools are sometimes the best return on effort  -  this didn't need a platform, just enough to remove one repeated, mechanical task.",
+      tags: ['mobile app', 'automation', 'small business', 'operations'],
+      relatedNotes: ['useful-tools-real-work'],
+      relatedConnections: ['tool-building', 'small-business', 'human-systems'],
+      externalUrl: null,
+    },
+    {
+      id: 'sync-auburn',
+      aliases: ['sync', 'serve-your-neighbor-collective'],
+      title: 'SYNC',
+      status: 'past community work',
+      summary: 'Serve Your Neighbor Collective  -  a cooperative nonprofit serving unhoused neighbors in Auburn, WA. I was a member and designed its identity.',
+      overview: 'Serve Your Neighbor Collective (SYNC) is a nonprofit, cooperatively managed membership corporation based in Auburn, Washington. I was a general member of the collective for a period, and separately designed the organization’s logo.',
+      problem: 'SYNC organized around a specific, stated purpose: improving the lives of unhoused persons in Auburn. That meant direct goods and services for unhoused community members, advocacy with local government for better policy, public awareness campaigns, coordinating resources with aligned organizations, and working toward property for shelter.',
+      built: 'My concrete contribution was the visual identity: the circular SYNC badge  -  two clasped hands cradling a heart, framed by a tent and a house, set against sky and ground. As a member, I held the same standing as everyone else in the collective: under SYNC’s bylaws there is no separate non-voting membership tier  -  every member is, by structure, a director with an equal vote.',
+      design: 'The mark ties directly to the mission on paper: the tent and house point at the range SYNC was chartered to work across, from immediate shelter to the "acquisition and maintenance of property" named in its Articles of Incorporation. The hands-and-heart center reads as the mutual-aid framing baked into the organization’s own name  -  to Serve Your Neighbor.',
+      lessons: 'What stayed with me was the governance model more than any single project: a cooperative where membership and directorship are the same thing, officers serve staggered two-year terms, and most real power sits in a quorum of members voting directly rather than a small board acting on their behalf. It’s a genuinely different answer to "who gets to decide" than most organizations reach for.',
+      tags: ['nonprofit', 'cooperative', 'community', 'branding', 'volunteer'],
+      relatedNotes: ['community-events-are-systems'],
+      relatedConnections: ['human-systems', 'design'],
+      externalUrl: null,
+      image: 'assets/sync-logo.png',
+      imageAlt: 'SYNC Auburn logo: a circular badge with two clasped hands cradling a heart, flanked by a tent and a house',
+    },
+    {
+      id: 'coronavirus-diary',
+      aliases: ['covid-diary', 'covidnearme', 'covid-near-me'],
+      title: 'Coronavirus Diary',
+      status: 'archive',
+      summary: 'A public-health app concept for local COVID statistics and anonymous symptom reporting.',
+      overview: 'Coronavirus Diary, also explored as CovidNearMe, was an early pandemic idea I helped originate and shape: a mobile app for viewing local COVID-19 statistics, recording symptoms with informed consent, and helping communities understand what was happening nearby.',
+      problem: 'During the early pandemic, people needed local signal, not only national headlines. Public health response also depended on ethically sourced, privacy-aware data that could help reveal symptom clusters and upcoming spikes.',
+      built: 'The concept included onboarding, informed consent, location selection, local statistics, symptom reporting, safety tips, and sharing flows. The public repository describes a Flutter app for local COVID stats and anonymous symptom submission.',
+      design: 'The design challenge was trust. A health-data tool had to explain consent clearly, keep the interaction simple under stress, and make the local picture legible without turning private symptoms into spectacle.',
+      lessons: 'Crisis tools need speed, but they also need ethics, clarity, and careful credit. The public record does not always capture the full origin story, so this archive preserves my role in the idea and early direction.',
+      tags: ['public health', 'privacy', 'mobile app', 'community data'],
+      relatedNotes: ['ethical-health-data', 'hidden-infrastructure'],
+      relatedConnections: ['human-systems', 'design', 'engineering'],
+      externalUrl: 'https://github.com/coronavirus-diary/coronavirus-diary',
+      image: 'assets/covid-diary-icon.png',
+      imageAlt: 'Coronavirus Diary app icon: a stylized blue virus mark and dot',
+    },
+    {
+      id: 'uctools',
+      aliases: [],
+      title: 'UCTools',
+      status: 'archive',
+      summary: 'Built after doing the same engineering work too many times.',
+      overview: 'UCTools grew from repetitive Cisco UCS tasks, operational knowledge, and the belief that engineers should not have to keep solving the same problem from scratch.',
+      problem: 'Recurring engineering work and tribal knowledge kept asking to become reusable.',
+      built: 'Tools that simplified repeatable infrastructure tasks and preserved operational knowledge.',
+      design: 'Engineer experience mattered: the useful tool was the one that reduced friction without hiding the system.',
+      lessons: 'Expertise compounds when it becomes a tool other people can use.',
+      tags: ['infrastructure', 'automation', 'repeatability'],
+      relatedNotes: ['useful-tools-real-work'],
+      relatedConnections: ['engineering', 'tool-building'],
+      externalUrl: null,
+      image: 'assets/cisco-logo.png',
+      imageAlt: 'Cisco logo',
+    },
+    {
+      id: 'bit-gamer',
+      aliases: ['bitgamer', 'bitgamer.io'],
+      title: 'Bit Gamer',
+      status: 'archive',
+      summary: 'An esports and gaming ecosystem built around tournaments, identity, community, and proof of play. I served as Chief Operations Officer.',
+      overview: 'BitGamer.io was a proposed all-in-one gaming platform where players could socialize, form teams, host tournaments, compete for Bitcoin or prizes, and carry a durable gaming identity across titles and communities. I served as Chief Operations Officer on the founding team, bringing management, project management, engineering, and systems administration experience to a group otherwise built around gaming and growth.',
+      problem: 'Online gaming communities were fragmented across platforms, games, Discord servers, tournament sites, and friend lists. Tournament hosts needed better tools, casual players needed lower-barrier competition, and player history was easy to lose when people moved from game to game.',
+      built: 'The system concept included universal gamer profiles, Proof of Gaming records, smart tournaments, match shaping by skill tier, game hubs, a games feed, a marketplace, Bit Tokens, premium events, Bit Academy, bounty loops, and BitBot for Discord-based tournament automation. I designed the ecosystem architecture connecting these parts  -  how sponsors, tournaments, the player base, BitBot automation, and revenue flow all fed back into each other as one system, not separate features.',
+      design: 'The core design challenge was making a serious esports system approachable to casual, amateur, and competitive players at the same time. The platform had to support identity, ranking, social discovery, tournament operations, rewards, and privacy without feeling like separate tools duct-taped together.',
+      lessons: 'BitGamer is a useful systems case study because it combines community, incentives, reputation, event operations, APIs, automation, and digital identity. The durable lesson is that shared interests create infrastructure when people need to coordinate repeatedly.',
+      tags: ['esports', 'community', 'tournaments', 'blockchain', 'Discord automation'],
+      relatedNotes: ['why-one-piece-works'],
+      relatedConnections: ['storytelling', 'human-systems', 'tool-building', 'engineering'],
+      externalUrl: null,
+      image: 'assets/bitgamer-logo.png',
+      imageAlt: 'BitGamer logo: a pixel-block "b" mark with the wordmark "bitgamer" and tagline "earn while you play"',
+    },
+    {
+      id: 'ezl',
+      aliases: ['ezlbot', 'project-prometheus', 'project-replicators'],
+      title: 'EZL',
+      status: 'archive',
+      summary: 'A global gaming platform vision supported by web systems, Discord automation, and infrastructure.',
+      overview: 'EZL was a large gaming-community platform concept with a web experience, user profiles, calendars, applications, tournaments, leagues, staff workflows, and bot-powered Discord operations. I also helped provide the OpenStack hardware needed to support the work.',
+      problem: 'Competitive gaming communities needed coordination across regions, languages, events, teams, staff roles, and player histories. The system had to make global participation feel organized instead of scattered.',
+      built: 'The planning covered browser-language detection, adaptive home pages, dynamic calendars, event countdowns, profiles, gaming resumes, applications, tournament and league workflows, staff processing, notification systems, and an EZLBot for server management, signup, brackets, rooms, permissions, leaderboards, ratings, and moderation support.',
+      design: 'The useful design principle was continuity: a gamer should be able to move through events, teams, applications, profiles, and community spaces without relearning the organization every time.',
+      lessons: 'Infrastructure is part of community work. Hardware, servers, identity, schedules, permissions, and communication are all pieces of the same social machine.',
+      tags: ['gaming', 'OpenStack', 'Discord bot', 'infrastructure', 'community'],
+      relatedNotes: ['infrastructure-enables-community', 'gamers-need-home'],
+      relatedConnections: ['engineering', 'tool-building', 'human-systems'],
+      externalUrl: null,
+      image: 'assets/ezl-logo.png',
+      imageAlt: 'EZL logo: an orange torch mark inside a rounded badge, with the EZL wordmark and tagline "the league for everyone"',
+    },
+    {
+      id: 'pizza-systems',
+      aliases: ['pizza', 'monsters-pizza'],
+      title: "Monster's Pizza",
+      status: 'archive',
+      summary: 'The tools were simpler. The systems problem was not.',
+      overview: "Long before software modernization became a consulting phrase, I was improving workflows inside Monster's Pizza.",
+      problem: 'Operations, customer experience, and daily work needed tools shaped around the people actually using them.',
+      built: 'Databases, websites, practical workflows, and systems that made work easier.',
+      design: 'Understand the real work, find the friction, build the smallest useful tool, improve it through use.',
+      lessons: 'This pattern connects directly to Sweet Beans Systems.',
+      tags: ['operations', 'small business', 'tool-building'],
+      relatedNotes: ['useful-tools-real-work'],
+      relatedConnections: ['human-systems', 'small-business'],
+      externalUrl: null,
+      image: 'assets/monsters-pizza-logo.png',
+      imageAlt: "Monster's Pizza logo: red bubble lettering with a white outline",
+    },
   ];
 
   const fieldNotes = [
@@ -1292,20 +1738,28 @@
     { id: 'ai-as-assistant', title: 'AI as assistant, not authority', status: 'working principle', tags: ['AI', 'Sweet Beans Systems', 'system design'], relatedProject: 'sweet-beans-systems', relatedConnection: 'tool-building', observation: 'AI becomes more useful when its role is clearly bounded.', body: 'It can accelerate exploration, reduce repetitive work, and help people see alternatives. It should not quietly become the authoritative source for records it did not create and cannot reliably verify.' },
     { id: 'visible-mushroom', title: 'The visible mushroom', status: 'field note', tags: ['mycology', 'design', 'software'], relatedProject: 'sweet-beans-systems', relatedConnection: 'design', observation: 'A mushroom is evidence of a much larger organism.', body: 'Products can work the same way. The interface is visible, but the real system includes relationships, history, maintenance, data, decisions, and work that users may never see.' },
     { id: 'useful-tools-real-work', title: 'Useful tools start with real work', status: 'principle', tags: ['operations', 'tool-building', 'consulting'], relatedProject: 'pizza-systems', relatedConnection: 'human-systems', observation: 'The fastest way to build the wrong tool is to begin with the software instead of the work.', body: 'Watch the process. Learn where people compensate. Notice what they have memorized. Then decide whether technology belongs there.' },
+    { id: 'ethical-health-data', title: 'Ethical health data', status: 'archive note', tags: ['public health', 'privacy', 'mobile app'], relatedProject: 'coronavirus-diary', relatedConnection: 'human-systems', observation: 'A crisis does not remove the need for consent. It makes consent more important.', body: 'Coronavirus Diary and CovidNearMe were about local signal during a frightening moment, but the product problem was also a trust problem. People needed clear consent, simple symptom reporting, and confidence that anonymous community data would be used carefully.' },
+    { id: 'infrastructure-enables-community', title: 'Infrastructure enables community', status: 'archive note', tags: ['OpenStack', 'gaming', 'infrastructure'], relatedProject: 'ezl', relatedConnection: 'engineering', observation: 'Community platforms become real only when the invisible infrastructure can carry them.', body: 'Helping provide OpenStack hardware for EZL was not separate from the community idea. Servers, uptime, permissions, identity, automation, and event tools are the quiet foundation that lets people gather and coordinate at scale.' },
+    { id: 'community-events-are-systems', title: 'Community events are systems', status: 'active note', tags: ['events', 'volunteer', 'community'], relatedProject: 'alki-beach-pride', relatedConnection: 'human-systems', observation: 'A welcoming event is made from hundreds of small operational choices.', body: 'Alki Beach Pride connects the same pattern to physical space: volunteers, timing, setup, safety, communication, and trust. The best coordination disappears into the feeling that the event simply works.' },
+    { id: 'gamers-need-home', title: 'Gamers need a home', status: 'archive note', tags: ['gaming', 'community', 'identity'], relatedProject: 'bit-gamer', relatedConnection: 'human-systems', observation: 'A platform is not only features. Sometimes it is a place where a fragmented community can remember itself.', body: 'BitGamer was built around the idea that gamers lose history, teams, events, and friendships when every game and platform becomes its own island. The interesting systems problem was not just tournaments. It was continuity: identity, reputation, coordination, and community across changing games.' },
     { id: 'why-one-piece-works', title: 'Why One Piece works', status: 'curiosity', tags: ['storytelling', 'systems', 'One Piece'], relatedProject: 'bit-gamer', relatedConnection: 'storytelling', observation: 'One Piece rewards attention because details accumulate rather than disappear.', body: 'Places have history. Institutions remember. Characters inherit unfinished struggles. The world feels large because consequences continue moving even when the story looks elsewhere.' },
   ];
 
   const connectionNodes = [
-    { id: 'systems', title: 'Systems', summary: 'How many parts coordinate, fail, adapt, and produce behavior.', links: ['engineering', 'tool-building', 'natural-systems', 'human-systems', 'storytelling'], projects: ['sweet-beans-systems', 'uctools'], notes: ['hidden-infrastructure'] },
-    { id: 'tool-building', title: 'Tool building', summary: 'Turning repeated work and discovered patterns into something useful.', links: ['systems', 'engineering', 'design', 'human-systems'], projects: ['sweet-beans-systems', 'uctools', 'pizza-systems'], notes: ['useful-tools-real-work', 'ai-as-assistant'] },
-    { id: 'design', title: 'Design as communication', summary: 'Design is how a system explains itself, not decoration added after engineering.', links: ['tool-building', 'human-systems', 'storytelling'], projects: ['sweet-beans-systems', 'bit-gamer'], notes: ['visible-mushroom'] },
-    { id: 'engineering', title: 'Engineering', summary: 'Infrastructure, automation, applications, architecture, and repeatable systems.', links: ['systems', 'tool-building'], projects: ['uctools', 'ai-experiments'], notes: ['ai-as-assistant'] },
-    { id: 'natural-systems', title: 'Natural systems', summary: 'Plants and fungi keep returning me to distributed intelligence, resilience, and hidden infrastructure.', links: ['systems', 'botany', 'mycology'], projects: ['sweet-beans-systems'], notes: ['hidden-infrastructure', 'visible-mushroom'] },
-    { id: 'botany', title: 'Botany', summary: 'Plants sense, allocate resources, adapt, and operate on timescales humans overlook.', links: ['natural-systems', 'systems'], projects: [], notes: ['hidden-infrastructure'] },
-    { id: 'mycology', title: 'Mycology', summary: 'Fungi reveal quiet infrastructure: networks, decomposition, renewal, and symbiosis.', links: ['natural-systems', 'systems'], projects: [], notes: ['hidden-infrastructure', 'visible-mushroom'] },
-    { id: 'human-systems', title: 'Human systems', summary: 'Businesses, communities, trust, incentives, memory, and daily work.', links: ['systems', 'design', 'tool-building', 'small-business'], projects: ['sweet-beans-systems', 'pizza-systems'], notes: ['useful-tools-real-work'] },
-    { id: 'small-business', title: 'Dog grooming as a systems story', summary: 'Appointments, animal histories, trust, communication, timing, and operations all interact.', links: ['human-systems', 'tool-building', 'design'], projects: ['sweet-beans-systems', 'pizza-systems'], notes: ['useful-tools-real-work'] },
-    { id: 'storytelling', title: 'Storytelling', summary: 'Stories preserve incentives, histories, rules, constraints, and consequences over time.', links: ['systems', 'design', 'human-systems'], projects: ['bit-gamer'], notes: ['why-one-piece-works'] },
+    { id: 'systems', title: 'Systems', summary: 'How many parts coordinate, fail, adapt, and produce behavior.', links: ['engineering', 'tool-building', 'natural-systems', 'human-systems', 'storytelling'], projects: ['sweet-beans-systems', 'uctools', 'ezl', 'coronavirus-diary'], notes: ['hidden-infrastructure', 'community-events-are-systems'] },
+    { id: 'tool-building', title: 'Tool building', summary: 'Turning repeated work and discovered patterns into something useful.', links: ['systems', 'engineering', 'design', 'human-systems', '3d-design'], projects: ['sweet-beans-systems', 'uctools', 'pizza-systems', 'ezl', 'dukes-eod-assistant'], notes: ['useful-tools-real-work', 'ai-as-assistant', 'infrastructure-enables-community'] },
+    { id: 'design', title: 'Design as communication', summary: 'Design is how a system explains itself, not decoration added after engineering. Also literal: years of graphic design work in Illustrator and Photoshop, which is where most of the logos on this site came from.', links: ['tool-building', 'human-systems', 'storytelling', '3d-design'], projects: ['sweet-beans-systems', 'bit-gamer', 'coronavirus-diary', 'alki-beach-pride'], notes: ['visible-mushroom', 'ethical-health-data', 'community-events-are-systems'] },
+    { id: 'engineering', title: 'Engineering', summary: 'Infrastructure, automation, applications, architecture, and repeatable systems.', links: ['systems', 'tool-building', '3d-design'], projects: ['uctools', 'ai-experiments', 'ezl', 'coronavirus-diary'], notes: ['ai-as-assistant', 'infrastructure-enables-community'] },
+    { id: 'natural-systems', title: 'Natural systems', summary: 'Plants and fungi keep returning me to distributed intelligence, resilience, and hidden infrastructure.', links: ['systems', 'botany', 'mycology', 'hydroponics', 'vermiculture'], projects: ['sweet-beans-systems'], notes: ['hidden-infrastructure', 'visible-mushroom'] },
+    { id: 'botany', title: 'Botany', summary: 'Plants sense, allocate resources, adapt, and operate on timescales humans overlook.', links: ['natural-systems', 'systems', 'hydroponics'], projects: [], notes: ['hidden-infrastructure'] },
+    { id: 'mycology', title: 'Mycology', summary: 'Fungi reveal quiet infrastructure: networks, decomposition, renewal, and symbiosis.', links: ['natural-systems', 'systems', 'vermiculture'], projects: [], notes: ['hidden-infrastructure', 'visible-mushroom'] },
+    { id: 'hydroponics', title: 'Hydroponics', summary: 'Running a closed water-and-nutrient loop for real, day after day, teaches you fast how unforgiving a small system gets when one variable drifts.', links: ['natural-systems', 'botany', 'systems'], projects: [], notes: [] },
+    { id: 'vermiculture', title: 'Vermiculture', summary: 'Managing worm composting at small and large scale  -  a slow biological system that turns waste into something usable.', links: ['natural-systems', 'mycology', 'systems'], projects: [], notes: [] },
+    { id: '3d-design', title: '3D design & fabrication', summary: "Modeling in Fusion 360 and SketchUp, sculpting in Blender, then printing it on SLA and PLA printers  -  turning an idea into a physical object instead of stopping at the screen.", links: ['tool-building', 'design', 'engineering'], projects: [], notes: [] },
+    { id: 'outdoors', title: 'Outdoors & cycling', summary: "Time outside and on a bike. Not everything needs to be a system.", links: [], projects: [], notes: [] },
+    { id: 'human-systems', title: 'Human systems', summary: 'Businesses, communities, trust, incentives, memory, and daily work.', links: ['systems', 'design', 'tool-building', 'small-business'], projects: ['sweet-beans-systems', 'pizza-systems', 'alki-beach-pride', 'ezl', 'coronavirus-diary', 'bit-gamer', 'dukes-eod-assistant'], notes: ['useful-tools-real-work', 'community-events-are-systems', 'ethical-health-data'] },
+    { id: 'small-business', title: 'Dog grooming as a systems story', summary: 'Appointments, animal histories, trust, communication, timing, and operations all interact.', links: ['human-systems', 'tool-building', 'design'], projects: ['sweet-beans-systems', 'pizza-systems', 'dukes-eod-assistant'], notes: ['useful-tools-real-work'] },
+    { id: 'storytelling', title: 'Storytelling', summary: 'Stories preserve incentives, histories, rules, constraints, and consequences over time.', links: ['systems', 'design', 'human-systems'], projects: ['bit-gamer', 'coronavirus-diary'], notes: ['why-one-piece-works'] },
   ];
 
   function escapeHtml(value) {
@@ -1364,18 +1818,61 @@
     ].map(([title, body]) => `<details class="detail-disclosure"><summary>${escapeHtml(title)}</summary><p>${escapeHtml(body)}</p></details>`).join('');
     const related = [...project.relatedConnections, ...project.relatedNotes].map((id) => `<button class="action-chip" data-open-related="${id}" type="button">${escapeHtml(id)}</button>`).join('');
     const link = project.externalUrl ? `<a class="cta" href="${escapeHtml(project.externalUrl)}">open project -&gt;</a>` : '<p class="links">external link not supplied yet</p>';
-    return `<div class="detail-panel workshop-detail" tabindex="-1"><button class="back-btn" data-open-section="workshop" type="button">&lt; back to workshop</button><p class="signal-label">${escapeHtml(project.status)}</p><h3>${escapeHtml(project.title)}</h3><p class="detail-summary">${escapeHtml(project.summary)}</p><div class="detail-section-grid">${sectionsHtml}</div>${tagsHtml(project.tags)}<div class="action-grid">${related}</div>${link}</div>`;
+    const image = project.image ? `<img class="project-mark" src="${escapeHtml(project.image)}" alt="${escapeHtml(project.imageAlt || '')}">` : '';
+    return `<div class="detail-panel workshop-detail" tabindex="-1"><button class="back-btn" data-open-section="workshop" type="button">&lt; back to workshop</button><p class="signal-label">${escapeHtml(project.status)}</p>${image}<h3>${escapeHtml(project.title)}</h3><p class="detail-summary">${escapeHtml(project.summary)}</p><div class="detail-section-grid">${sectionsHtml}</div>${tagsHtml(project.tags)}<div class="action-grid">${related}</div>${link}</div>`;
   }
 
+  const connectionOverlayPortal = document.getElementById('connectionOverlayPortal');
+
   function renderConnections(selectedId) {
-    const selected = connectionById(selectedId) || connectionById('systems');
-    const related = new Set([selected.id, ...selected.links]);
-    const nodes = connectionNodes.map((node) => `<button class="connection-node ${node.id === selected.id ? 'is-selected' : ''} ${related.has(node.id) ? '' : 'is-dimmed'}" data-connection="${node.id}" type="button"><h3>${escapeHtml(node.title)}</h3><p>${escapeHtml(node.summary)}</p></button>`).join('');
-    const detailProjects = selected.projects.map((id) => projectById(id)).filter(Boolean).map((project) => `<button class="action-chip" data-project="${project.id}" type="button">${escapeHtml(project.title)}</button>`).join('');
-    const detailNotes = selected.notes.map((id) => noteById(id)).filter(Boolean).map((note) => `<button class="action-chip" data-note="${note.id}" type="button">${escapeHtml(note.title)}</button>`).join('');
-    const detail = `<div class="connection-detail" tabindex="-1"><h3>${escapeHtml(selected.title)}</h3><p>${escapeHtml(selected.summary)}</p><p>How does this system work? Where does information move? What makes it resilient? What emerges from the interactions?</p><div class="tag-row">${selected.links.map((id) => `<span class="tag">${escapeHtml(id)}</span>`).join('')}</div><div class="action-grid">${detailProjects}${detailNotes}</div></div>`;
-    renderShell('connections', sections.connections.title, `<p>Enterprise infrastructure, dog grooming, graphic design, plants, fungal networks, artificial intelligence, and storytelling all ask different versions of the same questions.</p><div class="relation-layout"><div class="connection-grid">${nodes}</div>${detail}</div>`);
+    // No selectedId means the section was opened fresh (nav click, not a
+    // node click or deep link) - show just the list rather than assuming
+    // "systems" is what the visitor wants to see first.
+    const selected = selectedId ? connectionById(selectedId) : null;
+    const related = selected ? new Set([selected.id, ...selected.links]) : null;
+    const nodes = connectionNodes.map((node) => `<button class="connection-node ${selected && node.id === selected.id ? 'is-selected' : ''} ${selected && !related.has(node.id) ? 'is-dimmed' : ''}" data-connection="${node.id}" type="button"><h3>${escapeHtml(node.title)}</h3><p>${escapeHtml(node.summary)}</p></button>`).join('');
+
+    let inlineDetail = '';
+    let portalContent = '';
+    if (selected) {
+      const detailProjects = selected.projects.map((id) => projectById(id)).filter(Boolean).map((project) => `<button class="action-chip" data-project="${project.id}" type="button">${escapeHtml(project.title)}</button>`).join('');
+      const detailNotes = selected.notes.map((id) => noteById(id)).filter(Boolean).map((note) => `<button class="action-chip" data-note="${note.id}" type="button">${escapeHtml(note.title)}</button>`).join('');
+      const detailBody = `<h3>${escapeHtml(selected.title)}</h3><p>${escapeHtml(selected.summary)}</p><p>How does this system work? Where does information move? What makes it resilient? What emerges from the interactions?</p><div class="tag-row">${selected.links.map((id) => `<span class="tag">${escapeHtml(id)}</span>`).join('')}</div><div class="action-grid">${detailProjects}${detailNotes}</div>`;
+      inlineDetail = `<div class="connection-detail connection-detail--inline" tabindex="-1">${detailBody}</div>`;
+      portalContent = `<div class="connection-detail-backdrop" data-minimize-detail></div><div class="connection-detail connection-detail--overlay" tabindex="-1"><button class="connection-min-btn" data-minimize-detail type="button" aria-label="Minimize">&#8211;</button>${detailBody}</div><button class="connection-reopen" data-reopen-detail type="button"><span aria-hidden="true">&#9635;</span> reopen ${escapeHtml(selected.title)}</button>`;
+    }
+    renderShell('connections', sections.connections.title, `<p>Enterprise infrastructure, dog grooming, graphic design, plants, fungal networks, artificial intelligence, and storytelling all ask different versions of the same questions.</p><div class="relation-layout ${selected ? '' : 'is-list-only'}"><div class="connection-grid">${nodes}</div>${inlineDetail}</div>`);
+
+    if (connectionOverlayPortal) connectionOverlayPortal.innerHTML = portalContent;
   }
+
+  function minimizeConnectionDetail() {
+    if (!connectionOverlayPortal) return;
+    connectionOverlayPortal.querySelector('.connection-detail')?.classList.add('is-minimized');
+    connectionOverlayPortal.querySelector('.connection-detail-backdrop')?.classList.add('is-minimized');
+    connectionOverlayPortal.querySelector('.connection-reopen')?.classList.add('is-visible');
+  }
+
+  function reopenConnectionDetail() {
+    if (!connectionOverlayPortal) return;
+    connectionOverlayPortal.querySelector('.connection-detail')?.classList.remove('is-minimized');
+    connectionOverlayPortal.querySelector('.connection-detail-backdrop')?.classList.remove('is-minimized');
+    connectionOverlayPortal.querySelector('.connection-reopen')?.classList.remove('is-visible');
+  }
+
+  connectionOverlayPortal?.addEventListener('click', (event) => {
+    const target = event.target.closest('button, a, [data-minimize-detail]');
+    if (!target) return;
+    if (target.dataset.project) openSection('workshop', target.dataset.project);
+    if (target.dataset.note) openSection('field-notes', target.dataset.note);
+    if (target.dataset.openRelated) {
+      const id = target.dataset.openRelated;
+      if (connectionById(id)) openSection('connections', id);
+      else if (noteById(id)) openSection('field-notes', id);
+    }
+    if (target.dataset.minimizeDetail !== undefined) minimizeConnectionDetail();
+    if (target.dataset.reopenDetail !== undefined) reopenConnectionDetail();
+  });
 
   function renderFieldNotes(selectedId) {
     const selected = selectedId ? noteById(selectedId) : null;
@@ -1384,13 +1881,57 @@
     renderShell('field notes', sections['field-notes'].title, `<p>A collection of observations, ideas, and questions that I'm currently exploring. Not polished articles. More like notes from an ongoing investigation.</p><div class="note-grid">${notes}</div>${detail}`);
   }
 
+  const intakeOverlayPortal = document.getElementById('intakeOverlayPortal');
+
+  function intakeFormHtml() {
+    return `<form class="intake-form" action="mailto:gary@ghallonline.com?subject=Consulting%20intake" method="post" enctype="text/plain"><div class="intake-grid"><label>Name<input name="name" autocomplete="name"></label><label>Email<input name="email" type="email" autocomplete="email"></label><label>Organization<input name="organization" autocomplete="organization"></label><label>Project type<select name="project_type"><option value="">not sure yet</option><option>systems audit</option><option>internal tool</option><option>workflow automation</option><option>AI experiment</option><option>technical strategy</option></select></label><label class="wide-field">What are you trying to improve?<textarea name="goal"></textarea></label><label class="wide-field">What is currently getting in the way?<textarea name="friction"></textarea></label><label class="wide-field">What would a useful outcome look like?<textarea name="outcome"></textarea></label><label>Timeline<select name="timeline"><option value="">flexible</option><option>this month</option><option>next 1-3 months</option><option>exploring for later</option></select></label><label>Budget range<select name="budget"><option value="">not sure yet</option><option>under $5k</option><option>$5k-$15k</option><option>$15k-$50k</option><option>$50k+</option></select></label></div><button class="action-chip" type="submit">prepare email</button><p class="links">This opens your email client with the intake details. A real backend can replace this later.</p></form>`;
+  }
+
+  function openIntakeOverlay() {
+    if (!intakeOverlayPortal) return;
+    intakeOverlayPortal.innerHTML = `<div class="intake-overlay-backdrop" data-close-intake></div><div class="intake-overlay" tabindex="-1"><button class="intake-close-btn" data-close-intake type="button" aria-label="Close">&#10005;</button><h3>Tell me what is tangled.</h3>${intakeFormHtml()}</div>`;
+    requestAnimationFrame(() => intakeOverlayPortal.querySelector('.intake-overlay')?.focus({ preventScroll: true }));
+  }
+
+  function closeIntakeOverlay() {
+    if (!intakeOverlayPortal || !intakeOverlayPortal.innerHTML) return;
+    intakeOverlayPortal.innerHTML = '';
+    if (location.hash.startsWith('#consulting')) setHash(['consulting'], false);
+  }
+
+  intakeOverlayPortal?.addEventListener('click', (event) => {
+    if (event.target.closest('[data-close-intake]')) closeIntakeOverlay();
+  });
+
   function renderConsulting(showIntake) {
-    const intake = showIntake ? `<div class="intake-panel" tabindex="-1"><h3>Tell me what is tangled.</h3><form class="intake-form" action="mailto:gary@ghallonline.com" method="post" enctype="text/plain"><label>Name<input name="name" autocomplete="name"></label><label>Email<input name="email" type="email" autocomplete="email"></label><label>Organization<input name="organization" autocomplete="organization"></label><label>What are you trying to improve?<textarea name="goal"></textarea></label><label>What is currently getting in the way?<textarea name="friction"></textarea></label><label>What would a useful outcome look like?<textarea name="outcome"></textarea></label><label>Optional budget range<select name="budget"><option value="">not sure yet</option><option>under $5k</option><option>$5k-$15k</option><option>$15k-$50k</option><option>$50k+</option></select></label><button class="action-chip" type="submit">prepare email</button><p class="links">This opens your email client. A real backend can replace this later.</p></form></div>` : '';
-    renderShell('consulting', sections.consulting.title, `<p>I enjoy helping people untangle complicated systems and build useful tools. Sometimes that means automation. Sometimes it means improving workflows. Sometimes it means simplifying technology that became more complicated than it needed to be.</p><ul class="stack-list"><li>Internal tools and utilities</li><li>Workflow automation</li><li>AI integration and experimentation</li><li>Process modernization</li><li>Technical strategy</li><li>Systems design</li><li>Small business technology solutions</li></ul><p>You probably don't need more software. You probably need better systems.</p><div class="action-grid"><button class="action-chip" data-intake type="button">open intake</button><a class="action-chip" href="mailto:gary@ghallonline.com">start a conversation</a><button class="action-chip" data-open-section="workshop" type="button">view relevant work</button><a class="action-chip" href="mailto:gary@ghallonline.com?subject=Quote%20request">request a quote</a></div>${intake}`);
+    const lanes = [
+      ['01', 'Systems audit', 'Map how work actually moves through the business, where people compensate manually, and which frictions are worth solving first.'],
+      ['02', 'Internal tools', 'Build focused utilities, dashboards, forms, automations, and data flows that match the real process instead of forcing people into generic software.'],
+      ['03', 'AI and automation', 'Use AI where it reduces repetitive work, improves visibility, or helps people make decisions, with clear boundaries around trust and source of truth.'],
+      ['04', 'Technical strategy', 'Turn a messy technology situation into a practical roadmap: what to keep, what to simplify, what to replace, and what to build next.'],
+    ].map(([label, title, body]) => `<div class="consulting-lane"><div class="lane-label">${label}</div><div class="lane-body"><h4>${escapeHtml(title)}</h4><p>${escapeHtml(body)}</p></div></div>`).join('');
+
+    const process = [
+      ['listen', 'Find the real system', 'We start with the work as it exists now: tools, people, handoffs, exceptions, data, and the places everyone has learned to work around.'],
+      ['shape', 'Choose the smallest useful move', 'The first solution should earn trust quickly. That may be a workflow change, a prototype, a dashboard, an automation, or a decision to remove complexity.'],
+      ['build', 'Make it usable under pressure', 'I care about the daily operator experience: clear states, low friction, good defaults, and systems that can be understood when something goes wrong.'],
+      ['handoff', 'Leave the system stronger', 'Documentation, ownership, maintenance expectations, and next steps matter as much as the initial build.'],
+    ].map(([label, title, body]) => `<div class="process-step"><div class="step-label">${escapeHtml(label)}</div><div class="step-body"><h4>${escapeHtml(title)}</h4><p>${escapeHtml(body)}</p></div></div>`).join('');
+
+    const fitRows = [
+      ['good fit', 'You have a tangled workflow, repeated manual work, brittle operations, scattered data, or a tool idea connected to real daily work.'],
+      ['less ideal', 'You mainly need a commodity landing page, a purely cosmetic redesign, or software built before the underlying work is understood.'],
+      ['best first conversation', 'Show me where the system hurts: screenshots, spreadsheets, forms, messages, manual steps, exceptions, and what a better day would look like.'],
+    ].map(([label, body]) => `<div class="fit-row"><div class="fit-label">${escapeHtml(label)}</div><div class="fit-body"><p>${escapeHtml(body)}</p></div></div>`).join('');
+
+    renderShell('consulting', sections.consulting.title, `<div class="consulting-console"><div class="consulting-lede"><p class="consulting-statement">I help people understand complicated systems, remove operational friction, and build useful tools around the work that is already happening.</p><div class="consulting-signal"><p class="consulting-kicker">working principle</p><p>You probably do not need more software first. You probably need a clearer system, then the right amount of software.</p></div></div><details class="detail-disclosure"><summary>How I can help</summary><div class="consulting-lanes">${lanes}</div></details><details class="detail-disclosure"><summary>How the work moves</summary><div class="consulting-process">${process}</div></details><details class="detail-disclosure"><summary>Fit check</summary><div class="consulting-fit">${fitRows}</div></details><div class="consulting-section"><h3>Relevant proof</h3><div class="consulting-proof"><button class="action-chip" data-project="sweet-beans-systems" type="button">Sweet Beans Systems</button><button class="action-chip" data-project="pizza-systems" type="button">Monster's Pizza</button><button class="action-chip" data-project="uctools" type="button">UCTools</button><button class="action-chip" data-note="useful-tools-real-work" type="button">Useful tools start with real work</button></div></div><div class="action-grid"><button class="action-chip" data-intake type="button">open intake</button><a class="action-chip" href="mailto:gary@ghallonline.com?subject=Consulting%20conversation">start a conversation</a><button class="action-chip" data-open-section="workshop" type="button">view workshop</button><a class="action-chip" href="mailto:gary@ghallonline.com?subject=Quote%20request">request a quote</a></div></div>`);
+
+    if (showIntake) openIntakeOverlay();
+    else closeIntakeOverlay();
   }
 
   function renderConnect() {
-    renderShell('connect', sections.connect.title, `<p>If you're building something unusual, trying to solve a difficult problem, or simply enjoy talking about systems and technology, I'd be happy to connect.</p><a class="cta" href="mailto:gary@ghallonline.com">gary@ghallonline.com -&gt;</a>`);
+    renderShell('connect', sections.connect.title, `<p>If you're building something unusual, trying to solve a difficult problem, or simply enjoy talking about systems and technology, I'd be happy to connect.</p><p>Good conversation starters: a system that's gotten tangled, a tool you wish existed, or something you're building that nobody else seems to be doing.</p><div class="action-grid"><a class="action-chip" href="mailto:gary@ghallonline.com">email me</a><button class="action-chip" data-open-section="workshop" type="button">see the work</button><button class="action-chip" data-open-section="field-notes" type="button">read the notes</button><button class="action-chip" data-open-section="consulting" type="button">work with me</button></div><div class="thread"><h3>Currently exploring</h3><p>${escapeHtml(nowItems.join(', '))}</p></div><a class="cta" href="mailto:gary@ghallonline.com">gary@ghallonline.com -&gt;</a>`);
   }
 
   function renderPortal() {
@@ -1417,6 +1958,12 @@
     else if (normalized === 'connect') renderConnect();
     else if (normalized === 'portal') renderPortal();
     else renderBasicSection(normalized);
+    // The connection detail overlay lives in a portal outside .instrument
+    // (see the note on .connection-detail--overlay) so it survives normal
+    // pane re-renders - it has to be cleared explicitly whenever navigating
+    // away from connections, or it keeps floating over unrelated sections.
+    if (normalized !== 'connections' && connectionOverlayPortal) connectionOverlayPortal.innerHTML = '';
+    if (normalized !== 'consulting' && intakeOverlayPortal) intakeOverlayPortal.innerHTML = '';
     setStatus('syncing');
     setHash([normalized, detail], replaceHash);
     if (detail) {
@@ -1445,6 +1992,13 @@
       if (connectionById(id)) openSection('connections', id);
       else if (noteById(id)) openSection('field-notes', id);
     }
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') return;
+    const panel = connectionOverlayPortal?.querySelector('.connection-detail');
+    if (panel && !panel.classList.contains('is-minimized')) minimizeConnectionDetail();
+    if (intakeOverlayPortal?.querySelector('.intake-overlay')) closeIntakeOverlay();
   });
 
   document.querySelectorAll('.cmd').forEach((btn) => {
