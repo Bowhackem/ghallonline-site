@@ -1,0 +1,264 @@
+{
+  "root": {
+    "id": "bit-gamer",
+    "title": "Bit Gamer",
+    "kind": "root",
+    "summary": "An all-in-one gaming ecosystem: one identity, one economy, and one connected set of systems for players, organizations, developers, sponsors, and tournament hosts.",
+    "details": "BitGamer.io was designed as a central hub where players could socialize, form teams, host and enter tournaments, and carry a durable gaming identity across titles and communities, instead of that history being scattered across a dozen different games and platforms.",
+    "deepDive": "I served as Chief Operations Officer on the founding team and designed the ecosystem architecture connecting these parts - how sponsors, tournaments, the player base, automation, and revenue all fed back into each other as one system. This graph is that architecture, made explorable.",
+    "children": ["vision", "people-community", "building-ecosystem", "identity-trust", "economy"],
+    "related": []
+  },
+  "chapters": [
+    {
+      "id": "people-community",
+      "title": "People & Community",
+      "kind": "chapter",
+      "summary": "The player-facing side of BitGamer: roughly 2.4 billion gamers worldwide as the addressable market, the light team structure they could form around each other, the brands whose logos anchored the pitch's ambition, and the hosts - amateur or professional - who actually ran the tournaments everyone showed up for.\n\nThese four systems feed each other directly. Players enter tournaments run by Tournament Hosts, form teams through Organizations' Bit Leagues, and the prize pools and brand credibility behind all of it trace back to the sponsorship ambition BitGamer's own pitch material illustrated. None of the four exists as a closed system - each one only really works because of what the others provide.",
+      "children": ["players", "organizations", "sponsors", "tournament-hosts"]
+    },
+    {
+      "id": "building-ecosystem",
+      "title": "Building the Ecosystem",
+      "kind": "chapter",
+      "summary": "BitGamer never planned to be its own game - it planned to be the layer other games, audiences, and infrastructure plugged into. This chapter covers the systems built to make that possible: the API pipeline courting developers and publishers, the live-streaming and spectator layer, the automation running day-to-day operations through Discord, and the educational program meant to bring newcomers up to speed on the blockchain concepts underneath all of it.\n\nOne node here, Analytics, is honest about a gap rather than filling it: no dedicated analytics feature is actually documented in the source material, only the match-data infrastructure that Identity and Blockchain / Trust Layer already cover. It's included as its own entry because the project's own planning materials named it as a distinct system, even though the business plan never developed it into one.",
+      "children": ["developers", "streaming", "analytics", "academy", "platform"]
+    },
+    {
+      "id": "identity-trust",
+      "title": "Identity & Trust",
+      "kind": "chapter",
+      "summary": "How BitGamer answers two related questions: who are you, and can any of this be trusted? Identity is the player-facing half - a universal profile built on Proof of Gaming, carrying skill and reputation across every game instead of resetting each time. Blockchain / Trust Layer is the infrastructure underneath it - the verification system that makes a claim about a match, a ranking, or an asset something recorded rather than merely asserted.\n\nThe two are effectively one system split into player experience and technical foundation: Identity is what Proof of Gaming looks like to a player, Blockchain / Trust Layer is what makes Proof of Gaming actually durable.",
+      "children": ["identity", "blockchain-trust-layer"]
+    },
+    {
+      "id": "economy",
+      "title": "Economy",
+      "kind": "chapter",
+      "summary": "What playing well is worth, and where that value actually goes. Rewards names the several distinct ways value comes back to a player - tournament prize splits by skill tier, referral bounties, content tips, digital pets earned through activity. Marketplace is where a player turns that back into something tangible: gear, apparel, digital assets, or trades with other players and third-party vendors.\n\nNeither page exists in isolation from the other - a token earned through Rewards has nowhere to go without Marketplace, and Marketplace's whole catalog depends on Rewards giving players tokens to spend in the first place.",
+      "children": ["rewards", "marketplace"]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "vision",
+      "title": "Vision",
+      "summary": "\"An esports ecosystem where gamers can earn while they play\" - BitGamer's own one-line answer to what it was. The founding premise: gaming already generates real value - skill, time, community - that most platforms let evaporate.",
+      "details": "The business plan names specific problems this was meant to solve: no cross-platform support between games, gaming communities that fragment and lose touch with each other, no fair way to gauge a player's real skill, tournaments that are hard to run or promote, and a culture that treated gaming as a waste of time despite the money and audience already behind it. BitGamer's own pitch summarized its answer as four pillars: an all-in-one gaming platform, seamless end-to-end tournament infrastructure for sponsors and hosts, a decentralized system where anyone can run their own event, and a real way to play games for a living - \"giving a rewarding experience to users who are already spending time doing what they love.\"",
+      "deepDive": "The vision didn't start with BitGamer. Its CEO, Andrew Littlewood, had run something before it: myegamer.com, from 2007 to 2012, until it lost funding. The business plan describes it as \"an online tournament platform and gamer social network,\" though the reality was simpler - basically a gamer social media platform. BitGamer picked up the same underlying instinct, that gamers need a real home, and built the fuller thing around it: actual tournament infrastructure, plus a blockchain layer to make the time gamers spend worth something concrete. My role was Chief Operations Officer, not the original vision - I joined to help turn an already-formed idea into an operating system, which is the ecosystem architecture this graph maps out.",
+      "related": [
+        "identity",
+        "rewards",
+        "players",
+        "blockchain-trust-layer",
+        "tournament-hosts",
+        "sponsors"
+      ],
+      "children": []
+    },
+    {
+      "id": "identity",
+      "title": "Identity",
+      "summary": "A universal gamer profile built on Proof of Gaming (PoG) - a permanent, blockchain-recorded history of every match played, so a gamer's skill and reputation travel with them instead of resetting with every new game or platform.",
+      "details": "PoG exists to solve a specific, named problem: gameplay data \"gets lost, erased, or is simply too difficult to access\" as gamers move between games and platforms. That record feeds the Universal Gamer Ranking & Rating System, which places players into skill tiers - Amateur, Intermediate, Semi-professional, Professional - based on entry weight, games played, win percentage, and head-to-head record. Only cash tournaments affect ranking; free tournaments exist specifically so newer players can learn without risk. Separately, after every match, players rate each other's sportsmanship on a 5-star scale - a social layer distinct from the algorithmic skill ranking.",
+      "deepDive": "The ranking system is oddly specific about how it converts skill into money: in matchshaping, a Professional-tier player takes 40% of the prize pool, Semi-professional 30%, Intermediate 20%, Amateur 10%. Identity here isn't just a badge, it's a direct claim on revenue. It's also a hybrid of two different kinds of trust: the ranking half is purely algorithmic (win rate, games played, head-to-head), but the sportsmanship half is peer-rated by the people you actually played against. One measures how well you play; the other measures whether people want to play with you again.",
+      "related": [
+        "players",
+        "blockchain-trust-layer",
+        "organizations",
+        "rewards",
+        "tournament-hosts",
+        "vision"
+      ],
+      "children": []
+    },
+    {
+      "id": "blockchain-trust-layer",
+      "title": "Blockchain / Trust Layer",
+      "summary": "The verification layer underneath Bit Tokens and Proof of Gaming - match history, rankings, and digital assets recorded immutably so a claim doesn't depend on taking the platform's word for it.",
+      "details": "The two source documents disagree on the actual protocol: the Business Plan names \"the BitcoinSV protocol,\" while the Business Use Case names \"the Tokenized protocol once it is released\" - a real discrepancy between the two, not a typo being reconciled here. What's consistent between them is the function. Proof of Gaming (see Identity) is the primary use: match data is recorded and \"stored forever on the blockchain,\" building what the plan calls a \"permanent and immutable record.\" Player profiles are described as \"officially linked\" to the blockchain at signup, and Digital Pets - a reward for platform activity - are stored on it as well. The Business Use Case additionally describes Smart Tournaments as running on \"smart contracts between players and events,\" a specific mechanism the Business Plan itself doesn't use that term for, even though it describes the same feature.",
+      "deepDive": "One more piece is explicitly forward-looking rather than built: the Business Use Case's \"Data Mining\" section says \"in the future, we will be able to harness the hash power from gamers' computers to help sustain the network,\" since gaming rigs already carry strong GPU/CPU capability. The pitch deck's player-facing framing of the same idea is a \"Mining client [that] offers gamers a way to earn while they sleep.\" Neither document claims this was ever built, only planned. This layer also connects to my own recurring interest in AI and automation: systems are more trustworthy when their claims can be checked, not just asserted.",
+      "related": [
+        "rewards",
+        "identity",
+        "marketplace",
+        "vision",
+        "platform",
+        "analytics",
+        "academy",
+        "tournament-hosts"
+      ],
+      "children": []
+    },
+    {
+      "id": "rewards",
+      "title": "Rewards",
+      "summary": "Bit Tokens, tournament payouts, referral bounties, and tips - the platform's several distinct ways of making time spent on BitGamer worth something concrete.",
+      "details": "Bit Tokens sit at the center: usable as tournament entry fees or wagers, spendable in the Marketplace, and earnable through several separate loops. The Bounty Program pays Bit Tokens for referring friends and for hitting milestones - completing a profile, creating a team, playing a first match, posting an article or game guide. Tournament payouts scale by skill tier (see Identity): a Professional-tier player takes 40% of a matchshaped prize pool, down to 10% for Amateur. Tournament hosts also earn directly - a 5% platform transaction fee splits 2% to the host, the rest back to BitGamer for upkeep. Digital Pets are a separate, non-monetary reward for platform activity, stored on the blockchain and able to be trained, evolved, traded, and battled. Content creators earn too: posting to the Games Feed can earn \"tips\" from other users, paid in Bitcoin.",
+      "deepDive": "The two documents describe live-streaming rewards differently enough to be worth flagging rather than blending together. The Business Plan describes paying viewers to watch: \"we pay the gamers to watch people play video games... they can use those earnings to either tip their stream host, or save for a rainy day.\" The Business Use Case describes only the streamer earning, from viewer tips: \"eventually gamers will be able to earn as they live stream their gameplay... by receiving tips from viewers.\" Both agree streaming was meant to be a reward loop; they disagree on who gets paid directly. BitBot (see Platform) is where a player actually manages this economy day to day - the plan describes it letting players \"see their currencies and events they are signed up for\" and \"apply wagers on events\" without leaving Discord.",
+      "related": [
+        "blockchain-trust-layer",
+        "tournament-hosts",
+        "players",
+        "vision",
+        "identity",
+        "organizations",
+        "marketplace",
+        "streaming",
+        "platform"
+      ],
+      "children": []
+    },
+    {
+      "id": "tournament-hosts",
+      "title": "Tournament Hosts",
+      "summary": "Anyone can host a tournament, not just professional organizers - the platform's own framing is \"decentralized.\" Hosts get a turn-key, white-label toolkit and a direct cut of the prize pool for running an event.",
+      "details": "BitGamer describes its host tools as turn-key and white-label, aimed at \"tournament providers and esport brands\" running anything from small community brackets to large arena-sized events, with cloud-based APIs specifically meant to reduce a host's own development costs. Revenue sharing is concrete: a 5% fee applies to platform transactions, of which 2% goes to the tournament host and the rest reimburses BitGamer for upkeep. Day-to-day running of an event leans on BitBot Pro, built specifically for tournament coordinators - a setup wizard to define payouts, rules, and game conditions, automated bracket and voice-channel management as matches progress, and an assignable assistant role for when the host is away. BitBot Free covers basic player-facing use; Pro is the host-facing tier.",
+      "deepDive": "This is one of the few systems that traces directly back to the CEO's own history rather than to a generic esports feature list. Andrew Littlewood personally hosted dozens of local tournaments before BitGamer, including a charity Xbox tournament run with the Kansas City Chiefs (\"Gaming For Charity,\" benefiting \"First Downs for Down Syndrome\") and the first cross-platform tournament spanning Xbox, PC, and Nintendo. BitGamer's host tooling - the turn-key setup, the automated bracket and voice-channel handling - reads like automating what he used to do by hand. A correction to the historical record: an earlier pass on this node claimed a partnership with ESL. ESL appears in the ecosystem diagram but is not discussed in the supporting text - its logo sits in a \"Players/Tournament Organizer\" box, which is diagram evidence, not confirmation of an actual partnership. The claim of an active partnership has been removed accordingly.",
+      "related": [
+        "sponsors",
+        "organizations",
+        "rewards",
+        "analytics",
+        "vision",
+        "identity",
+        "players",
+        "platform",
+        "blockchain-trust-layer"
+      ],
+      "children": []
+    },
+    {
+      "id": "analytics",
+      "title": "Analytics",
+      "summary": "Not a documented standalone feature - neither source document has a section describing an analytics product. What exists under that name is the match-data and ranking infrastructure already covered under Identity and Blockchain / Trust Layer.",
+      "details": "Searching both the Business Plan and the Business Use Case in full turns up no \"Analytics\" section and no described analytics feature. The word itself appears exactly once across both documents, in a founding team bio - Doug's interests are listed as including \"data analytics\" among other things - which describes a team member, not a platform capability. The project's own knowledge-graph specification (03_Knowledge_Graph.txt) names Analytics as one of the fourteen primary nodes, but the underlying business material never develops it as its own system. What data infrastructure does exist is documented elsewhere: the Universal Gamer Ranking & Rating System and Proof of Gaming (see Identity) turn match history into skill tiers and reputation, and the Business Use Case's \"Data Mining\" section (see Blockchain / Trust Layer) describes aggregating match data from all games into a central database to determine global rankings.",
+      "deepDive": "A correction to the historical record: an earlier pass on this node described analytics as producing \"audience insight for sponsors.\" No source text supports that - sponsorship in both documents is discussed only as a revenue category and a diagram of aspirational brand logos (see Sponsors), never paired with any promise of audience data or reporting. That claim has been removed. The honest shape of this node is that BitGamer's documented use of \"data\" is almost entirely about trust and verification - proving a match happened and who won it - not business intelligence. Rather than invent a feature to fill the gap, this node points to where the real data infrastructure lives.",
+      "related": [
+        "tournament-hosts",
+        "streaming",
+        "platform",
+        "blockchain-trust-layer"
+      ],
+      "children": []
+    },
+    {
+      "id": "platform",
+      "title": "Platform",
+      "summary": "BitBot - the Discord-based automation layer connecting a player's BitGamer account to matchmaking, wagers, and match results, with a paid Pro tier that runs an entire tournament day automatically.",
+      "details": "BitBot links a player's Discord account to their BitGamer account, giving access to matchmaking from inside Discord - the plan cites this as reaching \"over 250 million gamers worldwide.\" Once linked, a player can see their currencies and signed-up events, apply wagers, and submit match scores, all without leaving Discord. The general bot task list names automating tasks via other apps' APIs, DM interaction, joining and acting on servers, controlling server permissions, playing music and mini-games, and displaying graphical user profiles. BitBot Free covers this at no cost with no restrictions. BitBot Pro, aimed at tournament coordinators, adds a setup wizard to define payouts, rules, and game conditions; automatic player sign-up handling; automatic player handling that moves competitors into the correct voice channels with the right permissions \"to prevent intruders during the match\"; an assistant role a host can delegate to when away; and a full event-day sequence - standby five minutes before start, auto-placement once players ready up, teardown of channels after a match, construction of the next match from the previous results, and a final results post with self-cleanup at the tournament's end.",
+      "deepDive": "A correction to the historical record: an earlier pass on this node credited BitBot with handling \"leaderboards, ratings, and moderation support.\" None of those three terms appear anywhere in either source document - not as bot features, not elsewhere. The closest documented capability is \"bots can control your server's permissions,\" which is not the same claim as active moderation. Those three specifics have been removed and replaced with what's actually described. As COO I was closer to this layer than most of the others: it's where the ecosystem's design had to actually hold together operationally, not just conceptually.",
+      "related": [
+        "developers",
+        "analytics",
+        "blockchain-trust-layer",
+        "tournament-hosts",
+        "rewards",
+        "players"
+      ],
+      "children": []
+    },
+    {
+      "id": "developers",
+      "title": "Developers",
+      "summary": "The game studios and publishers whose titles plug into BitGamer through APIs meant to be effortless enough for indie developers and corporate publishers alike.",
+      "details": "The plan names real, specific launch targets: API integration with Blizzard Entertainment titles and League of Legends first, expanding to Fortnite, Smite, Heroes of the Storm, PUBG, and Counter-Strike as league support was added for each. The pitch to developers is cost reduction - cloud-based services and APIs meant to let a studio \"effortlessly integrate esports and blockchain capabilities\" without building tournament or ranking infrastructure themselves. The pitch deck frames PoG integration as developers \"competing for largest audience\" - whichever game builds the strongest esports presence on the platform draws the most players.",
+      "deepDive": "This is the piece of the ecosystem that reveals BitGamer's actual growth strategy: it never planned to be its own game. Every other system - Identity, Rewards, Tournament Hosts - only works because developers agree to plug their existing games in. The named launch titles were already among the largest esports games in 2019, which reads as a deliberate choice to attach to established audiences rather than build one from nothing.",
+      "related": [
+        "platform",
+        "marketplace",
+        "academy"
+      ],
+      "children": []
+    },
+    {
+      "id": "marketplace",
+      "title": "Marketplace",
+      "summary": "An online shop and a peer-to-peer marketplace at once - gamers spend Bit Tokens on gear, apparel, and digital assets, or sell their own hardware and let third-party vendors post their own goods.",
+      "details": "The shop catalog spans gaming equipment, clothing apparel, and digital assets like in-game skins and avatars, purchased with Bit Tokens. Digital Pets - blockchain-stored rewards for platform activity that can be trained, evolved, traded, and battled - are also upgraded through Marketplace purchases. Two details appear only in the Business Use Case document, not the Business Plan: third-party vendors could create and post their own digital assets for sale, and gamers could sell their own personal hardware rather than only buying from BitGamer directly. Worth flagging that discrepancy rather than treating the two documents as fully interchangeable.",
+      "deepDive": "The plan pitches this as \"an online arcade\": spend tokens to play, and separately, spend tokens (or trade what you already own) in the shop. That's a different economic loop than Rewards - Rewards is how tokens come in from playing well, Marketplace is where they go back out. Together they're the actual token economy, not two separate features.",
+      "related": [
+        "developers",
+        "sponsors",
+        "blockchain-trust-layer",
+        "players",
+        "rewards"
+      ],
+      "children": []
+    },
+    {
+      "id": "sponsors",
+      "title": "Sponsors",
+      "summary": "A concept diagram, not a confirmed deal sheet - BitGamer's ecosystem diagram illustrates sponsorship ambitions with real, recognizable brand logos rather than a named list of signed partners.",
+      "details": "The ecosystem diagram's Sponsors box shows 23 logos - more and more varied than an earlier pass on this node captured: Atmel, Autodesk, Crayola, Chevrolet, Disney, Dremel, esurance, Ford, GE, Google, HP, Intel, Intuit, LG, Lincoln Electric, littleBits, Microsoft, Oracle, Red Bull, Sphero, Toyota, and Whole Foods, plus one logo too unclear to identify confidently. None of these companies are named as sponsors anywhere in the business plan or use case text - the diagram is the only source, and it reads as illustrative of the caliber of brand BitGamer wanted to attract, not a confirmed roster. The pitch's own language backs that framing: its \"seamless end-to-end solutions\" pillar (see Vision) offers \"white-label solutions for sponsors, marketers, and tournament providers\" - a generic capability, not a specific deal.",
+      "deepDive": "Sponsorship was also the largest single slice of real esports revenue cited in the plan - 39% of industry-wide revenue in 2018 per Newzoo, ahead of advertising/media rights (28%), publisher fees (13%), and ticketing/merchandise (10%) - so the ambition behind this list was grounded in real market data even if the specific brands were not. Worth a correction to the historical record here too: an earlier pass on this node listed \"Lincoln\" among the sponsors, which reads as the car brand. Looking at the actual logo more carefully, it's Lincoln Electric, a welding and industrial equipment company - a meaningfully different company, not a typo.",
+      "related": [
+        "tournament-hosts",
+        "organizations",
+        "marketplace",
+        "vision"
+      ],
+      "children": []
+    },
+    {
+      "id": "organizations",
+      "title": "Organizations",
+      "summary": "Teams that gamers create or join, expressed mainly through Bit Leagues rather than a dedicated organization feature set - lighter-weight than most of BitGamer's other systems.",
+      "details": "The plan frames team formation as something the platform makes \"very easy\" - find, create, or join a team - surfaced through Game Hubs alongside matchmaking and tournament hosting. The concrete mechanic is Bit Leagues: create or join a team, play regularly against scheduled opponents, and compete for a quarterly championship funded by the bounty pool. Creating a team is also one of the named Bounty Program milestones that earns Bit Tokens, alongside completing a profile or playing a first match.",
+      "deepDive": "There's a real gap between the founder's own experience and what the product actually builds. Andrew Littlewood's bio describes him founding \"a professional team organization\" to compete in Counter-Strike leagues back in 1999 and managing several teams over his career - real, detailed team-management experience. But BitGamer itself never develops a full organization or roster system to match it; teams stay a light wrapper around Bit Leagues rather than their own system with the depth Identity or the tournament formats got. Worth naming plainly rather than papering over with invented detail.",
+      "related": [
+        "players",
+        "tournament-hosts",
+        "sponsors",
+        "identity",
+        "rewards"
+      ],
+      "children": []
+    },
+    {
+      "id": "players",
+      "title": "Players",
+      "summary": "The full spectrum from casual to competitive, among roughly 2.4 billion gamers worldwide - most already play online regularly, but the plan argues nearly all of them are shut out of esports infrastructure built only for the top 1%.",
+      "details": "The business plan cites a survey where 4 out of 5 League of Legends players wished they could play video games for a living, while nearly half of the 300 million \"hardcore\" gamers were already engaged in ranked or tournament play. Its stated problem: most existing tournaments and leagues catered only to the top 1% who could be paid a salary - an \"elitist environment\" that shut out the ambitious amateur. BitGamer's answer was a spread of tournament formats matched to risk and skill: Free (practice, no ranking impact), Cash (fixed entry slots), Progressive (growing jackpot, unlimited entrants), Cup (bracket-style, entry cost carried round to round), and One-on-One Challenges - plus Bit Leagues for players who wanted a team and a regular schedule instead of one-off matches. Match shaping by skill tier (see Identity) was the specific mechanism meant to keep a beginner and a veteran from ever facing off unfairly.",
+      "deepDive": "The plan is unusually candid about why this mattered beyond the business case: \"we typically spend around 14-40 hours a week playing video games... the gaming community is severely fragmented... We have lost many good friends this way, even some that we would consider as best friends.\" That's the real problem Players exists to solve underneath the tournament mechanics - not just fair competition, but not losing people. It's also why the platform gave players ways to be more than competitors: a personal Games Feed, the ability to post content and get tipped for it, and digital pets as a lighter, ongoing reward loop - the plan wanted people who never enter a single tournament to still have a reason to stay.",
+      "related": [
+        "identity",
+        "rewards",
+        "organizations",
+        "academy",
+        "streaming",
+        "vision",
+        "tournament-hosts",
+        "marketplace",
+        "platform"
+      ],
+      "children": []
+    },
+    {
+      "id": "academy",
+      "title": "Academy",
+      "summary": "An educational program, not a gameplay-coaching system - Bit Academy was meant to teach gamers, game developers, and traditional businesses how blockchain and cryptocurrency actually work, using BitGamer as the working example.",
+      "details": "Both source documents describe Bit Academy in a single paragraph each, worded almost identically: \"educate gamers, game developers, and traditional businesses about the capabilities of Bitgamer, eSports and the Bitcoin ecosystem.\" The Business Plan adds one framing line the Use Case doesn't repeat - that it exists \"to enhance gamers understanding of how blockchain and cryptocurrency work.\" That's the entire documented scope. Three named audiences, not just players: gamers, developers, and traditional businesses.",
+      "deepDive": "A correction to the historical record: an earlier pass on this node described Academy as \"a coaching and skill-development layer for players trying to improve, not just compete.\" Neither source document supports that framing anywhere - there's no mention of gameplay coaching, skill drills, or improvement content. Both documents describe Academy purely as blockchain/crypto education, aimed at three audiences rather than players alone. That invented framing has been removed and replaced with what the source actually says.",
+      "related": [
+        "players",
+        "developers",
+        "blockchain-trust-layer"
+      ],
+      "children": []
+    },
+    {
+      "id": "streaming",
+      "title": "Streaming",
+      "summary": "Live streaming embedded inside Game Hubs, plus a separate, explicitly future-facing plan to pay people for watching rather than only for playing.",
+      "details": "Inside Game Hubs, players could already see who was \"currently live streaming their gameplay,\" post a stream link from \"Twitch.tv, YouTube, or any other live streaming service,\" and have it watched right inside BitGamer's platform - both source documents describe this the same way. A separate, standalone Live Streaming feature is framed differently: the Business Plan says \"we will eventually want to provide a live streaming service for gamers to livestream their gameplay,\" meant to differentiate from Twitch by paying people to watch rather than only to play. That's the one place in either document phrased as a future want rather than a committed feature.",
+      "deepDive": "The two documents don't agree on who actually gets paid in that standalone streaming model, which is worth reading alongside Rewards rather than repeating here: the Business Plan describes paying viewers to watch and letting them tip the streamer from those earnings, while the Business Use Case describes only the streamer earning, from viewer tips. Both agree streaming was meant to be a reward loop tied to the token economy; they disagree on the mechanic itself.",
+      "related": [
+        "players",
+        "analytics",
+        "rewards"
+      ],
+      "children": []
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+03 - Knowledge Graph
+
+Root Node - Bit Gamer
+
+Primary Nodes - Vision - Players - Identity - Organizations -
+Developers - Sponsors - Tournament Hosts - Marketplace - Academy -
+Streaming - Analytics - Blockchain (Trust Layer) - Rewards - Platform
+
+Rules - Every node connects to at least one other node. - No orphan
+nodes. - Information is explored through relationships. - Data will be
+stored in JSON.

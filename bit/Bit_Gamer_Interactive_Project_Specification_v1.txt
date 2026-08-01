@@ -1,0 +1,154 @@
+Bit Gamer Interactive Project Specification
+
+Version: 1.0
+
+Purpose
+
+This document is the primary implementation brief for Claude.
+
+This project is NOT a standalone Bit Gamer website.
+
+It is an interactive project experience that lives inside the existing
+ghallonline.com portfolio.
+
+Claude should treat this specification as the source of truth for the
+implementation.
+
+------------------------------------------------------------------------
+
+Project Context
+
+Bit Gamer is an archived portfolio project representing the design of a
+connected gaming ecosystem.
+
+The goal is to communicate the vision through exploration rather than
+documentation.
+
+Visitors should discover relationships between systems instead of
+reading a long linear page.
+
+------------------------------------------------------------------------
+
+Existing Portfolio
+
+The existing site already has:
+
+-   Dark immersive aesthetic
+-   Linux-inspired floating windows
+-   Glassmorphism
+-   Interactive navigation
+-   Layered exploration
+-   Single-page experience
+-   Workshop section containing projects
+
+Bit Gamer should feel like a natural extension of this experience.
+
+Do not redesign the portfolio.
+
+Do not create a separate website.
+
+------------------------------------------------------------------------
+
+Design Principles
+
+1.  Exploration over explanation.
+2.  Relationships over lists.
+3.  Small chunks of information.
+4.  Progressive disclosure.
+5.  Everything connects to something else.
+6.  No dead ends.
+
+------------------------------------------------------------------------
+
+Core Experience
+
+When the user opens the Bit Gamer project:
+
+-   The project opens inside the existing Workshop window.
+-   The center of the experience is the Bit Gamer ecosystem.
+-   Surrounding nodes represent major systems.
+-   Selecting a node expands its information and highlights related
+    nodes.
+-   The visitor can continue drilling deeper without leaving the
+    project.
+
+This should feel like exploring a living knowledge map.
+
+------------------------------------------------------------------------
+
+Initial Root Nodes
+
+-   Vision
+-   Identity
+-   Players
+-   Organizations
+-   Developers
+-   Sponsors
+-   Tournament Hosts
+-   Marketplace
+-   Academy
+-   Streaming
+-   Analytics
+-   Blockchain / Trust Layer
+-   Rewards
+-   Platform
+
+These names are starting points and may evolve as content is refined.
+
+------------------------------------------------------------------------
+
+Interaction Model
+
+Each node supports four layers:
+
+1.  Summary
+2.  Details
+3.  Deep Dive
+4.  Related Systems
+
+Navigation should always encourage exploration of connected concepts.
+
+------------------------------------------------------------------------
+
+Visual Direction
+
+Motion should be subtle.
+
+Avoid flashy animations.
+
+Think: - knowledge graph - systems map - constellation - living network
+
+The experience should remain readable and professional.
+
+------------------------------------------------------------------------
+
+Technical Constraints
+
+-   HTML
+-   CSS
+-   Vanilla JavaScript
+-   Modular code
+-   JSON-driven content
+-   GitHub Pages compatible
+-   No backend
+-   No frameworks
+
+------------------------------------------------------------------------
+
+Deliverables (Phase 1)
+
+Produce:
+
+-   index.html
+-   style.css
+-   app.js
+-   graph.js
+-   content loader
+-   sample JSON content
+-   README
+
+The first milestone is a working interactive shell with expandable nodes
+and placeholder content.
+
+Future phases will populate the full Bit Gamer knowledge graph using the
+archived project documentation and diagrams.

@@ -1,0 +1,24 @@
+05 - Claude Instructions
+
+Read every file before writing code.
+
+Priority:
+
+1.  00_Project_Specification.txt
+2.  01_Site_Integration.txt
+3.  02_UI_UX_Specification.txt
+4.  03_Knowledge_Graph.txt
+5.  04_Content_Blueprint.txt
+
+Requirements
+
+-   HTML
+-   CSS
+-   Vanilla JavaScript
+-   Modular architecture
+-   GitHub Pages compatible
+-   No frameworks
+-   No backend
+
+Do not redesign the portfolio. Integrate Bit Gamer into the existing
+Workshop.

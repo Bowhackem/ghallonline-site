@@ -1,0 +1,81 @@
+01 - Site Integration
+
+Purpose
+
+Bit Gamer is not a standalone website.
+
+It is one interactive project inside the existing ghallonline.com
+portfolio.
+
+It lives inside the Workshop section.
+
+------------------------------------------------------------------------
+
+Portfolio Rules
+
+-   Do NOT redesign the portfolio.
+-   Do NOT replace the existing interface.
+-   Do NOT create a new navigation system.
+-   Do NOT create a separate page.
+-   Everything stays inside the existing Workshop experience.
+
+------------------------------------------------------------------------
+
+Opening Bit Gamer
+
+-   User opens Workshop.
+-   Bit Gamer appears as one project.
+-   Selecting Bit Gamer opens an interactive experience inside the
+    Workshop window.
+-   The rest of the portfolio remains unchanged.
+
+------------------------------------------------------------------------
+
+Navigation
+
+-   No page reloads.
+-   No browser navigation.
+-   Everything happens inside the current interface.
+-   Users can always return to the Workshop.
+
+------------------------------------------------------------------------
+
+Experience
+
+The visitor should feel like they are exploring an archived project, not
+reading a website.
+
+Information is discovered through exploration.
+
+Everything is connected.
+
+------------------------------------------------------------------------
+
+Reuse Existing Components
+
+Reuse:
+
+-   Existing windows
+-   Existing colors
+-   Existing typography
+-   Existing animations
+-   Existing desktop aesthetic
+
+Bit Gamer should feel like it has always been part of the portfolio.
+
+------------------------------------------------------------------------
+
+Do Not
+
+-   Build a landing page.
+-   Build a marketing website.
+-   Build a dashboard.
+-   Build a SaaS application.
+-   Redesign ghallonline.com.
+
+------------------------------------------------------------------------
+
+Goal
+
+Create an immersive, interactive knowledge-map experience inside the
+Workshop.

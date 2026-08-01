@@ -1,0 +1,15 @@
+04 - Content Blueprint
+
+Each node contains:
+
+-   Title
+-   Summary
+-   Details
+-   Deep Dive
+-   Related Nodes
+-   Images (optional)
+-   Flowcharts (optional)
+-   References
+
+Content should be concise and expandable. Do not use long scrolling
+pages.

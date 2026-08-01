@@ -1,0 +1,78 @@
+02 - UI UX Specification
+
+Purpose
+
+Define how visitors interact with the Bit Gamer experience.
+
+------------------------------------------------------------------------
+
+Design Goals
+
+-   Clean
+-   Minimal
+-   Interactive
+-   Discoverable
+-   Professional
+
+------------------------------------------------------------------------
+
+Interaction Rules
+
+-   Click nodes to expand.
+-   Click again to collapse.
+-   Smooth transitions.
+-   No abrupt page changes.
+-   Maintain context at all times.
+
+------------------------------------------------------------------------
+
+Information Layers
+
+Each node contains:
+
+1.  Summary
+2.  Details
+3.  Deep Dive
+4.  Related Concepts
+
+------------------------------------------------------------------------
+
+Knowledge Graph
+
+-   Bit Gamer starts at the center.
+-   Related systems surround it.
+-   Connected nodes highlight on hover.
+-   Selecting a node reveals additional relationships.
+
+------------------------------------------------------------------------
+
+Motion
+
+-   Smooth fades
+-   Soft scaling
+-   Gentle movement
+-   No flashy effects
+
+------------------------------------------------------------------------
+
+Navigation
+
+-   Always provide a way back.
+-   Never lose the user’s place.
+-   Keep exploration intuitive.
+
+------------------------------------------------------------------------
+
+Accessibility
+
+-   Keyboard navigation
+-   Readable typography
+-   Good contrast
+-   Responsive layout
+
+------------------------------------------------------------------------
+
+Success Criteria
+
+Visitors should understand the ecosystem by exploring it, not by reading
+a long document.

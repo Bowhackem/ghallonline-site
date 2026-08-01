@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bit Gamer - knowledge graph prototype</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="field" aria-hidden="true">
+  <span class="glow glow-a"></span>
+  <span class="glow glow-b"></span>
+</div>
+
+<div class="page">
+  <p class="proto-banner">Phase 1 prototype - standalone, not yet integrated into ghallonline.com's Workshop. See README.md.</p>
+
+  <div class="instrument">
+    <div class="titlebar">
+      <p class="tb-title"><span class="tb-icon" aria-hidden="true">&#9635;</span><span>gary@hall: ~/workshop/bit-gamer</span></p>
+      <div class="tb-controls">
+        <button class="tb-btn" type="button" aria-label="Minimize (disabled in prototype)" disabled>&#8211;</button>
+        <button class="tb-btn" type="button" aria-label="Maximize (disabled in prototype)" disabled>&#9633;</button>
+        <button class="tb-btn" type="button" aria-label="Close (disabled in prototype)" disabled>&#10005;</button>
+      </div>
+    </div>
+
+    <div class="instrument-body">
+      <div class="graph-intro">
+        <p class="graph-eyebrow">{ workshop / bit-gamer }</p>
+        <h1 class="graph-heading">An explorable ecosystem, not a page about one.</h1>
+        <p class="graph-sub">Bit Gamer was an archived platform concept - a connected gaming ecosystem I helped design as its Chief Operations Officer. Pick a chapter to start, drill into a system, and the graph reshapes around wherever you are.</p>
+      </div>
+
+      <div class="graph-nav" role="navigation" aria-label="Graph navigation">
+        <div class="graph-nav-controls">
+          <button class="nav-btn" type="button" id="homeBtn" aria-label="Back to Bit Gamer overview">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11.5 12 4l8 7.5"/><path d="M6 10v9h12v-9"/></svg>
+          </button>
+          <button class="nav-btn" type="button" id="backBtn" aria-label="Back one level">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5 8 12l7 7"/></svg>
+          </button>
+        </div>
+        <nav class="breadcrumb" id="breadcrumb" aria-label="Breadcrumb"></nav>
+        <button class="nav-btn nav-btn--drawer" type="button" id="drawerToggle" aria-haspopup="true" aria-expanded="false" aria-controls="navDrawer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+          <span>All topics</span>
+        </button>
+      </div>
+
+      <div class="graph-layout">
+        <div class="graph-stage" id="graphStage" role="group" aria-label="Bit Gamer knowledge graph"></div>
+        <div class="node-panel" id="nodePanel" aria-hidden="true" aria-live="polite"></div>
+      </div>
+
+      <p class="graph-status" id="graphStatus">loading...</p>
+    </div>
+  </div>
+</div>
+
+<!-- Portal target: .instrument has backdrop-filter, which makes it a
+     containing block for position:fixed descendants - a fixed mobile
+     bottom sheet nested inside it would anchor to the instrument
+     window's own box, not the real viewport. app.js moves #nodePanel
+     here at the mobile breakpoint (and back into .graph-layout at
+     desktop widths) so "fixed" actually means fixed. -->
+<div id="panelPortal"></div>
+
+<div class="drawer-backdrop" id="drawerBackdrop" hidden></div>
+<aside class="nav-drawer" id="navDrawer" aria-hidden="true" aria-label="All topics">
+  <div class="drawer-header">
+    <p class="drawer-title">All topics</p>
+    <button class="panel-close" type="button" id="drawerCloseBtn" aria-label="Close">&#10005;</button>
+  </div>
+  <ul class="drawer-list" id="drawerList"></ul>
+</aside>
+
+<script src="graph.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

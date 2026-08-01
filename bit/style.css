@@ -1,0 +1,1153 @@
+/* Bit Gamer - standalone knowledge-graph prototype (Phase 1)
+   Design tokens intentionally match ghallonline.com's existing palette
+   and glass aesthetic (see /concept.html) so this previews accurately
+   as a future Workshop window, even though it isn't wired in yet. */
+
+:root {
+  --void: #07090f;
+  --glass: rgba(13, 18, 32, 0.58);
+  --glass-edge: rgba(233, 237, 246, 0.09);
+  --ink: #e9edf6;
+  --ink-dim: #8b96ac;
+  --ink-faint: #5c6680;
+  --signal: #34e0c9;
+  --signal-dim: rgba(52, 224, 201, 0.16);
+  --current: #9b8cf2;
+  --current-dim: rgba(155, 140, 242, 0.16);
+  --amber: #dba86a;
+  --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", Consolas, "Liberation Mono", Menlo, monospace;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--void);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  overflow-x: hidden;
+}
+
+.field {
+  position: fixed;
+  inset: -10vh -10vw;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.22;
+  mix-blend-mode: screen;
+}
+
+.glow-a { width: 560px; height: 560px; top: -160px; left: -120px; background: var(--signal); }
+.glow-b { width: 520px; height: 520px; bottom: -200px; right: -100px; background: var(--current); }
+
+.page {
+  position: relative;
+  z-index: 1;
+  max-width: 1450px;
+  margin: 0 auto;
+  padding: 6vh 24px 8vh;
+}
+
+.proto-banner {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  color: var(--amber);
+  border: 1px dashed rgba(219, 168, 106, 0.4);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 24px;
+}
+
+/* ---------- mock instrument window (matches the main site's window chrome) ---------- */
+.instrument {
+  position: relative;
+  background: var(--glass);
+  backdrop-filter: blur(28px) saturate(1.1);
+  -webkit-backdrop-filter: blur(28px) saturate(1.1);
+  border: 1px solid var(--glass-edge);
+  border-radius: 14px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 30px 80px -40px rgba(0, 0, 0, 0.65),
+    0 60px 120px -60px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 10px 10px 16px;
+  border-bottom: 1px solid var(--glass-edge);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.tb-title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--ink-faint);
+}
+
+.tb-title .tb-icon { color: var(--signal); }
+
+.tb-controls { display: flex; gap: 4px; }
+
+.tb-btn {
+  width: 26px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--glass-edge);
+  border-radius: 4px;
+  color: var(--ink-faint);
+  font-size: 0.7rem;
+  cursor: not-allowed;
+}
+
+.instrument-body {
+  padding: 26px 28px 32px;
+}
+
+.graph-intro {
+  margin: 0 0 22px;
+  max-width: 62ch;
+}
+
+.graph-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  color: var(--signal);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 0 6px;
+}
+
+.graph-heading {
+  margin: 0 0 8px;
+  font-size: 1.4rem;
+  font-weight: 650;
+}
+
+.graph-sub {
+  margin: 0;
+  color: var(--ink-dim);
+  font-size: 0.94rem;
+  line-height: 1.55;
+}
+
+.graph-status {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  color: var(--ink-faint);
+  margin: 10px 0 0;
+}
+
+/* ---------- graph layout: stage + panel side by side ---------- */
+.graph-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(300px, 0.95fr);
+  gap: 24px;
+  align-items: start;
+  margin-top: 20px;
+}
+
+.graph-stage {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  border: 1px solid var(--glass-edge);
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(52, 224, 201, 0.07), transparent 46%),
+    radial-gradient(circle at 50% 50%, transparent 60%, rgba(3, 4, 8, 0.5) 100%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 30%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    inset 0 0 60px rgba(0, 0, 0, 0.35),
+    0 24px 60px -36px rgba(0, 0, 0, 0.7);
+  /* Not hidden: labels on nodes near the ring's outer edge sit just past
+     this box's nominal bounds by design (see graph.js RING_RADIUS) and
+     rely on .instrument-body's padding as their real buffer. Dots and
+     edges never leave the box - only label text does. */
+  overflow: visible;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.graph-stage.is-entered { opacity: 1; }
+
+.graph-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------- decorative background: concentric rings, a faint radial
+   grid, and a scatter of "network" points, all built once in graph.js.
+   Never interactive, never reacts to selection - pure atmosphere. ---------- */
+.graph-guide-ring {
+  fill: none;
+  stroke: var(--ink-faint);
+  stroke-width: 1;
+  opacity: 0.1;
+  vector-effect: non-scaling-stroke;
+}
+
+.graph-guide-ring--orbit {
+  stroke: var(--current);
+  stroke-dasharray: 2 7;
+  opacity: 0.16;
+}
+
+.graph-guide-spoke {
+  stroke: var(--ink-faint);
+  stroke-width: 1;
+  opacity: 0.06;
+  vector-effect: non-scaling-stroke;
+}
+
+.graph-guide-point {
+  fill: var(--ink-dim);
+  opacity: 0.22;
+}
+
+.graph-edge-layer .graph-edge {
+  stroke: var(--ink-faint);
+  opacity: 0.2;
+  transition: opacity 0.3s ease, stroke 0.3s ease, stroke-width 0.3s ease;
+  vector-effect: non-scaling-stroke;
+  stroke-linecap: round;
+}
+
+.graph-edge--spoke { stroke-width: 1; opacity: 0.14; }
+.graph-edge--relation { stroke-width: 1.4; }
+
+.graph-edge.is-lit {
+  stroke: var(--signal);
+  stroke-width: 2;
+  opacity: 0.9;
+  filter: url(#edgeGlow);
+}
+
+.graph-edge.is-dimmed { opacity: 0.035; }
+
+/* Connection-point markers: a small bright dot exactly where each edge
+   crosses its node's visible rim (see graph.js render()) - distinct
+   from the hidden true center endpoint, this is the point the eye
+   actually reads as "the wire plugs in here." */
+.graph-marker {
+  fill: var(--ink-faint);
+  opacity: 0.5;
+  transition: opacity 0.3s ease, fill 0.3s ease, r 0.3s ease;
+  r: 3.2;
+}
+
+.graph-marker.is-lit { fill: var(--signal); opacity: 1; r: 4.6; }
+.graph-marker.is-dimmed { opacity: 0.1; }
+
+.graph-nodes {
+  position: absolute;
+  inset: 0;
+}
+
+/* The button's own box is sized to exactly match the dot (set inline,
+   per-node, from graph.js) and centered on its logical (x, y) with this
+   translate. left/top are written once, at creation - ambient drift
+   (see graph.js render()) animates only the --drift-x/--drift-y
+   translate layered on top, which is compositor-only and never
+   triggers layout, so it can run every frame without cost. The SVG
+   edges read the exact same drift-inclusive position for their own
+   endpoints, so nothing can visually pull apart from the dot it's
+   centered on. */
+.graph-node {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translate(-50%, -50%) translate(var(--drift-x, 0px), var(--drift-y, 0px)) scale(0.5);
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--ink-dim);
+  font-family: var(--font-ui);
+  font-size: 0.76rem;
+  font-weight: 550;
+  letter-spacing: 0.005em;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+/* Opening choreography: a CSS transition is governed by whichever rule
+   matches the *new* state at the moment a property changes - so the
+   staggered reveal transition has to live on the .is-entered rule
+   itself (the state being transitioned *to*), not on the outgoing
+   :not(.is-entered) rule. Root gets --enter-delay: 0s (set in
+   graph.js) so it appears first; the ring fills in after it. */
+.graph-stage.is-entered .graph-node {
+  opacity: 1;
+  transform: translate(-50%, -50%) translate(var(--drift-x, 0px), var(--drift-y, 0px)) scale(1);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1) var(--enter-delay, 0s), transform 0.6s cubic-bezier(0.22, 1, 0.36, 1) var(--enter-delay, 0s);
+}
+
+/* Once the reveal has finished playing (graph.js adds this after the
+   last node's transition would have completed), narrow back down to
+   an opacity-only transition so the ongoing ambient --drift-x/--drift-y
+   updates apply on the very next frame instead of chasing an eased
+   target - drift should track exactly, not smooth toward stale values. */
+.graph-stage.is-entered.is-settled .graph-node {
+  transition: opacity 0.35s ease;
+}
+
+/* Invisible, symmetric hit-area expansion. Because inset is equal on all
+   sides, this can never shift the button's perceived center - it only
+   makes the tap/click target reach the accessible minimum without
+   changing where the dot visually sits. */
+.graph-node::before {
+  content: '';
+  position: absolute;
+  inset: -12px;
+}
+
+/* Every node is a self-contained circular control built from the same
+   layered recipe - crisp rim, dark separator gap, colored ring, drop
+   shadow, ambient bloom - as CSS custom properties, so every state
+   (hover, selected, connected, dimmed, root) reuses the exact same
+   rim/gap/ring *thickness* and only ever overrides color and glow
+   strength. That's what keeps the rings visually consistent across the
+   whole graph instead of each state inventing its own proportions. */
+.graph-node-dot {
+  --ring-rim: 1px;
+  --ring-gap: 3px;
+  --ring-width: 4.5px;
+  --ring-color: var(--current-dim);
+  --rim-color: rgba(255, 255, 255, 0.32);
+  --bloom-blur: 22px;
+  --bloom-spread: 3px;
+  --bloom-color: rgba(155, 140, 242, 0.24);
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at 33% 28%, #c3b8f9 0%, var(--current) 52%, #6d5cd6 100%);
+  box-shadow:
+    0 0 0 var(--ring-rim) var(--rim-color),
+    0 0 0 calc(var(--ring-rim) + var(--ring-gap)) rgba(7, 9, 15, 0.75),
+    0 0 0 calc(var(--ring-rim) + var(--ring-gap) + var(--ring-width)) var(--ring-color),
+    0 3px 14px -3px rgba(0, 0, 0, 0.6),
+    0 0 var(--bloom-blur) var(--bloom-spread) var(--bloom-color);
+  transition: background 0.3s ease, box-shadow 0.3s cubic-bezier(0.22, 1, 0.36, 1), transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: node-breathe 5.2s ease-in-out infinite;
+  animation-delay: var(--breathe-delay, 0s);
+}
+
+@keyframes node-breathe {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.1); }
+}
+
+.graph-node-icon {
+  position: relative;
+  width: 42%;
+  height: 42%;
+  display: flex;
+  color: rgba(15, 10, 30, 0.82);
+  filter: drop-shadow(0 1px 1px rgba(255, 255, 255, 0.25));
+  transition: opacity 0.3s ease;
+}
+
+.graph-node-icon svg { width: 100%; height: 100%; }
+
+/* The hero node: the same ring recipe scaled up for its size, plus an
+   extra deep drop shadow and a soft inner highlight (an inset glow
+   near the top-left) for a glassy, lit-from-within read instead of a
+   flat bigger circle. */
+.graph-node--root .graph-node-dot {
+  --ring-rim: 1.5px;
+  --ring-gap: 4px;
+  --ring-width: 6.5px;
+  --ring-color: var(--signal-dim);
+  --rim-color: rgba(255, 255, 255, 0.5);
+  --bloom-blur: 58px;
+  --bloom-spread: 13px;
+  --bloom-color: rgba(52, 224, 201, 0.38);
+  background: radial-gradient(circle at 33% 26%, #ccfff8 0%, var(--signal) 50%, #129787 100%);
+  box-shadow:
+    inset 0 2px 10px rgba(255, 255, 255, 0.22),
+    inset 0 -14px 22px rgba(4, 24, 22, 0.3),
+    0 0 0 var(--ring-rim) var(--rim-color),
+    0 0 0 calc(var(--ring-rim) + var(--ring-gap)) rgba(7, 9, 15, 0.8),
+    0 0 0 calc(var(--ring-rim) + var(--ring-gap) + var(--ring-width)) var(--ring-color),
+    0 10px 34px -6px rgba(0, 0, 0, 0.7),
+    0 0 var(--bloom-blur) var(--bloom-spread) var(--bloom-color);
+  flex-direction: column;
+  gap: 2px;
+  animation: root-pulse 5s ease-in-out infinite;
+}
+
+/* A gentle, always-on pulse dedicated to the center - distinct from the
+   shared node-pulse below, which is reserved for "this is the active
+   selection" and takes over (higher specificity) when root is picked. */
+@keyframes root-pulse {
+  0%, 100% {
+    box-shadow:
+      inset 0 2px 10px rgba(255, 255, 255, 0.22),
+      inset 0 -14px 22px rgba(4, 24, 22, 0.3),
+      0 0 0 1.5px rgba(255, 255, 255, 0.5),
+      0 0 0 5.5px rgba(7, 9, 15, 0.8),
+      0 0 0 12px var(--signal-dim),
+      0 10px 34px -6px rgba(0, 0, 0, 0.7),
+      0 0 58px 13px rgba(52, 224, 201, 0.38);
+  }
+  50% {
+    box-shadow:
+      inset 0 2px 10px rgba(255, 255, 255, 0.28),
+      inset 0 -14px 22px rgba(4, 24, 22, 0.34),
+      0 0 0 1.5px rgba(255, 255, 255, 0.62),
+      0 0 0 5.5px rgba(7, 9, 15, 0.8),
+      0 0 0 12px var(--signal-dim),
+      0 10px 34px -6px rgba(0, 0, 0, 0.7),
+      0 0 70px 17px rgba(52, 224, 201, 0.5);
+  }
+}
+
+/* Purely decorative extra rings around the hero node - the "multiple
+   glowing rings" a center anchor needs to read as the source of the
+   whole ecosystem, not just a bigger version of the same control. The
+   whole group turns, barely perceptibly, for a quiet "engineered
+   system" read rather than a static badge. */
+.graph-node-rings {
+  position: absolute;
+  inset: -22%;
+  border-radius: 50%;
+  border: 1px solid rgba(52, 224, 201, 0.22);
+  pointer-events: none;
+  animation: rings-turn 90s linear infinite;
+}
+
+.graph-node-rings::before,
+.graph-node-rings::after {
+  content: '';
+  position: absolute;
+  inset: 14%;
+  border-radius: 50%;
+  border: 1px dashed rgba(52, 224, 201, 0.3);
+}
+
+.graph-node-rings::after {
+  inset: -14%;
+  border-style: solid;
+  border-color: rgba(233, 237, 246, 0.1);
+  animation: rings-turn 130s linear infinite reverse;
+}
+
+@keyframes rings-turn {
+  to { transform: rotate(360deg); }
+}
+
+.graph-node--root .graph-node-icon {
+  width: 26%;
+  height: 26%;
+  color: rgba(6, 20, 18, 0.78);
+  margin-bottom: 2px;
+}
+
+.graph-node-hero-title {
+  position: relative;
+  color: var(--ink);
+  font-weight: 750;
+  font-size: 1.32em;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+
+.graph-node-hero-sub {
+  position: relative;
+  color: rgba(6, 20, 18, 0.62);
+  font-family: var(--font-mono);
+  font-size: 0.58em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+}
+
+/* Primary-node labels: a small attached caption chip positioned outward
+   from the dot along the node's own ring angle (data-dir, set in
+   graph.js), tight enough against the dot to read as part of the same
+   control rather than free-floating page text. */
+.graph-node-label {
+  position: absolute;
+  display: block;
+  width: max-content;
+  max-width: 9em;
+  pointer-events: none;
+}
+
+.graph-node-label-text {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 7px;
+  background: rgba(7, 9, 15, 0.62);
+  border: 1px solid rgba(233, 237, 246, 0.07);
+  white-space: normal;
+  /* Break at word boundaries first; only fall back to a hyphen (never a
+     bare mid-word split) when a single word genuinely has nowhere else
+     to go - see the direction-refinement pass in graph.js, which tries
+     to avoid this happening in the first place. */
+  overflow-wrap: break-word;
+  word-break: normal;
+  hyphens: auto;
+  line-height: 1.3;
+  letter-spacing: 0.005em;
+  text-align: inherit;
+  transition: color 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+}
+
+/* North/south labels sit near the ring's top/bottom pole, where the
+   node is already close to the stage's horizontal center - plenty of
+   room either side, so these can afford the full width above. East/west
+   labels reach straight into the tightest margin on a square stage, so
+   they get a narrower cap and wrap sooner instead of overflowing it.
+
+   --label-stagger (set per-node in graph.js only when two ring-adjacent
+   nodes land in the same direction bucket) pushes every other one a bit
+   further out so their labels don't land on top of each other. */
+.graph-node { --label-stagger: 0; }
+.graph-node[data-dir="n"] .graph-node-label { left: 50%; bottom: calc(100% + 9px + var(--label-stagger) * 16px); transform: translateX(-50%); text-align: center; }
+.graph-node[data-dir="s"] .graph-node-label { left: 50%; top: calc(100% + 9px + var(--label-stagger) * 16px); transform: translateX(-50%); text-align: center; }
+.graph-node { --ew-stagger-sign: 1; }
+.graph-node[data-dir="e"] .graph-node-label { left: calc(100% + 6px); top: calc(50% + var(--label-stagger) * var(--ew-stagger-sign) * 24px); transform: translateY(-50%); text-align: left; max-width: 5.4em; }
+.graph-node[data-dir="w"] .graph-node-label { right: calc(100% + 6px); top: calc(50% + var(--label-stagger) * var(--ew-stagger-sign) * 24px); transform: translateY(-50%); text-align: right; max-width: 5.4em; }
+.graph-node[data-dir="ne"] .graph-node-label { left: calc(100% + 8px + var(--label-stagger) * 18px); bottom: calc(50% + 3px + var(--label-stagger) * 26px); text-align: left; max-width: 8em; }
+.graph-node[data-dir="nw"] .graph-node-label { right: calc(100% + 8px + var(--label-stagger) * 18px); bottom: calc(50% + 3px + var(--label-stagger) * 26px); text-align: right; max-width: 8em; }
+.graph-node[data-dir="se"] .graph-node-label { left: calc(100% + 8px + var(--label-stagger) * 18px); top: calc(50% + 3px + var(--label-stagger) * 26px); text-align: left; max-width: 8em; }
+.graph-node[data-dir="sw"] .graph-node-label { right: calc(100% + 8px + var(--label-stagger) * 18px); top: calc(50% + 3px + var(--label-stagger) * 26px); text-align: right; max-width: 8em; }
+
+/* Every state below overrides only the ring-recipe custom properties
+   (color, rim brightness, bloom) declared on .graph-node-dot - never
+   --ring-rim/--ring-gap/--ring-width themselves - so the physical ring
+   stays the same thickness everywhere except the deliberately-thinner
+   dimmed tier and the deliberately-scaled-up root tier. */
+.graph-node:hover .graph-node-dot,
+.graph-node:focus-visible .graph-node-dot,
+.graph-node.is-focused .graph-node-dot {
+  transform: scale(1.14);
+  --rim-color: rgba(255, 255, 255, 0.48);
+  --ring-color: var(--current-dim);
+  --ring-width: 5px;
+  --bloom-blur: 28px;
+  --bloom-spread: 5px;
+  --bloom-color: rgba(155, 140, 242, 0.42);
+}
+
+.graph-node:hover .graph-node-label-text,
+.graph-node.is-focused .graph-node-label-text {
+  color: var(--ink);
+  background: rgba(13, 18, 32, 0.72);
+  border-color: rgba(233, 237, 246, 0.16);
+}
+
+/* Selected nodes read as illuminated: a brighter core, a wide soft
+   bloom, and a slow breathing pulse - distinct from the tighter hover
+   glow above so "selected" and "hovered" never look identical. */
+.graph-node.is-selected .graph-node-dot {
+  background: radial-gradient(circle at 34% 28%, #d6fff8 0%, var(--signal) 50%, #1ec3ab 100%);
+  --rim-color: rgba(255, 255, 255, 0.6);
+  --ring-color: var(--signal-dim);
+  --ring-width: 6.5px;
+  --bloom-blur: 34px;
+  --bloom-spread: 7px;
+  --bloom-color: rgba(52, 224, 201, 0.55);
+  animation: node-pulse 2.4s ease-in-out infinite;
+}
+
+.graph-node.is-selected .graph-node-label-text {
+  color: var(--ink);
+  font-weight: 650;
+  background: rgba(13, 18, 32, 0.75);
+  border-color: rgba(52, 224, 201, 0.28);
+}
+
+/* Keyframes need literal box-shadow values (animated custom properties
+   don't interpolate without an @property registration this project
+   doesn't otherwise need), but the rim(1px)/gap(3px) numbers here still
+   match the shared recipe above - only the ring/bloom breathe. */
+@keyframes node-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.6),
+      0 0 0 4px rgba(7, 9, 15, 0.75),
+      0 0 0 10.5px var(--signal-dim),
+      0 4px 20px -2px rgba(0, 0, 0, 0.6),
+      0 0 34px 7px rgba(52, 224, 201, 0.55);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.75),
+      0 0 0 4px rgba(7, 9, 15, 0.75),
+      0 0 0 12px var(--signal-dim),
+      0 4px 26px -2px rgba(0, 0, 0, 0.6),
+      0 0 46px 13px rgba(52, 224, 201, 0.75);
+  }
+}
+
+.graph-node.is-connected .graph-node-dot {
+  background: radial-gradient(circle at 34% 28%, #baf6ec 0%, var(--signal) 55%, #1ec3ab 100%);
+  --rim-color: rgba(255, 255, 255, 0.42);
+  --ring-color: var(--signal-dim);
+  --bloom-blur: 26px;
+  --bloom-spread: 5px;
+  --bloom-color: rgba(52, 224, 201, 0.38);
+  transform: scale(1.1);
+}
+.graph-node.is-connected .graph-node-label-text {
+  color: var(--ink);
+  background: rgba(13, 18, 32, 0.65);
+  border-color: rgba(52, 224, 201, 0.16);
+}
+
+/* Inactive nodes shrink and fade well past the resting state - a
+   clearly "quiet" tier, not a slightly-dimmer copy of the same node.
+   The ring itself is the one deliberate exception to the shared
+   thickness recipe (thinner, so "quiet" reads structurally, not just
+   through opacity) - and it settles with a plain ease, not the bouncy
+   curve hover/selection use, so fading out never looks like a bounce. */
+.graph-node.is-dimmed { opacity: 0.3; }
+.graph-node.is-dimmed .graph-node-dot {
+  --ring-gap: 2.5px;
+  --ring-width: 2.5px;
+  --rim-color: rgba(255, 255, 255, 0.1);
+  --ring-color: rgba(155, 140, 242, 0.05);
+  --bloom-blur: 0px;
+  --bloom-spread: 0px;
+  --bloom-color: transparent;
+  transform: scale(0.66);
+  transition: background 0.35s ease, box-shadow 0.35s ease, transform 0.4s ease;
+  animation: none;
+}
+.graph-node.is-dimmed .graph-node-icon { opacity: 0.5; }
+.graph-node.is-dimmed .graph-node-label-text { background: transparent; border-color: transparent; }
+
+.graph-node:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 4px;
+  border-radius: 999px;
+  transition: outline-offset 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ---------- info panel ---------- */
+.node-panel {
+  position: relative;
+  min-height: 240px;
+  padding: 26px 26px 28px;
+  border: 1px solid var(--glass-edge);
+  border-radius: 14px;
+  background:
+    linear-gradient(165deg, rgba(255, 255, 255, 0.035), transparent 40%),
+    rgba(7, 9, 15, 0.4);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 20px 46px -28px rgba(0, 0, 0, 0.75);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.32s cubic-bezier(0.22, 1, 0.36, 1), transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.node-panel.is-open {
+  opacity: 1;
+  transform: none;
+}
+
+/* Switching between two already-open nodes: a quick fade out (handled
+   here), then app.js swaps the HTML and lets .is-open's own, slightly
+   slower transition fade the new content back in. Content never
+   instantly replaces itself while the panel is visible. */
+.node-panel.is-open.is-swapping {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.panel-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 28px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--glass-edge);
+  border-radius: 6px;
+  color: var(--ink-faint);
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.panel-close:hover { background: rgba(240, 100, 90, 0.16); color: #f0645a; border-color: rgba(240, 100, 90, 0.3); }
+
+.panel-close:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 2px;
+}
+
+.panel-kicker {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 10px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--signal);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.panel-kicker::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--signal);
+  box-shadow: 0 0 8px 1px rgba(52, 224, 201, 0.7);
+}
+
+.panel-title {
+  margin: 0 0 14px;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  line-height: 1.25;
+  padding-right: 32px;
+}
+
+.panel-summary {
+  margin: 0 0 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--glass-edge);
+  color: var(--ink-dim);
+  font-size: 0.96rem;
+  line-height: 1.65;
+}
+
+.panel-disclosure {
+  border: 1px solid transparent;
+  border-radius: 10px;
+  margin: 0 -10px;
+  padding: 2px 10px;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.panel-disclosure + .panel-disclosure { margin-top: 2px; }
+
+.panel-disclosure summary {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 0;
+  color: var(--ink);
+  cursor: pointer;
+  font-weight: 620;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  list-style: none;
+}
+
+.panel-disclosure:hover { background: rgba(255, 255, 255, 0.025); border-color: var(--glass-edge); }
+
+.panel-disclosure summary:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.panel-disclosure summary::-webkit-details-marker { display: none; }
+
+.panel-disclosure summary::before {
+  content: '';
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-right: 1.5px solid var(--signal);
+  border-bottom: 1.5px solid var(--signal);
+  transform: rotate(-45deg);
+  transition: transform 0.2s ease;
+}
+
+.panel-disclosure[open] summary::before { transform: rotate(45deg); }
+
+.panel-disclosure p {
+  margin: 0 0 16px;
+  padding-left: 16px;
+  color: var(--ink-dim);
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+
+.panel-related-label {
+  margin: 22px 0 12px;
+  padding-top: 20px;
+  border-top: 1px solid var(--glass-edge);
+}
+
+.panel-related {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.node-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid rgba(233, 237, 246, 0.14);
+  border-radius: 999px;
+  padding: 7px 14px 7px 11px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--ink-dim);
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  font-weight: 560;
+  cursor: pointer;
+  transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.node-chip::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--current);
+  box-shadow: 0 0 0 3px var(--current-dim);
+  transition: background 0.18s ease, box-shadow 0.18s ease;
+}
+
+.node-chip:hover,
+.node-chip:focus-visible {
+  border-color: rgba(52, 224, 201, 0.4);
+  color: var(--ink);
+  background: rgba(52, 224, 201, 0.08);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px -8px rgba(0, 0, 0, 0.5);
+}
+
+.node-chip:hover::before,
+.node-chip:focus-visible::before {
+  background: var(--signal);
+  box-shadow: 0 0 0 3px var(--signal-dim);
+}
+
+.node-chip:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 3px;
+}
+
+.graph-error {
+  color: var(--amber);
+  font-family: var(--font-mono);
+  font-size: 0.86rem;
+  line-height: 1.6;
+  padding: 20px;
+}
+
+/* ---------- cross-link edges: when a leaf topic is focused, its ring
+   shows siblings (solid edges, same as chapter/root children) plus a
+   capped set of its own related cross-links - dashed, so hierarchy vs.
+   cross-system relationship is unambiguous without reading anything. ---------- */
+.graph-edge--crosslink { stroke-dasharray: 3 5; }
+.graph-edge--crosslink.is-lit { stroke-dasharray: 5 4; }
+
+/* ---------- scene transitions: a quick, uniform fade+shrink for
+   whatever scene is on its way out, before the new one is built and
+   plays its own (staggered, slower) entrance. The !important pairs are
+   deliberate - "the scene is leaving" needs to override every possible
+   interaction state (hover/selected/connected/dimmed) a node might
+   have been in at the moment navigation happened, not just the resting
+   state. ---------- */
+.graph-stage.is-exiting .graph-node {
+  opacity: 0 !important;
+  transform: translate(-50%, -50%) scale(0.6) !important;
+  transition: opacity 0.22s ease, transform 0.22s ease !important;
+}
+.graph-stage.is-exiting .graph-edge {
+  opacity: 0 !important;
+  transition: opacity 0.18s ease !important;
+}
+.graph-stage.is-exiting .graph-marker {
+  opacity: 0 !important;
+  transition: opacity 0.18s ease !important;
+}
+
+/* ---------- chapter panels: an orientation paragraph or two, then a
+   "start exploring" chip row - no border-bottom separator since there's
+   no Details/Deep dive to separate from (chapters don't have those
+   sections; see app.js paintPanel). ---------- */
+.panel-summary--chapter {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin: 0 0 14px;
+}
+
+/* ---------- graph navigation bar: home/back, breadcrumb, drawer toggle ---------- */
+.graph-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.graph-nav-controls {
+  display: flex;
+  gap: 6px;
+  flex: none;
+}
+
+.nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 32px;
+  padding: 0 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--glass-edge);
+  border-radius: 8px;
+  color: var(--ink-dim);
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 550;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+.nav-btn svg { width: 16px; height: 16px; flex: none; }
+.nav-btn:hover { background: rgba(52, 224, 201, 0.08); color: var(--ink); border-color: rgba(52, 224, 201, 0.3); }
+.nav-btn:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
+.nav-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.nav-btn:disabled:hover { background: rgba(255, 255, 255, 0.04); color: var(--ink-dim); border-color: var(--glass-edge); }
+.nav-btn--drawer { margin-left: auto; }
+.nav-btn--drawer span { font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; }
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  min-width: 0;
+}
+
+.crumb {
+  background: none;
+  border: none;
+  padding: 3px 5px;
+  color: var(--ink-faint);
+  cursor: pointer;
+  border-radius: 5px;
+  transition: color 0.18s ease, background 0.18s ease;
+}
+.crumb:hover { color: var(--signal); background: rgba(52, 224, 201, 0.08); }
+.crumb:focus-visible { outline: 2px solid var(--signal); outline-offset: 1px; }
+.crumb.is-current { color: var(--ink); font-weight: 600; }
+.crumb-sep { color: var(--ink-faint); opacity: 0.5; }
+
+/* ---------- nav drawer: the accessible, non-spatial way to reach any
+   of the 19 nodes - a real nested list, not graph-only interaction. ---------- */
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(3, 4, 8, 0.55);
+  backdrop-filter: blur(2px);
+  z-index: 40;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.drawer-backdrop.is-open { opacity: 1; }
+
+.nav-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(340px, 88vw);
+  background: rgba(10, 13, 22, 0.97);
+  backdrop-filter: blur(20px) saturate(1.1);
+  -webkit-backdrop-filter: blur(20px) saturate(1.1);
+  border-left: 1px solid var(--glass-edge);
+  box-shadow: -30px 0 60px -30px rgba(0, 0, 0, 0.7);
+  z-index: 41;
+  transform: translateX(100%);
+  transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  overflow-y: auto;
+}
+.nav-drawer.is-open { transform: translateX(0); }
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex: none;
+}
+.drawer-title {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--signal);
+}
+
+.drawer-list, .drawer-sublist { list-style: none; margin: 0; padding: 0; }
+.drawer-sublist { padding-left: 14px; margin: 2px 0 8px; }
+
+.drawer-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 10px;
+  margin: 1px 0;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.drawer-item--child {
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: var(--ink-dim);
+  padding-left: 18px;
+  position: relative;
+}
+.drawer-item--child::before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 50%;
+  width: 6px;
+  height: 1px;
+  background: var(--ink-faint);
+}
+.drawer-item:hover { background: rgba(52, 224, 201, 0.08); color: var(--signal); }
+.drawer-item:focus-visible { outline: 2px solid var(--signal); outline-offset: -2px; }
+
+/* ---------- mobile bottom-sheet handle: a real child of #nodePanel,
+   re-rendered on every paintPanel call (see app.js), not a separate
+   persistent element - avoids having to track the panel's own height
+   to position an external sibling correctly. Hidden on desktop; the
+   860px breakpoint below both shows it and turns the panel itself into
+   a sheet. ---------- */
+.panel-sheet-toggle {
+  display: none;
+  width: 100%;
+  padding: 6px 0 10px;
+  margin: -10px 0 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.panel-sheet-grip {
+  display: block;
+  width: 36px;
+  height: 4px;
+  margin: 0 auto;
+  border-radius: 999px;
+  background: rgba(233, 237, 246, 0.28);
+}
+.panel-sheet-toggle:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; border-radius: 4px; }
+
+@media (max-width: 860px) {
+  .graph-layout { grid-template-columns: 1fr; }
+  .graph-stage { aspect-ratio: 4 / 3; }
+
+  .nav-btn--drawer span { display: none; }
+  .breadcrumb { flex: 1 1 auto; overflow: hidden; }
+
+  .panel-sheet-toggle { display: block; }
+
+  /* The panel becomes a fixed bottom sheet: a "peek" height showing
+     title + summary by default, expandable to most of the viewport.
+     The graph stays visible and interactive above it at all times. */
+  .node-panel {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    z-index: 30;
+    min-height: 0;
+    max-height: 82vh;
+    height: 148px;
+    padding-bottom: 16px;
+    overflow-y: auto;
+    transition: opacity 0.32s ease, transform 0.38s cubic-bezier(0.22, 1, 0.36, 1), height 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .node-panel.is-expanded { height: 72vh; }
+}
+
+/* Label footprint is set in fixed em/px so it reads consistently at any
+   stage size, but node spacing itself scales down with the stage - on a
+   small phone the two diverge enough that labels need their own smaller
+   tier rather than just inheriting the desktop sizing. */
+@media (max-width: 520px) {
+  .graph-node-label { font-size: 0.62rem; max-width: 5.8em; }
+  .graph-node[data-dir="n"] .graph-node-label { bottom: calc(100% + 6px + var(--label-stagger) * 13px); }
+  .graph-node[data-dir="s"] .graph-node-label { top: calc(100% + 6px + var(--label-stagger) * 13px); }
+  .graph-node[data-dir="e"] .graph-node-label { left: calc(100% + 6px); top: calc(50% + var(--label-stagger) * var(--ew-stagger-sign) * 20px); max-width: 4.4em; }
+  .graph-node[data-dir="w"] .graph-node-label { right: calc(100% + 6px); top: calc(50% + var(--label-stagger) * var(--ew-stagger-sign) * 20px); max-width: 4.4em; }
+  .graph-node[data-dir="ne"] .graph-node-label { left: calc(100% + 5px + var(--label-stagger) * 18px); bottom: calc(50% + 5px + var(--label-stagger) * 32px); max-width: 4.9em; }
+  .graph-node[data-dir="nw"] .graph-node-label { right: calc(100% + 5px + var(--label-stagger) * 18px); bottom: calc(50% + 5px + var(--label-stagger) * 32px); max-width: 4.9em; }
+  .graph-node[data-dir="se"] .graph-node-label { left: calc(100% + 5px + var(--label-stagger) * 18px); top: calc(50% + 5px + var(--label-stagger) * 32px); max-width: 4.9em; }
+  .graph-node[data-dir="sw"] .graph-node-label { right: calc(100% + 5px + var(--label-stagger) * 18px); top: calc(50% + 5px + var(--label-stagger) * 32px); max-width: 4.9em; }
+  .graph-node--root .graph-node-label { font-size: 0.72rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .graph-stage,
+  .graph-node,
+  .graph-stage.is-entered .graph-node,
+  .graph-stage.is-exiting .graph-node,
+  .graph-stage.is-exiting .graph-edge,
+  .graph-stage.is-exiting .graph-marker,
+  .graph-node-dot,
+  .graph-edge,
+  .node-panel,
+  .nav-drawer,
+  .drawer-backdrop { transition: none !important; }
+  .graph-node-dot,
+  .graph-node.is-selected .graph-node-dot,
+  .graph-node--root .graph-node-dot,
+  .graph-node-rings,
+  .graph-node-rings::before,
+  .graph-node-rings::after { animation: none; }
+}
