@@ -4,7 +4,40 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Gary Hall | Systems, tools, and experiments</title>
-<link rel="icon" href="data:,">
+<meta name="description" content="Gary Hall is an engineer and systems-minded builder who studies how infrastructure, businesses, and living systems work, then builds the smallest tool that removes real friction. Explore his projects, working notes, and consulting services.">
+<link rel="canonical" href="https://www.ghallonline.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="gary_hall.system">
+<meta property="og:title" content="Gary Hall | Systems, tools, and experiments">
+<meta property="og:description" content="Engineer, tool builder, and student of systems. I learn how things work, then I build useful things. Explore projects, notes, and how to work with me.">
+<meta property="og:url" content="https://www.ghallonline.com/">
+<meta property="og:image" content="https://www.ghallonline.com/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="gary_hall.system - a terminal-style window reading 'I learn how things work. Then I build useful things.'">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Gary Hall | Systems, tools, and experiments">
+<meta name="twitter:description" content="Engineer, tool builder, and student of systems. I learn how things work, then I build useful things.">
+<meta name="twitter:image" content="https://www.ghallonline.com/assets/og-image.png">
+<meta name="theme-color" content="#07090f">
+<link rel="icon" type="image/png" href="assets/favicon-32.png">
+<link rel="apple-touch-icon" href="assets/favicon-180.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Gary Hall",
+  "url": "https://www.ghallonline.com/",
+  "jobTitle": "Engineer & Systems Consultant",
+  "description": "Engineer, tool builder, and student of systems. Builds infrastructure, business tools, and living-systems projects based in Seattle.",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Seattle",
+    "addressRegion": "WA",
+    "addressCountry": "US"
+  }
+}
+</script>
 <style>
   :root {
     --void: #07090f;
@@ -13,7 +46,7 @@
     --glass-edge: rgba(233, 237, 246, 0.09);
     --ink: #e9edf6;
     --ink-dim: #8b96ac;
-    --ink-faint: #5c6680;
+    --ink-faint: #7c8499;
     --signal: #34e0c9;
     --signal-dim: rgba(52, 224, 201, 0.16);
     --current: #9b8cf2;
@@ -22,6 +55,17 @@
     --pulse: #ed6aa8;
     --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     --font-mono: ui-monospace, "SF Mono", "Cascadia Code", Consolas, "Liberation Mono", Menlo, monospace;
+    /* Radius scale: three tiers instead of a dozen one-off values.
+       --radius-sm  = small controls (buttons, chips, tags)
+       --radius-md  = panels (windows, cards, overlays)
+       --radius-pill = fully-rounded badges/pills
+       Applied everywhere that already used these exact values (zero visual
+       change) - the handful of in-between one-off values elsewhere in the
+       file (4/5/6/7/9/10/12/16px) are close enough to be candidates for a
+       future pass but weren't blanket-snapped here without visual QA. */
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-pill: 999px;
   }
 
   /* This concept is a deliberate single-theme commitment: the whole pitch is
@@ -31,14 +75,49 @@
 
   * { box-sizing: border-box; }
 
+  /* The horizontal-scrollbar clip lives on <html>, not <body>. Two CSS
+     quirks compound here: (1) per the Overflow spec, declaring only
+     overflow-x on an element forces the other axis to compute as "auto"
+     instead of "visible" whenever the two would otherwise differ - so
+     "overflow-x: hidden" alone silently makes an element non-visible-
+     overflow on BOTH axes, not just x. (2) The HTML5 root-scroller rule
+     propagates <body>'s overflow up to the viewport when <html> itself
+     doesn't declare one, which is why the clip worked fine on body. The
+     side effect of both together: body became a "scroll container" in
+     the CSS containing-block sense (even though it never actually needed
+     an inner scrollbar - html was always the element truly scrolling),
+     which silently broke position: sticky for any descendant of body,
+     including the directory nav. Declaring the clip directly on html
+     (with overflow-y: auto stated, not left ambiguous) keeps body itself
+     free of any overflow value, so sticky descendants correctly resolve
+     their containing block to the element that's actually scrolling. */
+  html {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
   body {
     margin: 0;
     min-height: 100vh;
     background: var(--void);
     color: var(--ink);
     font-family: var(--font-ui);
-    overflow-x: hidden;
     position: relative;
+  }
+
+  /* Screen-reader-only: visually hidden but still announced. Used for the
+     "now viewing: X" live region so switching Directory sections is
+     perceivable to screen-reader users even though nothing moves focus. */
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 
   /* ---------- ambient field ---------- */
@@ -80,8 +159,108 @@
     display: block;
   }
 
-  .background-tesseract .concept-hud-meta {
-    display: none;
+  /* ---------- tesseract HUD: quiet, clickable readout ----------
+     Lives outside the aria-hidden .field layer on purpose - unlike the
+     canvas and glows, this is a real control (opens a field note), so it
+     needs its own accessible name and focus handling rather than
+     inheriting the decorative layer's aria-hidden state. */
+  .tesseract-hud {
+    position: fixed;
+    left: 14px;
+    bottom: 12px;
+    z-index: 1;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.02em;
+    color: var(--ink-dim);
+    background: rgba(11, 15, 26, 0.5);
+    border: 1px solid var(--glass-edge);
+    border-radius: var(--radius-pill);
+    padding: 7px 14px;
+    margin: 0;
+    cursor: pointer;
+    opacity: 0.85;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: opacity 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .tesseract-hud:hover,
+  .tesseract-hud:focus-visible {
+    opacity: 1;
+    color: var(--signal);
+    border-color: rgba(52, 224, 201, 0.42);
+  }
+
+  @media (max-width: 720px) {
+    .tesseract-hud {
+      display: none;
+    }
+  }
+
+  /* ---------- Living Archive, Layer 1: growth bars ----------
+     Anchored to the bottom of the main window, sized by #instrument's own
+     content since it's position:absolute + inset:0 inside a
+     position:relative parent - it doesn't add height itself. z-index:-1
+     (see the note on it below) puts it behind the titlebar/instrument-body
+     content: wherever the window's own content has no background of its
+     own, the garden shows through underneath it; wherever a card or panel
+     does have a background, it's covered, the same way undergrowth
+     disappears behind whatever's standing in front of it. Bar heights are
+     set inline from JS (stage 0-5 -> 0-82px) rather than via a class per
+     stage, since the height needs to be a real transitionable value, not
+     a swapped class. */
+  /* #instrument > .archive-garden, not just .archive-garden: there is a
+     pre-existing ".instrument > *" rule further down (next to the aura
+     pseudo-element) that forces position:relative + z-index:1 onto every
+     direct child of the window, to keep real content above the rotating
+     aura behind the glass. That rule has the same specificity as a bare
+     ".archive-garden" class and comes later in the file, so it was
+     silently winning and overwriting both position and z-index here -
+     turning this into a normal in-flow relative block that rendered
+     *before* the titlebar instead of an absolutely positioned layer
+     behind it. That was the actual "growing on top of the window" bug,
+     not a stacking-context problem. Qualifying the selector with the ID
+     raises specificity enough to win regardless of source order. */
+  #instrument > .archive-garden {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-evenly;
+    padding: 0 28px;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .archive-garden.is-disabled { display: none; }
+
+  .archive-plant {
+    position: relative;
+    width: 2px;
+    height: 0;
+    background: linear-gradient(to top, var(--ink-faint), transparent);
+    opacity: 0.4;
+    transition: height 0.8s ease;
+  }
+
+  .archive-plant__tip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 2px;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--ink-faint);
+    white-space: nowrap;
+  }
+
+  .archive-plant__tip:empty { display: none; }
+
+  @media (max-width: 720px) {
+    .archive-plant__tip { font-size: 0.72rem; }
   }
 
   .glow {
@@ -147,14 +326,12 @@
     white-space: nowrap;
   }
 
+  /* Retired: this used to run a light-sweep (line-scan) across the eyebrow
+     on an infinite loop. The masthead now carries exactly one continuous
+     "liveness" signal (the status dot below) instead of several competing
+     ones - see the calmer terminal-cursor and .sub rules below too. */
   .system-line::after {
-    content: '';
-    position: absolute;
-    inset: -25% auto -25% -20%;
-    width: 38%;
-    background: linear-gradient(90deg, transparent, rgba(233, 237, 246, 0.34), transparent);
-    transform: skewX(-18deg);
-    animation: line-scan 4.8s ease-in-out infinite;
+    content: none;
   }
 
   .terminal-cursor {
@@ -165,7 +342,6 @@
     transform: translateY(0.14em);
     background: var(--signal);
     box-shadow: 0 0 14px rgba(52, 224, 201, 0.7);
-    animation: blink 1.05s step-end infinite;
   }
 
   .status-dot {
@@ -206,6 +382,11 @@
 
   h1 .accent { color: var(--signal); }
 
+  /* Was an animated gradient text-sweep plus a separately-animated
+     underline - two more loops running next to the eyebrow's own. Kept the
+     accent underline as a static design element (it reads intentionally
+     now, not mid-animation) and simplified the text to a plain, readable
+     color so the masthead has exactly one moving thing: the status dot. */
   .sub {
     font-size: 1.05rem;
     color: var(--ink-dim);
@@ -214,13 +395,6 @@
     margin: 0;
     position: relative;
     width: fit-content;
-    background: linear-gradient(90deg, var(--ink-dim), var(--ink), var(--signal), var(--ink-dim));
-    background-size: 280% 100%;
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    animation: sub-signal 8s ease-in-out infinite;
-    text-shadow: 0 0 24px rgba(52, 224, 201, 0.1);
   }
 
   .sub::after {
@@ -230,9 +404,8 @@
     right: 0;
     bottom: -8px;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(52, 224, 201, 0.5), transparent);
+    background: linear-gradient(90deg, transparent, rgba(52, 224, 201, 0.4), transparent);
     transform-origin: left;
-    animation: sub-underline 8s ease-in-out infinite;
   }
 
   @keyframes sub-signal {
@@ -259,7 +432,7 @@
     backdrop-filter: blur(34px) saturate(1.08);
     -webkit-backdrop-filter: blur(34px) saturate(1.08);
     border: 1px solid var(--glass-edge);
-    border-radius: 14px;
+    border-radius: var(--radius-md);
     box-shadow: 0 30px 80px -40px rgba(0, 0, 0, 0.65);
     overflow: hidden;
     transition: max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease;
@@ -348,8 +521,8 @@
   }
 
   .tb-btn {
-    width: 26px;
-    height: 22px;
+    width: 30px;
+    height: 28px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -374,6 +547,34 @@
     transition: grid-template-rows 0.3s ease;
   }
 
+  /* Keeps the directory nav on screen once a pane's content (Workshop's
+     project grid especially) runs taller than one window. position:
+     sticky was tried here first and, for reasons that didn't reproduce in
+     isolation, silently refused to engage for this specific element even
+     after ruling out every ancestor/overflow/containing-block cause we
+     could find - so this takes the simpler, more conventional route
+     instead: cap the window's own height and let only the content column
+     scroll inside it, the way a real desktop window would. The directory
+     column just naturally stays put since it's short enough to never need
+     to scroll. Scoped to #instrument specifically (not shared with the
+     terminal or phone-demo windows, which don't have a directory nav and
+     are left exactly as they were). */
+  #instrument {
+    display: flex;
+    flex-direction: column;
+    max-height: min(680px, calc(100vh - 220px));
+  }
+
+  #instrument > .instrument-body {
+    flex: 1;
+    min-height: 0;
+  }
+
+  #instrument .viewer {
+    overflow-y: auto;
+    min-height: 0;
+  }
+
   /* Minimize: collapse to just the titlebar. Maximize: grow in place.
      Close: fade the whole instrument out and leave a small reopen chip. */
   .instrument.is-minimized .instrument-body {
@@ -382,6 +583,13 @@
 
   .instrument.is-maximized {
     max-width: none;
+  }
+
+  /* Maximizing the main window is the one case where the height cap above
+     should lift too - showing more content in place is the whole point of
+     maximize, rather than still capping it and scrolling inside. */
+  #instrument.is-maximized {
+    max-height: none;
   }
 
   .instrument.is-maximized .instrument-body {
@@ -407,7 +615,7 @@
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
     border: 1px solid var(--glass-edge);
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     padding: 10px 18px;
     cursor: pointer;
   }
@@ -788,7 +996,7 @@
     max-width: 142px;
     padding: 9px 10px;
     border: 1px solid rgba(233, 237, 246, 0.12);
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     background: rgba(11, 15, 26, 0.82);
     box-shadow: 0 12px 28px rgba(0,0,0,0.18);
   }
@@ -1006,6 +1214,11 @@
     18%, 28% { opacity: 1; }
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    .origin-screen-cursor,
+    .origin-power-light--orange { animation: none; opacity: 1; }
+  }
+
   .origin-hello-ascii {
     position: relative;
     z-index: 1;
@@ -1112,7 +1325,7 @@
     margin: 20px 0;
     padding: 20px;
     border: 1px solid rgba(52, 224, 201, 0.24);
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     background:
       radial-gradient(circle at 80% 20%, rgba(52, 224, 201, 0.12), transparent 35%),
       rgba(7, 9, 15, 0.2);
@@ -1166,7 +1379,7 @@
     min-height: 31px;
     padding: 6px 10px;
     border: 1px solid rgba(233, 237, 246, 0.16);
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: rgba(255, 255, 255, 0.035);
     color: var(--ink-faint);
     font-family: var(--font-mono);
@@ -1220,7 +1433,7 @@
     margin: 0 0 2px;
     color: var(--ink-faint);
     font-family: var(--font-mono);
-    font-size: 0.64rem;
+    font-size: 0.66rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
@@ -1249,16 +1462,6 @@
     font-size: 0.98rem;
   }
 
-  .portal-box {
-    margin-top: 18px;
-    padding: 18px;
-    border: 1px dashed rgba(233, 237, 246, 0.16);
-    border-radius: 8px;
-    color: var(--ink-dim);
-    font-family: var(--font-mono);
-    background: rgba(7, 9, 15, 0.18);
-  }
-
   .action-grid,
   .project-grid,
   .note-grid,
@@ -1281,7 +1484,8 @@
   .notes-index { display: grid; align-content: start; border-right: 1px solid var(--glass-edge); }
   .note-entry { display: grid; grid-template-columns: 30px 1fr; gap: 5px 10px; padding: 13px 14px; border: 0; border-top: 1px solid var(--glass-edge); background: transparent; color: var(--ink-dim); font: inherit; text-align: left; cursor: pointer; transition: background .16s ease, color .16s ease; }
   .note-entry:first-child { border-top: 0; }
-  .note-entry:hover, .note-entry:focus-visible, .note-entry.is-selected { color: var(--ink); background: rgba(255,255,255,.045); outline: none; }
+  .note-entry:hover, .note-entry.is-selected { color: var(--ink); background: rgba(255,255,255,.045); }
+  .note-entry:focus-visible { color: var(--ink); background: rgba(255,255,255,.045); outline: 2px solid var(--signal); outline-offset: -2px; }
   .note-entry.is-selected { box-shadow: inset 2px 0 rgba(52,224,201,.72); }
   .note-entry__number { grid-row: 1 / span 2; color: var(--ink-faint); font: .66rem var(--font-mono); letter-spacing: .08em; }
   .note-entry strong { font-size: .88rem; font-weight: 600; line-height: 1.35; }
@@ -1393,7 +1597,7 @@
   .action-chip,
   .back-btn {
     border: 1px solid rgba(233, 237, 246, 0.16);
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     background: rgba(255, 255, 255, 0.045);
     color: var(--ink-dim);
     font: inherit;
@@ -1442,7 +1646,7 @@
     margin-bottom: 18px;
     color: var(--ink-faint);
     font-family: var(--font-mono);
-    font-size: 0.64rem;
+    font-size: 0.66rem;
     letter-spacing: 0.09em;
     text-transform: uppercase;
   }
@@ -1475,7 +1679,7 @@
     align-items: start;
     overflow: hidden;
     border: 1px solid rgba(233, 237, 246, 0.14);
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     background:
       linear-gradient(180deg, rgba(233, 237, 246, 0.05), rgba(233, 237, 246, 0.01) 24%, transparent 62%),
       linear-gradient(135deg, rgba(52, 224, 201, 0.045), transparent 48%),
@@ -1483,6 +1687,13 @@
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
   }
 
+  /* Graph-paper texture: was always at full (0.36) opacity, which is one
+     surface treatment too many when 11 of these render in a row at rest
+     (background gradient + border + inset highlight + this + the accent
+     bar below). Dimmed to a faint base state and only comes forward on
+     hover/selected, so it still reads as a nice detail on interaction
+     without competing with everything else while the rail is just sitting
+     there. */
   .project-rail .project-card::before {
     content: "";
     position: absolute;
@@ -1491,9 +1702,15 @@
       linear-gradient(90deg, transparent 0, rgba(233, 237, 246, 0.028) 1px, transparent 1px),
       linear-gradient(180deg, transparent 0, rgba(233, 237, 246, 0.018) 1px, transparent 1px);
     background-size: 28px 28px;
-    opacity: 0.36;
+    opacity: 0.12;
     pointer-events: none;
     mask-image: linear-gradient(135deg, #000 0%, transparent 72%);
+    transition: opacity 0.2s ease;
+  }
+
+  .project-rail .project-card:hover::before,
+  .project-rail .project-card.is-selected::before {
+    opacity: 0.36;
   }
 
   .project-rail .project-card::after {
@@ -1678,7 +1895,7 @@
 
   .tag {
     border: 1px solid rgba(233, 237, 246, 0.12);
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     padding: 3px 8px;
     color: var(--ink-faint);
     font-family: var(--font-mono);
@@ -1692,7 +1909,7 @@
     margin-top: 22px;
     padding: 22px;
     border: 1px solid rgba(52, 224, 201, 0.2);
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     background: rgba(7, 9, 15, 0.28);
     animation: pane-in 0.28s ease both;
   }
@@ -1738,7 +1955,7 @@
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
     border: 1px solid var(--glass-edge);
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     padding: 9px 16px;
     cursor: pointer;
   }
@@ -1749,7 +1966,7 @@
     margin: 0 0 8px;
     color: var(--signal);
     font-family: var(--font-mono);
-    font-size: 0.67rem;
+    font-size: 0.66rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
   }
@@ -1794,7 +2011,7 @@
     margin: 18px 0;
     overflow: hidden;
     border: 1px solid var(--glass-edge);
-    border-radius: 14px;
+    border-radius: var(--radius-md);
     background:
       radial-gradient(circle at 50% 48%, rgba(52, 224, 201, 0.16), transparent 18%),
       radial-gradient(circle at 28% 30%, rgba(155, 140, 242, 0.12), transparent 24%),
@@ -1959,7 +2176,7 @@
     min-height: 48px;
     padding: 10px 12px;
     border: 1px solid rgba(52, 224, 201, 0.38);
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     background: rgba(52, 224, 201, 0.12);
     color: var(--ink);
     font: inherit;
@@ -2145,7 +2362,7 @@
     margin-bottom: 3px;
     color: var(--ink-faint);
     font-family: var(--font-mono);
-    font-size: 0.58rem;
+    font-size: 0.6rem;
     letter-spacing: 0.12em;
   }
 
@@ -2184,7 +2401,7 @@
     bottom: 14px;
     color: var(--ink-faint);
     font-family: var(--font-mono);
-    font-size: 0.62rem;
+    font-size: 0.6rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
@@ -2202,7 +2419,7 @@
     margin-bottom: 6px;
     color: var(--signal);
     font-family: var(--font-mono);
-    font-size: 0.61rem;
+    font-size: 0.6rem;
     letter-spacing: 0.15em;
     text-transform: uppercase;
   }
@@ -2218,7 +2435,7 @@
     min-height: 28px;
     padding: 0 9px;
     border: 1px solid rgba(233, 237, 246, 0.11);
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: rgba(255, 255, 255, 0.025);
   }
 
@@ -2299,7 +2516,7 @@
     padding: 11px 12px 10px 34px;
     transform: translate(-50%, -50%);
     border: 1px solid rgba(233, 237, 246, 0.13);
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     background:
       linear-gradient(90deg, rgba(52, 224, 201, 0.055), transparent 42%),
       rgba(8, 11, 18, 0.76);
@@ -2351,7 +2568,7 @@
   .connection-point__index {
     margin-bottom: 5px;
     color: var(--ink-faint);
-    font-size: 0.57rem;
+    font-size: 0.6rem;
   }
 
   .connection-point__title {
@@ -2401,21 +2618,24 @@
     padding: 24px;
     overflow-y: auto;
     transform: translate(-50%, -50%);
-    z-index: 161;
+    /* Unified with .project-overlay / .intake-overlay: same z-index pair
+       (70/75), same 14px panel radius, so all three floating dialogs on
+       the site share one physical spec instead of three. */
+    z-index: 75;
     border: 1px solid rgba(233, 237, 246, 0.16);
-    border-radius: 12px;
+    border-radius: var(--radius-md);
     background: rgba(8, 11, 18, 0.94);
     backdrop-filter: blur(28px) saturate(1.1);
     -webkit-backdrop-filter: blur(28px) saturate(1.1);
     box-shadow: 0 28px 80px rgba(0, 0, 0, 0.58), 0 0 44px rgba(52, 224, 201, 0.06);
-    animation: detail-window-in 0.22s ease both;
+    animation: dialog-in 0.2s ease both;
   }
 
   .connection-detail-backdrop {
     display: block;
     position: fixed;
     inset: 0;
-    z-index: 160;
+    z-index: 70;
     background: rgba(4, 6, 10, 0.28);
     backdrop-filter: blur(2px);
     -webkit-backdrop-filter: blur(2px);
@@ -2430,9 +2650,9 @@
     top: 12px;
     right: 12px;
     width: 30px;
-    height: 30px;
+    height: 28px;
     border: 1px solid var(--glass-edge);
-    border-radius: 50%;
+    border-radius: 4px;
     background: rgba(255, 255, 255, 0.04);
     color: var(--ink-faint);
     font-size: 0.76rem;
@@ -2446,7 +2666,12 @@
     background: rgba(52, 224, 201, 0.08);
   }
 
-  @keyframes detail-window-in {
+  /* Shared entrance animation for all three floating dialogs (project
+     overlay, connection detail overlay, consulting intake overlay) - used
+     to be two near-identical keyframes (detail-window-in / intake-in)
+     defined independently; now there's one, named for what it does rather
+     than which dialog first needed it. */
+  @keyframes dialog-in {
     from { opacity: 0; transform: translate(-50%, calc(-50% + 10px)) scale(0.985); }
     to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
   }
@@ -2487,7 +2712,7 @@
     border-bottom: 1px solid rgba(233, 237, 246, 0.09);
     color: var(--ink-faint);
     font-family: var(--font-mono);
-    font-size: 0.61rem;
+    font-size: 0.6rem;
     letter-spacing: 0.09em;
     text-transform: uppercase;
   }
@@ -2535,8 +2760,19 @@
     margin-top: 18px;
   }
 
+  /* Was: fixed-height .terminal-log (160px, 440px when maximized)
+     inside a block-flow .instrument-body. With little or no scrollback,
+     that fixed box stayed its full height regardless of content, which
+     shoved the prompt row down into empty space below it - worst at the
+     520px maximized size, where the prompt could end up sitting in the
+     middle of the window instead of anchored at the bottom like a real
+     terminal. Flex column + flex:1 on the log means the log always fills
+     whatever room is available (scrolling internally if it overflows) and
+     the prompt row always sits directly under the last line, however
+     little content there is. */
   .terminal-window .instrument-body {
-    display: block;
+    display: flex;
+    flex-direction: column;
     min-height: 0;
     max-height: 230px;
     overflow: hidden;
@@ -2547,12 +2783,9 @@
     max-height: 520px;
   }
 
-  .terminal-window.is-maximized .terminal-log {
-    height: 440px;
-  }
-
   .terminal-log {
-    height: 160px;
+    flex: 1;
+    min-height: 0;
     overflow: auto;
     padding: 16px 18px 8px;
     font-family: var(--font-mono);
@@ -2564,6 +2797,7 @@
 
   .terminal-row {
     display: flex;
+    flex: 0 0 auto;
     align-items: center;
     gap: 8px;
     padding: 0 18px 16px;
@@ -2647,7 +2881,7 @@
     gap: 0;
     margin-top: 12px;
     border: 1px solid var(--glass-edge);
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     overflow: hidden;
     background: rgba(7, 9, 15, 0.18);
   }
@@ -2709,7 +2943,8 @@
   .service-card + .service-card { border-left: 1px solid var(--glass-edge); }
   .service-card::before { content: ''; position: absolute; inset: 0 0 auto; height: 2px; background: linear-gradient(90deg, rgba(52,224,201,.7), rgba(155,140,242,.56), rgba(219,168,106,.44), transparent 78%); opacity: .4; }
   .service-card::after { content: ''; position: absolute; inset: auto 0 0; height: 1px; background: linear-gradient(90deg, rgba(52,224,201,.55), transparent 72%); transform: scaleX(0); transform-origin: left; transition: transform .22s ease; }
-  .service-card:hover, .service-card:focus-visible { padding-left: 20px; background: rgba(255,255,255,.025); outline: none; }
+  .service-card:hover, .service-card:focus-visible { padding-left: 20px; background: rgba(255,255,255,.025); }
+  .service-card:focus-visible { outline: 2px solid var(--signal); outline-offset: -2px; }
   .service-card:hover::after, .service-card:focus-visible::after { transform: scaleX(1); }
   .service-card:nth-child(odd) { border-left: 0; }
   .service-card:nth-child(5) { grid-column: 1 / -1; border-left: 0; }
@@ -2724,7 +2959,7 @@
   .service-detail-head { display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: start; padding-bottom: 18px; border-bottom: 1px solid var(--glass-edge); }
   .service-detail-head h3 { margin: 4px 0 8px; color: var(--ink); font-size: 1.32rem; }
   .service-detail-head p { margin: 0; max-width: 700px; color: var(--ink-dim); line-height: 1.6; }
-  .availability-badge { padding: 7px 10px; border: 1px solid rgba(233,237,246,.16); border-radius: 999px; color: var(--ink-dim); font: .7rem var(--font-mono); white-space: nowrap; }
+  .availability-badge { padding: 7px 10px; border: 1px solid rgba(233,237,246,.16); border-radius: var(--radius-pill); color: var(--ink-dim); font: .7rem var(--font-mono); white-space: nowrap; }
   .fit-panel { padding: 18px; border-left: 2px solid rgba(52,224,201,.62); background: rgba(52,224,201,.04); }
   .fit-panel h4 { margin: 0 0 8px; color: var(--ink); }
   .fit-panel p { margin: 0; color: var(--ink-dim); line-height: 1.55; }
@@ -2825,8 +3060,8 @@
   .contact-intent:first-child { border-top: 0; }
   .contact-intent span:first-child { color: var(--ink-faint); font: 0.68rem var(--font-mono); }
   .contact-intent:hover,
-  .contact-intent:focus-visible,
-  .contact-intent.is-active { color: var(--ink); background: rgba(52, 224, 201, 0.07); outline: none; }
+  .contact-intent.is-active { color: var(--ink); background: rgba(52, 224, 201, 0.07); }
+  .contact-intent:focus-visible { color: var(--ink); background: rgba(52, 224, 201, 0.07); outline: 2px solid var(--signal); outline-offset: -2px; }
   .contact-intent.is-active span:first-child { color: var(--signal); }
 
   .contact-route {
@@ -3019,7 +3254,9 @@
   .intake-overlay-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(4, 6, 10, 0.55);
+    background: rgba(4, 6, 10, 0.28);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
     z-index: 70;
     animation: backdrop-in 0.2s ease both;
   }
@@ -3041,23 +3278,18 @@
     backdrop-filter: blur(30px) saturate(1.1);
     -webkit-backdrop-filter: blur(30px) saturate(1.1);
     border: 1px solid var(--glass-edge);
-    border-radius: 14px;
+    border-radius: var(--radius-md);
     box-shadow: 0 30px 90px -30px rgba(0, 0, 0, 0.65);
     padding: 28px;
-    animation: intake-in 0.2s ease both;
-  }
-
-  @keyframes intake-in {
-    from { transform: translate(-50%, -50%) scale(0.96); opacity: 0; }
-    to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    animation: dialog-in 0.2s ease both;
   }
 
   .intake-close-btn {
     position: absolute;
     top: 14px;
     right: 14px;
-    width: 26px;
-    height: 22px;
+    width: 30px;
+    height: 28px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -3071,10 +3303,90 @@
 
   .intake-close-btn:hover { background: rgba(240, 100, 90, 0.16); color: #f0645a; border-color: rgba(240, 100, 90, 0.3); }
 
+  /* Floating panel for the tesseract's explanation, same rationale/shape as
+     the intake overlay: rendered into #conceptOverlayPortal, a body-level
+     sibling, so a fixed-position dialog isn't trapped inside another
+     backdrop-filter containing block. Deliberately reuses the same spec
+     (radius, blur, shadow, close button) as the project/connection/intake
+     overlays so it reads as "one of the site's real windows," not a
+     one-off popup. */
+  .concept-overlay-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(4, 6, 10, 0.28);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    z-index: 70;
+    animation: backdrop-in 0.2s ease both;
+  }
+
+  .concept-overlay {
+    position: fixed;
+    z-index: 75;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: min(660px, calc(100vw - 32px));
+    max-height: min(84vh, 760px);
+    overflow-y: auto;
+    background: var(--glass);
+    backdrop-filter: blur(30px) saturate(1.1);
+    -webkit-backdrop-filter: blur(30px) saturate(1.1);
+    border: 1px solid var(--glass-edge);
+    border-radius: var(--radius-md);
+    box-shadow: 0 30px 90px -30px rgba(0, 0, 0, 0.65);
+    padding: 28px;
+    animation: dialog-in 0.2s ease both;
+  }
+
+  .concept-overlay h3 {
+    margin: 0 0 4px;
+    font-size: 1.15rem;
+  }
+
+  .concept-overlay .consulting-kicker {
+    margin: 0 0 10px;
+  }
+
+  .concept-overlay p {
+    margin: 0 0 14px;
+    color: var(--ink-dim);
+    line-height: 1.55;
+  }
+
+  .concept-overlay p:last-child {
+    margin-bottom: 0;
+  }
+
+  .concept-overlay p strong {
+    color: var(--ink);
+  }
+
+  .concept-close-btn {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 30px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--glass-edge);
+    border-radius: 4px;
+    color: var(--ink-faint);
+    font-size: 0.7rem;
+    cursor: pointer;
+  }
+
+  .concept-close-btn:hover { background: rgba(240, 100, 90, 0.16); color: #f0645a; border-color: rgba(240, 100, 90, 0.3); }
+
   .project-overlay-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(4, 6, 10, 0.6);
+    background: rgba(4, 6, 10, 0.28);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
     z-index: 70;
     animation: backdrop-in 0.2s ease both;
   }
@@ -3092,9 +3404,9 @@
     backdrop-filter: blur(30px) saturate(1.08);
     -webkit-backdrop-filter: blur(30px) saturate(1.08);
     border: 1px solid var(--glass-edge);
-    border-radius: 14px;
+    border-radius: var(--radius-md);
     box-shadow: 0 34px 100px -32px rgba(0, 0, 0, 0.72);
-    animation: intake-in 0.2s ease both;
+    animation: dialog-in 0.2s ease both;
   }
 
   .project-overlay__bar {
@@ -3134,8 +3446,8 @@
   }
 
   .project-close-btn {
-    width: 26px;
-    height: 22px;
+    width: 30px;
+    height: 28px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -3162,7 +3474,11 @@
 
   @media (prefers-reduced-motion: reduce) {
     .intake-overlay,
-    .intake-overlay-backdrop { animation: none; }
+    .intake-overlay-backdrop,
+    .project-overlay,
+    .project-overlay-backdrop,
+    .concept-overlay,
+    .concept-overlay-backdrop { animation: none; }
   }
 
   .status-row {
@@ -3177,7 +3493,7 @@
 
   .status-row .tag {
     border: 1px solid var(--glass-edge);
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     padding: 3px 10px;
     color: var(--amber);
   }
@@ -3416,8 +3732,7 @@
       padding: 14px 0 0;
     }
     .terminal-window .instrument-body { max-height: 260px; }
-    .terminal-log { height: 190px; }
-    .terminal-window.is-maximized .terminal-log { height: 300px; }
+    .terminal-window.is-maximized .instrument-body { max-height: 380px; }
     .project-rail {
       position: static;
       grid-template-columns: 1fr;
@@ -3507,6 +3822,11 @@
     }
   }
 
+  @media (max-width: 480px) {
+    h1 { font-size: 1.75rem; line-height: 1.26; }
+    .masthead { margin-bottom: 5vh; }
+  }
+
   @keyframes sheet-in {
     from { transform: translateY(18px); opacity: 0; }
     to { transform: none; opacity: 1; }
@@ -3519,31 +3839,78 @@
 
   @media (prefers-reduced-motion: reduce) {
     .connection-detail--overlay,
-    .connection-detail-backdrop { animation: none; }
+    .connection-detail-backdrop,
+    .connection-detail:not(.connection-detail--overlay) { animation: none; }
   }
 </style>
 </head>
 <body>
 
+<noscript>
+  <div style="max-width:720px;margin:10vh auto;padding:0 24px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#e9edf6;background:#07090f;">
+    <h1>Gary Hall: Engineer, tool builder, and student of systems</h1>
+    <p>I learn how things work. Then I build useful things, across enterprise infrastructure, small-business operations, community platforms, and living systems.</p>
+    <h2>Selected projects</h2>
+    <ul>
+      <li><strong>Sweet Beans Systems</strong>: operational clarity, automation, and custom tooling for a small dog-grooming business.</li>
+      <li><strong>Dukes Seafood EOD Assistant</strong>: a Flutter app that turned a slow end-of-day paperwork ritual into a photo and a few numbers.</li>
+      <li><strong>Digital Life Engine</strong>: a deterministic simulation exploring how structure, transport, memory, and reclamation can produce persistent digital life.</li>
+      <li><strong>UCTools</strong>: reusable tooling built from repetitive Cisco UCS infrastructure work.</li>
+    </ul>
+    <h2>Consulting</h2>
+    <p>Websites &amp; visual identity, technical setup and migration, business systems and automation, personal technology help, and botanical sciences. Based in Seattle, with remote support for many projects.</p>
+    <h2>Contact</h2>
+    <p>Email: <a href="mailto:gary@ghallonline.com" style="color:#34e0c9;">gary@ghallonline.com</a></p>
+    <p>This site is an interactive experience that requires JavaScript for its full content. Please enable it for the complete portfolio.</p>
+  </div>
+</noscript>
+
 <div class="field" aria-hidden="true">
   <div class="background-tesseract">
     <canvas id="tesseractCanvas"></canvas>
-    <p class="concept-hud-meta" id="tesseractMeta">seed - &middot; nodes -</p>
   </div>
   <span class="glow glow-a"></span>
   <span class="glow glow-b"></span>
 </div>
 <div class="grain" aria-hidden="true"></div>
+<button type="button" class="tesseract-hud" id="tesseractMeta" aria-label="What the background visualization is">seed - &middot; nodes -</button>
 
 <div class="page">
 
-  <div class="masthead">
+  <p class="visually-hidden" aria-live="polite" id="sectionAnnouncer"></p>
+
+  <header class="masthead">
     <p class="eyebrow"><span class="status-dot" id="statusDot"></span><span class="system-line">gary_hall.system - <span id="statusText">ready</span><span class="terminal-cursor" aria-hidden="true"></span></span></p>
     <h1>I learn how things work.<br>Then I build <span class="accent">useful</span> things.</h1>
     <p class="sub">Engineer, tool builder, and student of systems.</p>
-  </div>
+  </header>
 
+  <main>
   <div class="instrument" id="instrument">
+    <!-- Living Archive, Layer 1: growth bars anchored to the bottom edge
+         of the main window, painted first so everything else in the
+         window (titlebar, nav, viewer content) needs to visually sit in
+         front of it - see the z-index note on .archive-garden below for
+         why DOM order alone wasn't enough for that. Each species is a
+         thin bar that gets taller with its stage, capped with its
+         current-stage glyph, so the whole thing reads as a skyline of
+         plants growing up from underneath the text rather than a status
+         line next to it. No click target, no label on the page itself -
+         type "ascii" in the terminal for what it actually is, and "ascii
+         on"/"ascii off" to toggle it; growth keeps being recorded either
+         way. -->
+    <div class="archive-garden" aria-hidden="true">
+      <div class="archive-plant" data-species="projects"><span class="archive-plant__tip"></span></div>
+      <div class="archive-plant" data-species="ai"><span class="archive-plant__tip"></span></div>
+      <div class="archive-plant" data-species="programming"><span class="archive-plant__tip"></span></div>
+      <div class="archive-plant" data-species="engineering"><span class="archive-plant__tip"></span></div>
+      <div class="archive-plant" data-species="naturalSystems"><span class="archive-plant__tip"></span></div>
+      <div class="archive-plant" data-species="gaming"><span class="archive-plant__tip"></span></div>
+      <div class="archive-plant" data-species="writing"><span class="archive-plant__tip"></span></div>
+      <div class="archive-plant" data-species="knowledge"><span class="archive-plant__tip"></span></div>
+      <div class="archive-plant" data-species="networking"><span class="archive-plant__tip"></span></div>
+      <div class="archive-plant" data-species="security"><span class="archive-plant__tip"></span></div>
+    </div>
     <div class="titlebar">
       <p class="tb-title"><span class="tb-icon" aria-hidden="true">&#9635;</span><span class="tb-label">gary@hall: ~/main</span></p>
       <div class="tb-controls">
@@ -3556,14 +3923,13 @@
     <div class="instrument-body">
     <nav class="directory" aria-label="Sections">
       <p class="directory-label">Directory</p>
-      <button class="cmd is-active" data-pane="origins"><span class="glyph">&gt;</span>origins</button>
+      <button class="cmd" data-pane="origins"><span class="glyph">&gt;</span>origins</button>
       <button class="cmd" data-pane="systems"><span class="glyph">&gt;</span>systems</button>
-      <button class="cmd" data-pane="workshop"><span class="glyph">&gt;</span>workshop</button>
+      <button class="cmd is-active" data-pane="workshop"><span class="glyph">&gt;</span>workshop</button>
       <button class="cmd" data-pane="connections"><span class="glyph">&gt;</span>connections</button>
       <button class="cmd" data-pane="field-notes"><span class="glyph">&gt;</span>field-notes</button>
       <button class="cmd" data-pane="consulting"><span class="glyph">&gt;</span>consulting</button>
       <button class="cmd" data-pane="connect"><span class="glyph">&gt;</span>connect</button>
-      <button class="cmd" data-pane="portal"><span class="glyph">&gt;</span>portal</button>
     </nav>
 
     <div class="viewer"></div>
@@ -3572,7 +3938,7 @@
 
   <button class="reopen" data-reopen-target="instrument" type="button"><span aria-hidden="true">&#9635;</span> reopen gary_hall.system</button>
 
-  <div class="instrument terminal-window" id="terminalInstrument">
+  <div class="instrument terminal-window is-closed" id="terminalInstrument">
     <div class="titlebar">
       <p class="tb-title"><span class="tb-icon" aria-hidden="true">&#9635;</span><span class="tb-label">gary@hall: ~/terminal</span></p>
       <div class="tb-controls">
@@ -3590,7 +3956,7 @@
     </div>
   </div>
 
-  <button class="reopen" data-reopen-target="terminalInstrument" type="button"><span aria-hidden="true">&#9635;</span> reopen gary@hall: ~/terminal</button>
+  <button class="reopen is-visible" data-reopen-target="terminalInstrument" type="button"><span aria-hidden="true">&#9635;</span> reopen gary@hall: ~/terminal</button>
 
   <div class="instrument instrument--draggable instrument--phone no-aura is-closed" id="dukesDemoInstrument">
     <div class="titlebar">
@@ -3615,14 +3981,16 @@
     </div>
     <iframe class="focus-layer__frame" id="focusLayerFrame" title="Workshop project focus view"></iframe>
   </section>
+  </main>
 
-  <p class="note">Built slowly, revised often. This system is alive. Also, an unrepentant One Piece fan.</p>
+  <footer class="note">Built slowly, revised often. This system is alive. Also, an unrepentant One Piece fan.</footer>
 
 </div>
 
 <div id="connectionOverlayPortal"></div>
 <div id="projectOverlayPortal"></div>
 <div id="intakeOverlayPortal"></div>
+<div id="conceptOverlayPortal"></div>
 
 <script>
   const instrument = document.getElementById('instrument');
@@ -3648,8 +4016,8 @@
       title: 'Curiosity first',
       body: [
         'My curiosity started with electronics and a desire to understand what was happening beneath the surface. That led from taking things apart and repairing VCRs and computers to building websites, databases, infrastructure, visual identities, and business tools.',
-        'Much of what I learned came through real work: improving restaurant operations, supporting enterprise technology, designing community platforms, and building systems for my own small business. Each environment taught me the same lesson: a tool is only useful when it fits the people and work around it.',
-        'Plants, fungi, aquatic systems, and controlled growing environments eventually joined that same investigation. Whether I am studying a network, an organization, or an ecosystem, I am usually following the same question: how do the parts work together?',
+        'Much of what I learned came through real work: improving restaurant operations, twelve years across infrastructure and systems roles at Cisco Systems, designing community platforms, and building systems for my own small business. Each environment taught me the same lesson: a tool is only useful when it fits the people and work around it.',
+        'Plants, fungi, aquatic systems, and controlled growing environments eventually joined that same investigation. Not a separate interest - just another system worth getting curious about.',
       ],
       treatment: 'origins',
     },
@@ -3659,7 +4027,7 @@
       body: [
         'I tend to see the world as overlapping systems: infrastructure, businesses, communities, stories, and ecosystems. Each moves information and resources, develops hidden dependencies, and behaves differently when one part changes.',
         'My work usually begins by observing the real process. I look for where information gets lost, where people compensate for unreliable tools, and where small amounts of friction repeatedly consume time. Then I build the smallest useful improvement and refine it through actual use.',
-        'That approach connects projects that otherwise look unrelated: enterprise infrastructure, gaming communities, graphic design, AI assistants, dog-grooming operations, hydroponics, and fungal networks. The materials change, but the practice remains the same: understand the relationships, preserve what works, and improve what does not.',
+        'That approach connects projects that otherwise look unrelated. The materials change, but the practice stays the same: understand the relationships, preserve what works, and improve what does not. Workshop has the specifics.',
       ],
       signals: [
         ['observe', 'Watch the work as it really happens'],
@@ -3674,7 +4042,6 @@
     'field-notes': { label: 'field notes', title: 'Notes from an ongoing investigation' },
     consulting: { label: 'consulting', title: 'Tell me what is tangled' },
     connect: { label: 'connect', title: 'Interesting problems make interesting conversations' },
-    portal: { label: 'portal', title: 'Private tools eventually live here' },
   };
 
   const projects = [
@@ -3793,7 +4160,7 @@
       problem: 'During the early pandemic, people needed local signal, not only national headlines. Public health response also depended on ethically sourced, privacy-aware data that could help reveal symptom clusters and upcoming spikes.',
       built: 'The concept included onboarding, informed consent, location selection, local statistics, symptom reporting, safety tips, and sharing flows. The public repository describes a Flutter app for local COVID stats and anonymous symptom submission.',
       design: 'The design challenge was trust. A health-data tool had to explain consent clearly, keep the interaction simple under stress, and make the local picture legible without turning private symptoms into spectacle.',
-      lessons: 'Crisis tools need speed, but they also need ethics, clarity, and careful credit. The public record does not always capture the full origin story, so this archive preserves my role in the idea and early direction.',
+      lessons: 'Crisis tools need speed, but they also need ethics and clarity. The project was always open-sourced so anyone could use or build on it - the intent was public benefit, not ownership. This archive documents my role in originating the concept and shaping its early direction.',
       tags: ['public health', 'privacy', 'mobile app', 'community data'],
       relatedNotes: ['ethical-health-data', 'hidden-infrastructure'],
       relatedConnections: ['human-systems', 'design', 'engineering'],
@@ -3807,9 +4174,9 @@
       title: 'UCTools',
       status: 'archive',
       summary: 'Built after doing the same engineering work too many times.',
-      overview: 'UCTools grew from repetitive Cisco UCS tasks, operational knowledge, and the belief that engineers should not have to keep solving the same problem from scratch.',
-      problem: 'Recurring engineering work and tribal knowledge kept asking to become reusable.',
-      built: 'Tools that simplified repeatable infrastructure tasks and preserved operational knowledge.',
+      overview: 'UCTools grew out of twelve years at Cisco Systems managing UCS infrastructure at scale - thousands of servers across global data centers - and the belief that engineers should not have to keep solving the same problem from scratch.',
+      problem: 'Recurring engineering work and tribal knowledge kept asking to become reusable: manual cluster builds, hardware alerts triaged by hand, case resolution that depended on someone remembering the last time this happened.',
+      built: 'Automation scripts that cut cluster deployment time by half, a custom cluster-build tool that shaved off another 20%, and a custom UCS hardware alert monitoring tool that improved case-resolution efficiency by roughly 200%.',
       design: 'Engineer experience mattered: the useful tool was the one that reduced friction without hiding the system.',
       lessons: 'Expertise compounds when it becomes a tool other people can use.',
       tags: ['infrastructure', 'automation', 'repeatability'],
@@ -3829,7 +4196,7 @@
       problem: 'Online gaming communities were fragmented across platforms, games, Discord servers, tournament sites, and friend lists. Tournament hosts needed better tools, casual players needed lower-barrier competition, and player history was easy to lose when people moved from game to game.',
       built: 'The system concept included universal gamer profiles, Proof of Gaming records, smart tournaments, match shaping by skill tier, game hubs, a games feed, a marketplace, Bit Tokens, premium events, Bit Academy, bounty loops, and BitBot for Discord-based tournament automation. I designed the ecosystem architecture connecting these parts  -  how sponsors, tournaments, the player base, BitBot automation, and revenue flow all fed back into each other as one system, not separate features.',
       design: 'The core design challenge was making a serious esports system approachable to casual, amateur, and competitive players at the same time. The platform had to support identity, ranking, social discovery, tournament operations, rewards, and privacy without feeling like separate tools duct-taped together.',
-      lessons: 'BitGamer is a useful systems case study because it combines community, incentives, reputation, event operations, APIs, automation, and digital identity. The durable lesson is that shared interests create infrastructure when people need to coordinate repeatedly.',
+      lessons: 'BitGamer is a useful systems case study because it combines community, incentives, reputation, event operations, APIs, automation, and digital identity. The durable lesson is that shared interests create infrastructure when people need to coordinate repeatedly. COVID hit during development and funding dried up before the platform moved past the founding-team stage - the systems thinking behind it still holds up even though the business did not survive.',
       tags: ['esports', 'community', 'tournaments', 'blockchain', 'Discord automation'],
       relatedNotes: ['why-one-piece-works'],
       relatedConnections: ['storytelling', 'human-systems', 'tool-building', 'engineering'],
@@ -3848,7 +4215,7 @@
       problem: 'Competitive gaming communities needed coordination across regions, languages, events, teams, staff roles, and player histories. The system had to make global participation feel organized instead of scattered.',
       built: 'The planning covered browser-language detection, adaptive home pages, dynamic calendars, event countdowns, profiles, gaming resumes, applications, tournament and league workflows, staff processing, notification systems, and an EZLBot for server management, signup, brackets, rooms, permissions, leaderboards, ratings, and moderation support.',
       design: 'The useful design principle was continuity: a gamer should be able to move through events, teams, applications, profiles, and community spaces without relearning the organization every time.',
-      lessons: 'Infrastructure is part of community work. Hardware, servers, identity, schedules, permissions, and communication are all pieces of the same social machine.',
+      lessons: 'Infrastructure is part of community work. Hardware, servers, identity, schedules, permissions, and communication are all pieces of the same social machine. The project wound down after the game that had founded the original community shut down, and the community fragmented without it - a reminder that even the best infrastructure depends on the community it serves still having a reason to gather.',
       tags: ['gaming', 'OpenStack', 'Discord bot', 'infrastructure', 'community'],
       relatedNotes: ['infrastructure-enables-community', 'gamers-need-home'],
       relatedConnections: ['engineering', 'tool-building', 'human-systems'],
@@ -3904,8 +4271,219 @@
     return String(value).replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
   }
 
+  /* ---------- shared dialog helpers (focus trap + inert background) ----------
+     Used by all three floating dialogs (project overlay, connection detail
+     overlay, consulting intake overlay) so Tab can't leave an open dialog,
+     the page behind it can't be reached by mouse or screen reader while
+     it's open, and closing it always sends focus somewhere sensible. */
+  function getFocusable(container) {
+    if (!container) return [];
+    return Array.from(container.querySelectorAll(
+      'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    )).filter((el) => el.offsetParent !== null);
+  }
+
+  function trapDialogTab(event, container) {
+    if (event.key !== 'Tab') return;
+    const focusable = getFocusable(container);
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+
+  // A single state-checking sync rather than separate lock()/unlock() calls:
+  // more than one of these three portals can be involved in the same
+  // navigation (e.g. opening a "related connection" from inside an open
+  // project overlay closes one portal and opens another in the same tick),
+  // so locking/unlocking has to reflect "is anything open right now",
+  // not "the specific call I'm currently on."
+  function syncPageLockState() {
+    const page = document.querySelector('.page');
+    if (!page) return;
+    const anyDialogOpen = [projectOverlayPortal, connectionOverlayPortal, intakeOverlayPortal, conceptOverlayPortal]
+      .some((portal) => portal && portal.innerHTML.trim());
+    if (anyDialogOpen) {
+      page.setAttribute('inert', '');
+      page.setAttribute('aria-hidden', 'true');
+    } else {
+      page.removeAttribute('inert');
+      page.removeAttribute('aria-hidden');
+    }
+  }
+  // Old names kept as thin aliases so every call site below reads clearly
+  // ("lock after opening" / "unlock after closing") while actually sharing
+  // one source of truth for whether .page should be inert.
+  function lockPageBehindDialog() { syncPageLockState(); }
+  function unlockPageBehindDialog() { syncPageLockState(); }
+
   function tagsHtml(tags) {
     return `<div class="tag-row">${tags.map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join('')}</div>`;
+  }
+
+  // ---------- Living Archive, Layer 1: ASCII Garden ----------
+  // A second, independent growth system alongside the tesseract. The
+  // tesseract grows from elapsed time (passive). This grows from what a
+  // visitor actually opens (active) - every distinct project, field note,
+  // or connection they engage with is one unit of real "knowledge," logged
+  // by id so nothing is ever counted twice. Four species for now, mapped to
+  // existing site content rather than a new taxonomy:
+  //   projects        - opening any Workshop project
+  //   ai               - opening a project or note tagged "AI"
+  //   naturalSystems   - opening the Natural Systems connection, or a
+  //                      mycology/botany-tagged field note
+  //   knowledge        - reading any field note
+  //   programming      - opening the Tool Building connection
+  //   engineering      - opening the Engineering connection, or UCTools
+  //   gaming           - opening BitGamer or EZL
+  //   writing          - opening the Storytelling connection, the "Why
+  //                      One Piece works" note, or the onepiece terminal
+  //                      command
+  //   networking       - opening any connection node at all (the
+  //                      Connections pane is, itself, a map of a network)
+  //   security         - the terminal's `sudo` easter egg
+  // Persisted per-browser in localStorage, same mechanism and privacy
+  // posture as the tesseract's elapsedSeconds: nothing sent anywhere,
+  // nothing visible to anyone but the visitor whose browser it lives in.
+  const ARCHIVE_STORAGE_KEY = 'archive:speciesLog:v1';
+  const ARCHIVE_VISIBILITY_KEY = 'archive:visible:v1';
+  const ARCHIVE_SPECIES = [
+    'projects', 'ai', 'naturalSystems', 'knowledge', 'programming',
+    'engineering', 'gaming', 'writing', 'networking', 'security',
+  ];
+
+  // Single-line by design, not multi-line ASCII art - safer across fonts
+  // and screen widths, and "subtle" was an explicit requirement. Each
+  // species keeps its own small character vocabulary so the row reads as
+  // several different things, not one repeated symbol: brackets/hyphens
+  // for mechanical structure, angles/dots for circuitry, soft punctuation
+  // for organic growth, blocks/bars for shelved knowledge, semicolons for
+  // code, right-angle joins for engineering, filled/hollow blocks for
+  // gaming, pilcrows for writing, asterisks for networking, chevrons for
+  // security.
+  const ARCHIVE_GLYPHS = {
+    projects: ['o', '-o-', '+-[#]-+', '+-[#]-[#]-+', '+=[#]=[#]=+'],
+    ai: ['·', '·⌁·', '⌁·[o]·⌁', '╱⌁·[o]·⌁╲', '╱╲⌁‹[o]›⌁╲╱'],
+    naturalSystems: [',', '¬,¬', '¬,.,¬', '¬~.,.~¬', '¬~‾.,,.‾~¬'],
+    knowledge: [':', ':≡:', '[≡]', '▤[≡]▤', '▥▤[≡≡]▤▥'],
+    programming: [';', '<;>', '{;;}', '<{;;}>', '<{;;;}>'],
+    engineering: ['┴', '┴┬', '┼═┼', '┴┼═┼┬', '╪┼═══┼╪'],
+    gaming: ['▮', '▮▯', '◇[▮]◇', '◆◇[▮▯]◇◆', '◆◇◆[▮▯▮]◆◇◆'],
+    writing: ['¶', '¶~', '§[¶]§', '~§[¶¶]§~', '~§~[¶¶¶]~§~'],
+    networking: ['*', '*-*', '*-[+]-*', '*-[+]-[+]-*', '*═[×]═[×]═*'],
+    security: ['^', '/^\\', '[/^\\]', '<[/^\\]>', '«[/^^\\]»'],
+  };
+
+  function loadArchiveLog() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(ARCHIVE_STORAGE_KEY) || '{}');
+      const log = {};
+      ARCHIVE_SPECIES.forEach((species) => {
+        log[species] = Array.isArray(raw[species]) ? raw[species] : [];
+      });
+      return log;
+    } catch (err) {
+      // localStorage can be unavailable in privacy modes; the archive just
+      // stays dormant for that visit rather than erroring.
+      const empty = {};
+      ARCHIVE_SPECIES.forEach((species) => { empty[species] = []; });
+      return empty;
+    }
+  }
+
+  function saveArchiveLog(log) {
+    try {
+      localStorage.setItem(ARCHIVE_STORAGE_KEY, JSON.stringify(log));
+    } catch (err) {
+      // Same privacy-mode allowance as above - fail silently.
+    }
+  }
+
+  // Visibility is a separate flag from the log itself: turning the garden
+  // off with "ascii off" hides it, but exploration keeps being recorded
+  // underneath, so turning it back on later picks up right where the
+  // growth actually is rather than resetting.
+  function loadArchiveVisibility() {
+    try {
+      const raw = localStorage.getItem(ARCHIVE_VISIBILITY_KEY);
+      return raw === null ? false : raw === 'true';
+    } catch (err) {
+      return false;
+    }
+  }
+
+  function saveArchiveVisibility(visible) {
+    try {
+      localStorage.setItem(ARCHIVE_VISIBILITY_KEY, String(visible));
+    } catch (err) {
+      // Same privacy-mode allowance as above - fail silently.
+    }
+  }
+
+  function archiveStage(count) {
+    if (count <= 0) return 0;
+    if (count === 1) return 1;
+    if (count <= 3) return 2;
+    if (count <= 5) return 3;
+    if (count <= 8) return 4;
+    return 5;
+  }
+
+  // Bar heights per stage, 0-5. Small enough at stage 1 to still read as
+  // "just sprouted," tall enough at stage 5 to visibly rise up behind a
+  // couple of lines of body text - the whole point of moving this off the
+  // flat strip was to get real vertical growth, not just a wider glyph.
+  const ARCHIVE_HEIGHTS = [0, 10, 22, 38, 58, 82];
+
+  function renderArchiveGarden() {
+    const garden = document.querySelector('.archive-garden');
+    if (!garden) return;
+    const visible = loadArchiveVisibility();
+    garden.classList.toggle('is-disabled', !visible);
+    if (!visible) return;
+    const log = loadArchiveLog();
+    ARCHIVE_SPECIES.forEach((species) => {
+      const plant = garden.querySelector('.archive-plant[data-species="' + species + '"]');
+      if (!plant) return;
+      const stage = archiveStage(log[species].length);
+      plant.style.height = ARCHIVE_HEIGHTS[stage] + 'px';
+      const tip = plant.querySelector('.archive-plant__tip');
+      if (tip) tip.textContent = stage > 0 ? ARCHIVE_GLYPHS[species][stage - 1] : '';
+    });
+  }
+
+  // Logs are additive and deduplicated by content id - "nothing grows
+  // randomly, everything represents knowledge" only holds if each entry
+  // corresponds to one real, distinct thing the visitor looked at.
+  function logArchiveEvent(species, contentId) {
+    if (!contentId || !ARCHIVE_SPECIES.includes(species)) return;
+    const log = loadArchiveLog();
+    if (!log[species].includes(contentId)) {
+      log[species].push(contentId);
+      saveArchiveLog(log);
+      renderArchiveGarden();
+    }
+  }
+
+  // Exposed so the terminal's "ascii on"/"ascii off" commands can flip
+  // visibility without reaching into this closure directly - same pattern
+  // as window.__windowDrag below.
+  window.__livingArchive = {
+    isEnabled: () => loadArchiveVisibility(),
+    setEnabled(value) {
+      saveArchiveVisibility(value);
+      renderArchiveGarden();
+    },
+  };
+
+  function hasTag(tags, needle) {
+    return Array.isArray(tags) && tags.some((tag) => tag.toLowerCase() === needle.toLowerCase());
   }
 
   function setStatus(text) {
@@ -4021,6 +4599,10 @@
     const selected = selectedProjectId ? projectById(selectedProjectId) : null;
     const projectTone = (status) => {
       const value = status.toLowerCase();
+      // "past" is checked first so labels like "past community work" fall
+      // through to the archive tone instead of matching the "community"
+      // check below and rendering identically to active community work.
+      if (value.includes('past')) return 'archive';
       if (value.includes('current')) return 'current';
       if (value.includes('development')) return 'development';
       if (value.includes('community')) return 'community';
@@ -4055,12 +4637,12 @@
     ].filter(Boolean).join('');
     const projectMeta = `<div class="project-meta-bar"><p class="signal-label">${escapeHtml(project.status)}</p>${relatedMenus}</div>`;
     const projectLinks = [
-      project.focusUrl ? `<button class="project-destination" data-open-focus="${escapeHtml(project.focusUrl)}" data-focus-title="${escapeHtml(project.title)}" type="button"><span class="project-destination__icon">&#9655;</span><span>Open interactive project</span><span class="project-destination__arrow">&rarr;</span></button>` : '',
+      project.focusUrl ? `<button class="project-destination" data-open-focus="${escapeHtml(project.focusUrl)}" data-focus-title="${escapeHtml(project.title)}" data-focus-project="${escapeHtml(project.id)}" type="button"><span class="project-destination__icon">&#9655;</span><span>Open interactive project</span><span class="project-destination__arrow">&rarr;</span></button>` : '',
       project.demoUrl ? `<button class="project-destination" data-open-demo="${escapeHtml(project.demoUrl)}" type="button"><span class="project-destination__icon">&#9655;</span><span>Launch interactive demo</span><span class="project-destination__arrow">&rarr;</span></button>` : '',
       project.externalUrl ? `<a class="project-destination" href="${escapeHtml(project.externalUrl)}" target="_blank" rel="noopener"><span class="project-destination__icon">&#8599;</span><span>Visit project website</span><span class="project-destination__arrow">new tab</span></a>` : '',
     ].filter(Boolean).join('');
     const link = projectLinks ? `<div class="project-destinations"><p class="project-destinations__label">Open project</p>${projectLinks}</div>` : '';
-    const image = project.image ? `<img class="project-mark" src="${escapeHtml(project.image)}" alt="${escapeHtml(project.imageAlt || '')}">` : '';
+    const image = project.image ? `<img class="project-mark" src="${escapeHtml(project.image)}" alt="${escapeHtml(project.imageAlt || '')}" width="88" height="88" loading="lazy">` : '';
     const visual = project.visual === 'dle' ? `<figure class="project-visual project-visual--dle"><img src="${escapeHtml(project.visualImage)}" alt="Digital Life Engine visualization showing a luminous evolving network around a tesseract core" onerror="this.closest('figure').hidden=true"><figcaption class="project-visual-label">concept visualization · current build in development</figcaption></figure>` : '';
     return `<div class="detail-panel workshop-detail" tabindex="-1">${projectMeta}${image}<h3>${escapeHtml(project.title)}</h3><p class="detail-summary">${escapeHtml(project.summary)}</p>${visual}<div class="detail-section-grid">${sectionsHtml}</div>${tagsHtml(project.tags)}${link}</div>`;
   }
@@ -4071,15 +4653,27 @@
   function openProjectOverlay(projectId) {
     const project = projectById(projectId);
     if (!project || !projectOverlayPortal) return;
-    projectOverlayPortal.innerHTML = `<div class="project-overlay-backdrop" data-close-project></div><article class="project-overlay" role="dialog" aria-modal="true" aria-label="${escapeHtml(project.title)} project file" tabindex="-1"><div class="project-overlay__bar"><p class="project-overlay__title">gary@hall: ~/workshop/${escapeHtml(project.id)}</p><button class="project-close-btn" data-close-project type="button" aria-label="Close project file">&#10005;</button></div>${renderProjectDetail(project)}</article>`;
-    requestAnimationFrame(() => projectOverlayPortal.querySelector('.project-overlay')?.focus({ preventScroll: true }));
+    logArchiveEvent('projects', project.id);
+    if (hasTag(project.tags, 'AI')) logArchiveEvent('ai', project.id);
+    if (project.id === 'bit-gamer' || project.id === 'ezl') logArchiveEvent('gaming', project.id);
+    if (project.id === 'uctools') logArchiveEvent('engineering', project.id);
+    projectOverlayPortal.innerHTML = `<div class="project-overlay-backdrop" data-close-project></div><article class="project-overlay" role="dialog" aria-modal="true" aria-label="${escapeHtml(project.title)} project file" data-project-id="${escapeHtml(project.id)}" tabindex="-1"><div class="project-overlay__bar"><p class="project-overlay__title">gary@hall: ~/workshop/${escapeHtml(project.id)}</p><button class="project-close-btn" data-close-project type="button" aria-label="Close project file">&#10005;</button></div>${renderProjectDetail(project)}</article>`;
+    lockPageBehindDialog();
+    const dialog = projectOverlayPortal.querySelector('.project-overlay');
+    dialog?.addEventListener('keydown', (event) => trapDialogTab(event, dialog));
+    requestAnimationFrame(() => dialog?.focus({ preventScroll: true }));
   }
 
   function closeProjectOverlay() {
     if (!projectOverlayPortal || !projectOverlayPortal.innerHTML) return;
+    const triggerId = projectOverlayPortal.querySelector('.project-overlay')?.dataset.projectId;
     projectOverlayPortal.innerHTML = '';
+    unlockPageBehindDialog();
     if (location.hash.startsWith('#workshop/')) setHash(['workshop'], false);
     viewer.querySelector('.project-card.is-selected')?.classList.remove('is-selected');
+    const trigger = triggerId ? viewer.querySelector('[data-project="' + triggerId + '"]') : null;
+    if (trigger) trigger.focus({ preventScroll: true });
+    else viewer.querySelector('.project-kicker, h2')?.focus?.({ preventScroll: true });
   }
 
   projectOverlayPortal?.addEventListener('click', (event) => {
@@ -4102,17 +4696,35 @@
     // node click or deep link) - show just the list rather than assuming
     // "systems" is what the visitor wants to see first.
     const selected = selectedId ? connectionById(selectedId) : null;
+    if (selected) {
+      // Every connection opened counts toward "networking" - the
+      // Connections pane is, itself, a map of a network - plus whichever
+      // more specific species that particular node maps to.
+      logArchiveEvent('networking', selected.id);
+      if (selected.id === 'natural-systems') logArchiveEvent('naturalSystems', selected.id);
+      if (selected.id === 'tool-building') logArchiveEvent('programming', selected.id);
+      if (selected.id === 'engineering') logArchiveEvent('engineering', selected.id);
+      if (selected.id === 'storytelling') logArchiveEvent('writing', selected.id);
+    }
     const related = selected ? new Set([selected.id, ...selected.links]) : null;
+    // Three columns, three nodes each: center (systems/design/natural-systems),
+    // left (tool-building/human-systems/engineering), right (small-business/
+    // storytelling/3d-design). The first pass at this gave every column the
+    // same 20/49/78 rhythm, which snapped the whole thing into a rigid 3x3
+    // grid - every row lined up perfectly straight across, which read as a
+    // spreadsheet instead of a constellation. Left, right, and center now
+    // each use their own offsets so the three nodes-per-side balance holds
+    // without the rows visually aligning into a grid.
     const positions = {
       systems: [50, 48],
-      'tool-building': [20, 28],
+      'tool-building': [20, 25],
       design: [50, 17],
-      engineering: [20, 70],
+      engineering: [20, 75],
       'natural-systems': [50, 83],
-      '3d-design': [84, 80],
-      'human-systems': [84, 28],
-      'small-business': [84, 48],
-      storytelling: [84, 66],
+      '3d-design': [84, 74],
+      'human-systems': [20, 39],
+      'small-business': [84, 30],
+      storytelling: [84, 58],
     };
     const tones = {
       systems: 'signal',
@@ -4154,9 +4766,9 @@
       const noteGroup = detailNotes ? `<div class="related-navigation"><p class="related-navigation__label">Field notes · opens a note</p><div class="action-grid">${detailNotes}</div></div>` : '';
       const selectedIndex = connectionNodes.findIndex((node) => node.id === selected.id) + 1;
       const detailBody = `<div class="connection-detail__meta"><span>node ${String(selectedIndex).padStart(2, '0')}</span><span>${selected.links.length} direct links</span></div><p class="connection-detail__kicker">selected connection</p><h3>${escapeHtml(selected.title)}</h3><p class="connection-detail__summary">${escapeHtml(selected.summary)}</p><p class="connection-detail__prompt">How does this system work? Where does information move? What makes it resilient? What emerges from the interactions?</p><div class="tag-row">${selected.links.map((id) => `<span class="tag">${escapeHtml(connectionById(id)?.title || id)}</span>`).join('')}</div>${projectGroup}${noteGroup}`;
-      portalContent = `<div class="connection-detail-backdrop" data-close-detail></div><div class="connection-detail connection-detail--overlay" role="dialog" aria-modal="true" aria-label="${escapeHtml(selected.title)} details" tabindex="-1"><button class="connection-min-btn" data-close-detail type="button" aria-label="Close details">&#10005;</button>${detailBody}</div>`;
+      portalContent = `<div class="connection-detail-backdrop" data-close-detail></div><div class="connection-detail connection-detail--overlay" role="dialog" aria-modal="true" aria-label="${escapeHtml(selected.title)} details" data-connection-id="${escapeHtml(selected.id)}" tabindex="-1"><button class="connection-min-btn" data-close-detail type="button" aria-label="Close details">&#10005;</button>${detailBody}</div>`;
     }
-    renderShell('connections', sections.connections.title, `<div class="connection-map-header"><p><span class="connection-map-header__eyebrow">relationship atlas</span>Enterprise infrastructure, dog grooming, graphic design, living systems, artificial intelligence, and storytelling all ask different versions of the same questions.</p><div class="connection-map-stats"><span class="connection-map-stat"><strong>${connectionNodes.length}</strong>&nbsp;nodes</span><span class="connection-map-stat">hover to trace</span></div></div><div class="relation-layout"><div class="connection-field"><div class="connection-field__bar"><span>connection topology</span><span class="connection-field__status">${selected ? 'signal isolated' : 'all signals visible'}</span></div><div class="connection-constellation" data-connection-constellation><svg class="connection-constellation__geometry" aria-hidden="true">${edges}</svg>${nodes}<span class="connection-legend">shared ideas / working patterns</span></div></div></div>`);
+    renderShell('connections', sections.connections.title, `<div class="connection-map-header"><p><span class="connection-map-header__eyebrow">relationship atlas</span>Enterprise infrastructure, dog grooming, graphic design, living systems, artificial intelligence, and storytelling all ask different versions of the same questions.</p><div class="connection-map-stats"><span class="connection-map-stat"><strong>${connectionNodes.length}</strong>&nbsp;nodes</span><span class="connection-map-stat">select a node to trace</span></div></div><div class="relation-layout"><div class="connection-field"><div class="connection-field__bar"><span>connection topology</span><span class="connection-field__status">${selected ? 'signal isolated' : 'all signals visible'}</span></div><div class="connection-constellation" data-connection-constellation><svg class="connection-constellation__geometry" aria-hidden="true">${edges}</svg>${nodes}<span class="connection-legend">shared ideas / working patterns</span></div></div></div>`);
 
     const constellation = viewer.querySelector('[data-connection-constellation]');
     constellation?.addEventListener('pointerover', (event) => {
@@ -4187,8 +4799,11 @@
     if (connectionOverlayPortal) {
       connectionOverlayPortal.innerHTML = portalContent;
       if (selected) {
+        lockPageBehindDialog();
+        const dialog = connectionOverlayPortal.querySelector('.connection-detail--overlay');
+        dialog?.addEventListener('keydown', (event) => trapDialogTab(event, dialog));
         requestAnimationFrame(() => {
-          connectionOverlayPortal.querySelector('.connection-detail--overlay')?.focus({ preventScroll: true });
+          dialog?.focus({ preventScroll: true });
         });
       }
     }
@@ -4196,9 +4811,12 @@
 
   function closeConnectionDetail() {
     if (!connectionOverlayPortal) return;
+    const triggerId = connectionOverlayPortal.querySelector('.connection-detail--overlay')?.dataset.connectionId;
     connectionOverlayPortal.innerHTML = '';
+    unlockPageBehindDialog();
     if (location.hash.startsWith('#connections/')) setHash(['connections'], false);
     renderConnections();
+    if (triggerId) viewer.querySelector('[data-connection="' + triggerId + '"]')?.focus({ preventScroll: true });
   }
 
   connectionOverlayPortal?.addEventListener('click', (event) => {
@@ -4216,6 +4834,11 @@
 
   function renderFieldNotes(selectedId) {
     const selected = noteById(selectedId) || fieldNotes[0];
+    if (noteById(selectedId)) {
+      logArchiveEvent('knowledge', selected.id);
+      if (hasTag(selected.tags, 'mycology') || hasTag(selected.tags, 'botany')) logArchiveEvent('naturalSystems', selected.id);
+      if (selected.id === 'why-one-piece-works') logArchiveEvent('writing', selected.id);
+    }
     const notes = fieldNotes.map((note, index) => `<button class="note-entry ${selected.id === note.id ? 'is-selected' : ''}" data-note="${note.id}" type="button" aria-pressed="${selected.id === note.id}"><span class="note-entry__number">${String(index + 1).padStart(2, '0')}</span><strong>${escapeHtml(note.title)}</strong><small>${escapeHtml(note.status)}</small></button>`).join('');
     const reading = `<article class="note-reading" tabindex="-1"><div class="note-reading__top"><span>selected observation</span><span>${escapeHtml(selected.status)}</span></div><h3>${escapeHtml(selected.title)}</h3><p class="note-reading__observation">${escapeHtml(selected.observation)}</p><p class="note-reading__body">${escapeHtml(selected.body)}</p>${tagsHtml(selected.tags)}<div class="note-context"><span><strong>related system</strong> / ${escapeHtml(selected.relatedConnection)}</span><span><strong>originating work</strong> / ${escapeHtml(selected.relatedProject)}</span></div></article>`;
     renderShell('field notes', sections['field-notes'].title, `<div class="notes-console"><div class="notes-lede"><p>Short observations gathered while building, maintaining, and watching systems. They are not polished articles. They are working thoughts worth keeping visible.</p><div class="notes-lede__meta"><div>${fieldNotes.length} entries in the current log</div><div>select a signal to read</div></div></div><div class="notes-ledger"><div class="notes-index" aria-label="Field note index">${notes}</div>${reading}</div></div>`);
@@ -4238,20 +4861,61 @@
     return `<form class="intake-form" action="mailto:gary@ghallonline.com?subject=Consulting%20inquiry%3A%20${encodeURIComponent(serviceName)}" method="post" enctype="text/plain"><div class="intake-grid"><label>Name<input name="name" autocomplete="name" required></label><label>Email<input name="email" type="email" autocomplete="email" required></label><label>Phone (optional)<input name="phone" type="tel" autocomplete="tel"></label><label>Preferred reply<select name="preferred_reply"><option>Email</option><option>Phone</option><option>Text</option></select></label><label class="wide-field">Service<input name="service" value="${escapeHtml(serviceName)}" readonly></label><label class="wide-field">What do you need help with?<textarea name="request" required></textarea></label><label class="wide-field">What is happening now, and what would a useful result look like?<textarea name="context"></textarea></label><label>Location<input name="location" placeholder="City or remote"></label><label>Timeline<select name="timeline"><option value="">Flexible / not sure</option><option>As soon as possible</option><option>This month</option><option>Next 1–3 months</option><option>Exploring for later</option></select></label></div><button class="project-destination intake-destination" type="submit"><span class="project-destination__icon">&#8599;</span><span>Prepare inquiry email</span><span class="project-destination__arrow">continue &rarr;</span></button><p class="links">Gary will review your request and reply by your preferred method within 2–3 business days. A simple first conversation is free. If investigation or an on-site assessment is needed, you will be told before paid work begins.</p></form>`;
   }
 
+  let intakeTriggerEl = null;
+
   function openIntakeOverlay(serviceId) {
     if (!intakeOverlayPortal) return;
-    intakeOverlayPortal.innerHTML = `<div class="intake-overlay-backdrop" data-close-intake></div><div class="intake-overlay" tabindex="-1"><button class="intake-close-btn" data-close-intake type="button" aria-label="Close">&#10005;</button><p class="consulting-kicker">guided inquiry</p><h3>Tell me what you need help with.</h3>${intakeFormHtml(serviceId || activeConsultingService)}</div>`;
-    requestAnimationFrame(() => intakeOverlayPortal.querySelector('.intake-overlay')?.focus({ preventScroll: true }));
+    // The consulting pane behind this overlay isn't re-rendered while it's
+    // open, so (unlike the project/connection overlays) the button that
+    // triggered this is still in the DOM when we close - just remember it.
+    intakeTriggerEl = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    intakeOverlayPortal.innerHTML = `<div class="intake-overlay-backdrop" data-close-intake></div><div class="intake-overlay" role="dialog" aria-modal="true" aria-label="Consulting inquiry form" tabindex="-1"><button class="intake-close-btn" data-close-intake type="button" aria-label="Close">&#10005;</button><p class="consulting-kicker">guided inquiry</p><h3>Tell me what you need help with.</h3>${intakeFormHtml(serviceId || activeConsultingService)}</div>`;
+    lockPageBehindDialog();
+    const dialog = intakeOverlayPortal.querySelector('.intake-overlay');
+    dialog?.addEventListener('keydown', (event) => trapDialogTab(event, dialog));
+    requestAnimationFrame(() => dialog?.focus({ preventScroll: true }));
   }
 
   function closeIntakeOverlay() {
     if (!intakeOverlayPortal || !intakeOverlayPortal.innerHTML) return;
     intakeOverlayPortal.innerHTML = '';
+    unlockPageBehindDialog();
     if (location.hash.startsWith('#consulting')) setHash(['consulting'], false);
+    intakeTriggerEl?.focus({ preventScroll: true });
+    intakeTriggerEl = null;
   }
 
   intakeOverlayPortal?.addEventListener('click', (event) => {
     if (event.target.closest('[data-close-intake]')) closeIntakeOverlay();
+  });
+
+  const conceptOverlayPortal = document.getElementById('conceptOverlayPortal');
+  let conceptTriggerEl = null;
+
+  function conceptOverlayHtml() {
+    return `<div class="concept-overlay-backdrop" data-close-concept></div><div class="concept-overlay" role="dialog" aria-modal="true" aria-label="What the background visualization is" tabindex="-1"><button class="concept-close-btn" data-close-concept type="button" aria-label="Close">&#10005;</button><p class="consulting-kicker">hidden system</p><h3>The tesseract is not decoration</h3><p>The shape rotating behind every page on this site is a small, real simulation, not a video or a loop. It is a live, running preview of <strong>Digital Life Engine</strong>, a project exploring whether structure, memory, and reclamation can produce something that behaves like it is alive.</p><p>Its core turns on a fixed, deterministic seed: the same shape, unfolding the same way, forever. That part is mine. It does not change based on who is looking, only on how long it has been left to run - the same way twelve years at Cisco or a rebuilt dog-grooming business are both just the same practice, applied for a long time.</p><p>The mesh growing around that core is different. It densifies the longer <strong>you</strong> personally spend on this site, session by session, and it remembers you specifically: stored only in your own browser, never sent anywhere. Close the tab and come back next month and it will have kept growing exactly where you left it. Clear your browser data and it starts over. I never see any of this. It is yours, not mine.</p><p>There is a third clock too, ticking quietly in the corner: how long this domain has actually existed, second by second, since July 2006.</p><p>Three different kinds of time, all running at once, all real. Most systems work exactly like this. You just do not usually get to see all three clocks at the same time.</p></div>`;
+  }
+
+  function openConceptOverlay() {
+    if (!conceptOverlayPortal) return;
+    conceptTriggerEl = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    conceptOverlayPortal.innerHTML = conceptOverlayHtml();
+    lockPageBehindDialog();
+    const dialog = conceptOverlayPortal.querySelector('.concept-overlay');
+    dialog?.addEventListener('keydown', (event) => trapDialogTab(event, dialog));
+    requestAnimationFrame(() => dialog?.focus({ preventScroll: true }));
+  }
+
+  function closeConceptOverlay() {
+    if (!conceptOverlayPortal || !conceptOverlayPortal.innerHTML) return;
+    conceptOverlayPortal.innerHTML = '';
+    unlockPageBehindDialog();
+    conceptTriggerEl?.focus({ preventScroll: true });
+    conceptTriggerEl = null;
+  }
+
+  conceptOverlayPortal?.addEventListener('click', (event) => {
+    if (event.target.closest('[data-close-concept]')) closeConceptOverlay();
   });
 
   function renderConsulting(detail) {
@@ -4315,13 +4979,13 @@
   }
 
   function renderConnect() {
-    renderShell('connect', sections.connect.title, `<div class="connect-console"><div class="connect-lede"><p class="connect-lede__statement">You do not need a polished brief. Start with the thing that feels <em>stuck, strange, or worth building.</em></p><p class="connect-lede__meta"><strong>Based in Seattle</strong><span>Local and remote conversations welcome.</span><span>Typical reply: 2–3 business days.</span></p></div><div class="contact-router"><div class="contact-intents" role="tablist" aria-label="What would you like to discuss?"><button class="contact-intent is-active" data-contact-topic="help" role="tab" aria-selected="true" type="button"><span>01</span><span>I need help with something</span></button><button class="contact-intent" data-contact-topic="collaborate" role="tab" aria-selected="false" type="button"><span>02</span><span>I want to collaborate</span></button><button class="contact-intent" data-contact-topic="conversation" role="tab" aria-selected="false" type="button"><span>03</span><span>I just want to talk shop</span></button></div><div class="contact-route" data-contact-route aria-live="polite"></div></div><p class="contact-footnote">A simple first conversation is free. If your request requires investigation, account access, or an on-site assessment, I will explain any cost before paid work begins.</p></div>`);
+    renderShell('connect', sections.connect.title, `<div class="connect-console"><div class="connect-lede"><p class="connect-lede__statement">You do not need a polished brief. Start with the thing that feels <em>stuck, strange, or worth building.</em></p><p class="connect-lede__meta"><strong>Based in Seattle</strong><span>Local and remote conversations welcome.</span><span>Typical reply: 2–3 business days.</span></p></div><div class="project-destinations"><p class="project-destinations__label">Hiring, or just want my background?</p><a class="project-destination contact-destination" href="assets/gary-hall-resume-2026.pdf" target="_blank" rel="noopener"><span class="project-destination__icon">&#8599;</span><span>Resume (PDF)</span><span class="project-destination__arrow">open &rarr;</span></a></div><div class="contact-router"><div class="contact-intents" role="group" aria-label="What would you like to discuss?"><button class="contact-intent is-active" data-contact-topic="help" aria-pressed="true" type="button"><span>01</span><span>I need help with something</span></button><button class="contact-intent" data-contact-topic="collaborate" aria-pressed="false" type="button"><span>02</span><span>I want to collaborate</span></button><button class="contact-intent" data-contact-topic="conversation" aria-pressed="false" type="button"><span>03</span><span>I just want to talk shop</span></button></div><div class="contact-route" data-contact-route aria-live="polite"></div></div><p class="contact-footnote">A simple first conversation is free. If your request requires investigation, account access, or an on-site assessment, I will explain any cost before paid work begins.</p></div>`);
     updateContactRoute('help');
   }
 
   const contactRoutes = {
     help: {
-      title: 'Tell me what is not working—or what you wish worked better.',
+      title: 'Tell me what is not working, or what you wish worked better.',
       body: 'This can be a website, a workflow, a technical problem, a growing system, or something that does not fit a neat category.',
       prompt: 'A useful first message includes what you are trying to do, what is getting in the way, and whether there is a deadline.',
       subject: 'Help with a project or problem'
@@ -4348,12 +5012,8 @@
     viewer.querySelectorAll('[data-contact-topic]').forEach((button) => {
       const active = button.dataset.contactTopic === topic;
       button.classList.toggle('is-active', active);
-      button.setAttribute('aria-selected', String(active));
+      button.setAttribute('aria-pressed', String(active));
     });
-  }
-
-  function renderPortal() {
-    renderShell('portal', sections.portal.title, '<div class="portal-box"><p>Portal currently under construction.</p><p>Future home for client dashboards, project information, private tools, forms, and experiments.</p></div>');
   }
 
   function updateActiveNav(section) {
@@ -4367,14 +5027,15 @@
   }
 
   function openSection(section, detail, replaceHash) {
-    const normalized = sections[section] ? section : 'origins';
+    const normalized = sections[section] ? section : 'workshop';
     updateActiveNav(normalized);
+    const announcer = document.getElementById('sectionAnnouncer');
+    if (announcer) announcer.textContent = 'Now viewing: ' + (sections[normalized]?.label || normalized);
     if (normalized === 'workshop') renderWorkshop(detail);
     else if (normalized === 'connections') renderConnections(detail);
     else if (normalized === 'field-notes') renderFieldNotes(detail);
     else if (normalized === 'consulting') renderConsulting(detail);
     else if (normalized === 'connect') renderConnect();
-    else if (normalized === 'portal') renderPortal();
     else renderBasicSection(normalized);
     // The connection detail overlay lives in a portal outside .instrument
     // (see the note on .connection-detail--overlay) so it survives normal
@@ -4383,6 +5044,15 @@
     if (normalized !== 'connections' && connectionOverlayPortal) connectionOverlayPortal.innerHTML = '';
     if (normalized !== 'workshop' && projectOverlayPortal) projectOverlayPortal.innerHTML = '';
     if (normalized !== 'consulting' && intakeOverlayPortal) intakeOverlayPortal.innerHTML = '';
+    // The concept overlay isn't tied to any one pane (its trigger is a
+    // fixed HUD button present everywhere), so it always closes on
+    // navigation rather than only when leaving a specific section.
+    if (conceptOverlayPortal) conceptOverlayPortal.innerHTML = '';
+    // Any of the three overlay portals above may have left .page locked
+    // with inert/aria-hidden (see lockPageBehindDialog). They were just
+    // cleared directly rather than through their close*() functions, so
+    // make sure that lock always gets released on every section change.
+    unlockPageBehindDialog();
     setStatus('syncing');
     setHash([normalized, detail], replaceHash);
     if (detail) {
@@ -4395,7 +5065,7 @@
 
   function routeFromHash(replace) {
     const [section, detail] = location.hash.replace(/^#/, '').split('/');
-    openSection(section || 'origins', detail, replace);
+    openSection(section || 'workshop', detail, replace);
   }
 
   viewer.addEventListener('click', (event) => {
@@ -4429,6 +5099,7 @@
     if (panel) closeConnectionDetail();
     if (projectOverlayPortal?.querySelector('.project-overlay')) closeProjectOverlay();
     if (intakeOverlayPortal?.querySelector('.intake-overlay')) closeIntakeOverlay();
+    if (conceptOverlayPortal?.querySelector('.concept-overlay')) closeConceptOverlay();
   });
 
   document.querySelectorAll('.cmd').forEach((btn) => {
@@ -4486,23 +5157,64 @@
   }
 
   const terminalCommands = {
-    help: () => 'available commands:\n\nhelp\nabout\nls\nopen <section>\nprojects\nopen <project>\ninterests\nconnect <topic>\nnow\ncontact\nclear\ndrag / drag on / drag off',
+    help: () => {
+      // Grouped and column-aligned rather than one flat list - this has
+      // grown past the point where a bare list of names stays scannable.
+      // Column width is computed from whatever the longest command
+      // happens to be, so new commands slot in without re-aligning
+      // everything by hand. Hidden commands (onepiece, sudo, and the
+      // rest) stay out of this on purpose - they're meant to be found,
+      // not advertised.
+      const groups = [
+        ['navigation', [
+          ['open <section>', 'jump to a section'],
+          ['open <project>', 'open a specific project file'],
+          ['ls', 'list available sections'],
+          ['connect <topic>', 'see how a topic connects to everything else'],
+        ]],
+        ['info', [
+          ['about', 'who this is, in three lines'],
+          ['projects', 'list every project and its status'],
+          ['interests', 'topics this site orbits around'],
+          ['now', 'what is actively being explored'],
+          ['contact', 'how to reach Gary'],
+        ]],
+        ['system', [
+          ['drag', 'toggle window dragging (drag on / drag off)'],
+          ['ascii', 'the growing garden at a glance - "ascii" for details'],
+          ['clear', 'clear this terminal'],
+          ['help', 'show this list'],
+        ]],
+      ];
+      const width = Math.max(...groups.flatMap(([, cmds]) => cmds.map(([cmd]) => cmd.length))) + 2;
+      return groups
+        .map(([label, cmds]) => label + '\n' + cmds.map(([cmd, desc]) => '  ' + cmd.padEnd(width) + desc).join('\n'))
+        .join('\n\n');
+    },
     drag: () => `window dragging is currently ${window.__windowDrag && window.__windowDrag.isEnabled() ? 'ON' : 'OFF'}\n\nuse "drag on" or "drag off" to change it`,
+    ascii: () => `the growing thing behind this window is the living archive.\n\nit is not a game, a tracker, or decoration. it is a small ecosystem, ten species, one per area of this site: projects, ai, programming, engineering, natural systems, gaming, writing, knowledge, networking, security. opening a project, reading a field note, following a connection - each one plants or grows the matching species a little. nothing is sent anywhere. it lives only in this browser, and only reflects what you, specifically, have actually looked at.\n\ncurrently: ${window.__livingArchive && window.__livingArchive.isEnabled() ? 'ON' : 'OFF'}\nuse "ascii on" or "ascii off" to show or hide it - your growth keeps being recorded either way.`,
     about: () => 'Engineer. Tool builder. Designer. Student of systems.\n\nI learn how things work.\nThen I build useful things.',
-    ls: () => 'origins/\nsystems/\nworkshop/\nconnections/\nfield-notes/\nconsulting/\nconnect/\nportal/',
+    ls: () => 'origins/\nsystems/\nworkshop/\nconnections/\nfield-notes/\nconsulting/\nconnect/',
     projects: () => projects.map((project) => `${project.id.padEnd(22)} ${project.status}`).join('\n'),
     interests: () => 'automation\nartificial-intelligence\nbotany\ndesign\ninfrastructure\nmycology\nrobotics\nstorytelling\nsystems\none-piece',
     now: () => `currently exploring:\n\n${nowItems.map((item) => '- ' + item).join('\n')}`,
     contact: () => 'gary@ghallonline.com',
     whoami: () => 'gary\n\nengineer\ntool builder\ndesigner\nsystems thinker\ncurious observer',
-    onepiece: () => 'Inherited will detected.\n\nThe world is still waiting for the dawn.\n\nAlso: yes, the site owner has opinions about long-form storytelling.',
-    sudo: () => 'Gary is not in the sudoers file.\n\nThis incident will be reported to Gary.',
+    onepiece: () => {
+      logArchiveEvent('writing', 'onepiece-command');
+      return 'Inherited will detected.\n\nThe world is still waiting for the dawn.\n\nAlso: yes, the site owner has opinions about long-form storytelling.';
+    },
+    sudo: () => {
+      logArchiveEvent('security', 'sudo-command');
+      return 'Gary is not in the sudoers file.\n\nThis incident will be reported to Gary.';
+    },
     'make coffee': () => 'coffee subsystem unavailable\n\nrecommended fallback:\n1. locate beans\n2. apply heat\n3. continue debugging',
     'grow mycelium': () => {
       pulseMycelium();
       return 'substrate accepted\nnetwork expansion initiated';
     },
     'rm -rf /': () => 'operation refused\n\nthis system is alive',
+    'all your base are belong to us': () => 'CATS: How are you gentlemen !!\nAll your base are belong to us.\nYou are on the way to destruction.\n\nWhat you say !!\nYou have no chance to survive make your time.\nFor great justice.\n\n(Relax - everything on this page is still Gary’s. Nice try.)',
   };
 
   function executeTerminal(rawCommand) {
@@ -4525,6 +5237,12 @@
       printTerminal(`window dragging ${enabled ? 'enabled' : 'disabled'}`);
       return;
     }
+    if (command === 'ascii on' || command === 'ascii off') {
+      const enabled = command === 'ascii on';
+      if (window.__livingArchive) window.__livingArchive.setEnabled(enabled);
+      printTerminal(`living archive ${enabled ? 'enabled' : 'disabled'}`);
+      return;
+    }
     if (command.startsWith('connect ')) {
       printTerminal(connectedTopic(command.slice(8).trim()));
       return;
@@ -4534,7 +5252,7 @@
   }
 
   terminalInput.addEventListener('keydown', (event) => {
-    const known = ['help', 'about', 'ls', 'open workshop', 'open connections', 'projects', 'interests', 'connect mycology', 'now', 'contact', 'clear', 'onepiece', 'sudo', 'make coffee', 'grow mycelium', 'whoami', 'drag', 'drag on', 'drag off'];
+    const known = ['help', 'about', 'ls', 'open workshop', 'open connections', 'projects', 'interests', 'connect mycology', 'now', 'contact', 'clear', 'onepiece', 'sudo', 'make coffee', 'grow mycelium', 'whoami', 'drag', 'drag on', 'drag off', 'ascii', 'ascii on', 'ascii off'];
     if (event.key === 'Enter') {
       executeTerminal(terminalInput.value);
       terminalInput.value = '';
@@ -4573,7 +5291,14 @@
       const inst = btn.closest('.instrument');
       const action = btn.dataset.action;
       if (action === 'minimize') inst.classList.toggle('is-minimized');
-      if (action === 'maximize') inst.classList.toggle('is-maximized');
+      if (action === 'maximize') {
+        // Clicking maximize on a minimized window ("shrunk") used to be a
+        // no-op: is-maximized would toggle, but is-minimized's
+        // display:none on .instrument-body still won, so nothing visible
+        // happened. Maximize should always bring the window back first.
+        inst.classList.remove('is-minimized');
+        inst.classList.toggle('is-maximized');
+      }
       if (action === 'close') {
         inst.classList.add('is-closed');
         const chip = document.querySelector('.reopen[data-reopen-target="' + inst.id + '"]');
@@ -4606,6 +5331,10 @@
       if (!layer || !frame) return;
       if (!frame.getAttribute('src')) frame.setAttribute('src', focusBtn.dataset.openFocus);
       if (title) title.textContent = `gary@hall: ~/workshop/${focusBtn.dataset.focusTitle || 'project'}`;
+      // Remember which project actually opened this (rather than assuming),
+      // so closing it can restore focus to the right card even if a second
+      // project ever adopts an interactive focusUrl.
+      window.__focusLayerTriggerId = focusBtn.dataset.focusProject || null;
       layer.classList.add('is-open');
       layer.setAttribute('aria-hidden', 'false');
       document.body.classList.add('has-focus-layer');
@@ -4651,7 +5380,10 @@
       layer.classList.remove('is-open');
       layer.setAttribute('aria-hidden', 'true');
       document.body.classList.remove('has-focus-layer');
-      viewer.querySelector('[data-project="bit-gamer"]')?.focus();
+      const triggerId = window.__focusLayerTriggerId;
+      const trigger = triggerId ? viewer.querySelector('[data-project="' + triggerId + '"]') : null;
+      (trigger || viewer.querySelector('.project-card'))?.focus({ preventScroll: true });
+      window.__focusLayerTriggerId = null;
     }
     back.addEventListener('click', closeFocusLayer);
     document.addEventListener('keydown', (event) => {
@@ -5233,8 +5965,34 @@
     };
   }
 
+  /* Domain registered 2006-07-04. Fixed UTC epoch so the readout agrees
+     regardless of a visitor's local timezone. Purely a client-side
+     calculation from a public registration date: no storage, no request,
+     nothing to disclose. */
+  const SITE_EPOCH_MS = Date.UTC(2006, 6, 4);
+  function formatSiteAge() {
+    let totalSeconds = Math.max(0, Math.floor((Date.now() - SITE_EPOCH_MS) / 1000));
+    const years = Math.floor(totalSeconds / (365.2425 * 86400));
+    totalSeconds -= Math.floor(years * 365.2425 * 86400);
+    const days = Math.floor(totalSeconds / 86400);
+    totalSeconds -= days * 86400;
+    const hours = Math.floor(totalSeconds / 3600);
+    totalSeconds -= hours * 3600;
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds - minutes * 60;
+    const pad = (n) => String(n).padStart(2, '0');
+    return years + 'y ' + days + 'd ' + pad(hours) + ':' + pad(minutes) + ':' + pad(seconds);
+  }
+
+  renderArchiveGarden();
+
   const tesseractCanvas = document.getElementById('tesseractCanvas');
   const tesseractMeta = document.getElementById('tesseractMeta');
+
+  if (tesseractMeta) {
+    tesseractMeta.addEventListener('click', () => openConceptOverlay());
+  }
+
   if (tesseractCanvas) {
     const tesseract = LivingTesseract(tesseractCanvas, {
       density: 2.1,
@@ -5248,14 +6006,15 @@
     tesseract.onTick((t, nodeCount) => {
       if (t - lastMetaUpdate > 0.5) {
         lastMetaUpdate = t;
-        tesseractMeta.textContent = 'seed ' + tesseract.seed + ' · nodes ' + (16 + nodeCount);
+        tesseractMeta.textContent = 'seed ' + tesseract.seed + ' · nodes ' + (16 + nodeCount) + ' · online ' + formatSiteAge();
       }
     });
 
     tesseract.start();
-    tesseractMeta.textContent = 'seed ' + tesseract.seed + ' · nodes ' + (16 + tesseract.nodeCount());
+    tesseractMeta.textContent = 'seed ' + tesseract.seed + ' · nodes ' + (16 + tesseract.nodeCount()) + ' · online ' + formatSiteAge();
+  } else if (tesseractMeta) {
+    tesseractMeta.textContent = 'online ' + formatSiteAge();
   }
 </script>
 </body>
 </html>
-    grid-column: 4;
